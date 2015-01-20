@@ -318,6 +318,7 @@ class Mage_Adminhtml_Block_Dashboard_Graph extends Mage_Adminhtml_Block_Dashboar
 
         // return the encoded data
         if ($directUrl) {
+            $p = array();
             foreach ($params as $name => $value) {
                 $p[] = $name . '=' .urlencode($value);
             }

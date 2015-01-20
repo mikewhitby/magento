@@ -32,9 +32,11 @@
                     <ar_MA/><!-- Arabic (Morocco) -->
                     <ar_SA/><!-- Arabic (Saudi Arabia) -->
                     <bg_BG/><!-- Bulgarian (Bulgaria) -->
+                    <bn_BD/><!-- Bengali (Bangladesh) -->
                     <bs_BA/><!-- Bosnian (Bosnia) -->
-                    <ca_ES/><!-- Catalan (Catalania) -->
+                    <ca_ES/><!-- Catalan (Catalonia) -->
                     <cs_CZ/><!-- Czech (Czech Republic) -->
+                    <cy_GB/><!-- Welsh (United Kingdom) -->
                     <da_DK/><!-- Danish (Denmark) -->
                     <de_AT/><!-- German (Austria) -->
                     <de_CH/><!-- German (Switzerland) -->
@@ -211,7 +213,7 @@
                     <NAD/><!-- Namibia Dollar -->
                     <NPR/><!-- Nepalese Rupee -->
                     <ANG/><!-- Netherlands Antillan Guilder -->
-                    <TRY/><!-- New Turkish Lira -->
+                    <YTL/><!-- New Turkish Lira -->
                     <NZD/><!-- New Zealand Dollar -->
                     <NIC/><!-- Nicaraguan Cordoba -->
                     <NGN/><!-- Nigerian Naira -->

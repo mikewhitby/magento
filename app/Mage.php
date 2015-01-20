@@ -81,7 +81,7 @@ final class Mage {
 
     public static function getVersion()
     {
-        return '1.0.19700';
+        return '1.0.19870';
     }
 
     /**
@@ -392,7 +392,7 @@ final class Mage {
      */
     public static function app($code = '', $type = 'store', $options=array())
     {
-        if (is_null(self::$_app)) {
+        if (null === self::$_app) {
             Varien_Profiler::start('app/init');
 
             self::$_app = new Mage_Core_Model_App();
@@ -572,9 +572,15 @@ final class Mage {
             file_put_contents($reportFile, $reportData);
             chmod($reportFile, 0777);
 
+            $storeCode = 'default';
+            try {
+                $storeCode = self::app()->getStore()->getCode();
+            }
+            catch (Exception $e) {}
+
             $baseUrl = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/');
             $reportUrl = $baseUrl . '/report/?id='
-                . $reportId . '&s=' . self::app()->getStore()->getCode();
+                . $reportId . '&s=' . $storeCode;
 
             if (!headers_sent()) {
                 header('Location: ' . $reportUrl);

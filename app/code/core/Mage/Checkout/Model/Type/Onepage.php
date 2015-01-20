@@ -120,16 +120,13 @@ class Mage_Checkout_Model_Type_Onepage
     {
         if (empty($data)) {
             $res = array(
-                'error' => -1,
-                'message' => Mage::helper('checkout')->__('Invalid data')
+                'error'     => -1,
+                'message'   => Mage::helper('checkout')->__('Invalid data')
             );
             return $res;
         }
 
         $address = $this->getQuote()->getBillingAddress();
-
-        // DELETE
-        //print_r($data);
 
         if (!empty($customerAddressId)) {
             $customerAddress = Mage::getModel('customer/address')->load($customerAddressId);
@@ -142,8 +139,8 @@ class Mage_Checkout_Model_Type_Onepage
 
         if (($validateRes = $address->validate())!==true) {
             $res = array(
-                'error' => 1,
-                'message' => $validateRes
+                'error'     => 1,
+                'message'   => $validateRes
             );
             return $res;
         }
@@ -161,39 +158,17 @@ class Mage_Checkout_Model_Type_Onepage
         }
 
         $address->implodeStreetAddress();
-//        if (empty($data['use_for_shipping'])) {
-//            $data['use_for_shipping'] = 0;
-//        }
-//        else {
-//            $data['use_for_shipping'] = 1;
-//        }
-//
-//        if (!empty($data['use_for_shipping'])) {
-//            $billing = clone $address;
-//            $billing->unsEntityId()->unsAddressType();
-//            $shipping = $this->getQuote()->getShippingAddress();
-//            $shipping->addData($billing->getData())
-//                ->setSameAsBilling(1)
-//                ->setCollectShippingRates(true);
-//            $this->getCheckout()->setStepData('shipping', 'complete', true);
-//        } else {
-//            $shipping = $this->getQuote()->getShippingAddress();
-//            $shipping->setSameAsBilling(0);
-//        }
-//
-//        if ($address->getCustomerPassword()) {
-//            $customer = Mage::getModel('customer/customer');
-//            $this->getQuote()->setPasswordHash($customer->encryptPassword($address->getCustomerPassword()));
-//        }
-//
-//        $this->getQuote()->save();
-//
-//        $this->getCheckout()
-//            ->setStepData('billing', 'allow', true)
-//            ->setStepData('billing', 'complete', true)
-//            ->setStepData('shipping', 'allow', true);
 
-        switch((int) $data['pickup_or_use_for_shipping']) {
+        /**
+         * Billing address using otions
+         */
+        $usingCase = isset($data['pickup_or_use_for_shipping']) ? (int) $data['pickup_or_use_for_shipping'] : 0;
+
+        switch($usingCase) {
+            case 0:
+                $shipping = $this->getQuote()->getShippingAddress();
+                $shipping->setSameAsBilling(0);
+                break;
             case 1:
                 $billing = clone $address;
                 $billing->unsEntityId()->unsAddressType();
@@ -203,14 +178,6 @@ class Mage_Checkout_Model_Type_Onepage
                     ->setCollectShippingRates(true);
                 $this->getQuote()->collectTotals();
                 $this->getCheckout()->setStepData('shipping', 'complete', true);
-                break;
-            case 0:
-                $shipping = $this->getQuote()->getShippingAddress();
-                $shipping->setSameAsBilling(0);
-                break;
-            case 2:
-                $shipping = $this->getQuote()->getShippingAddress();
-                $shipping->setSameAsBilling(0);
                 break;
         }
 
