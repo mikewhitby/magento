@@ -92,4 +92,12 @@ class Mage_Adminhtml_Block_Store_Switcher extends Mage_Adminhtml_Block_Template
     {
         return !Mage::app()->isSingleStoreMode();
     }
+
+    protected function _toHtml()
+    {
+        if (!Mage::app()->isSingleStoreMode()) {
+            return parent::_toHtml();
+        }
+        return '';
+    }
 }

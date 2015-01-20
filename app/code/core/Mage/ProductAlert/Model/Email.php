@@ -242,6 +242,10 @@ class Mage_ProductAlert_Model_Email extends Mage_Core_Model_Abstract
         Mage::getDesign()->setStore($storeId);
         Mage::getDesign()->setArea('frontend');
 
+        $translate = Mage::getSingleton('core/translate');
+        /* @var $translate Mage_Core_Model_Translate */
+        $translate->setTranslateInline(false);
+
         if ($this->_type == 'price') {
             $this->_getPriceBlock()->setStoreCode($storeCode);
             foreach ($this->_priceProducts as $product) {
@@ -278,6 +282,9 @@ class Mage_ProductAlert_Model_Email extends Mage_Core_Model_Abstract
                     'alertGrid'     => $block
                 )
             );
+
+        $translate->setTranslateInline(true);
+
         return true;
     }
 }

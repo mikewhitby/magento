@@ -78,7 +78,12 @@ class Varien_Data_Form_Element_Date extends Varien_Data_Form_Element_Abstract
     public function getEscapedValue($index=null) {
 
         if($this->getFormat() && $this->getValue()) {
-            return strftime($this->getFormat(), strtotime($this->getValue()));
+            $timestamp = strtotime($this->getValue());
+            // if (empty($timestamp)) {
+            if (empty($timestamp) || (-1 === $timestamp)) {
+                return '';
+            }
+            return strftime($this->getFormat(), $timestamp);
         }
 
         return htmlspecialchars($this->getValue());

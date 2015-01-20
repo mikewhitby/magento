@@ -57,6 +57,8 @@ class Varien_Object
      */
     protected static $_underscoreCache = array();
 
+    protected static $_camelizeCache = array();
+
     /**
      * Enter description here...
      *
@@ -301,6 +303,19 @@ class Varien_Object
     protected function _getData($key)
     {
         return isset($this->_data[$key]) ? $this->_data[$key] : null;
+    }
+
+    public function setDataUsingMethod($key, $args=array())
+    {
+        $method = 'set'.$this->_camelize($key);
+        $this->$method($args);
+        return $this;
+    }
+
+    public function getDataUsingMethod($key, $args=null)
+    {
+        $method = 'get'.$this->_camelize($key);
+        return $this->$method($args);
     }
 
     /**
@@ -586,6 +601,11 @@ class Varien_Object
         #Varien_Profiler::stop('underscore');
         self::$_underscoreCache[$name] = $result;
         return $result;
+    }
+
+    protected function _camelize($name)
+    {
+        return uc_words($name, '');
     }
 
     /**

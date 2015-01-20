@@ -43,6 +43,7 @@ class Mage_Catalog_Model_Product_Website extends Mage_Core_Model_Abstract
     {
         try {
             $this->_getResource()->removeProducts($websiteIds, $productIds);
+            $this->_refreshRewrites($productsIds);
         }
         catch (Exception $e) {
             Mage::throwException(
@@ -63,6 +64,7 @@ class Mage_Catalog_Model_Product_Website extends Mage_Core_Model_Abstract
     {
         try {
             $this->_getResource()->addProducts($websiteIds, $productsIds);
+            $this->_refreshRewrites($productsIds);
         }
         catch (Exception $e) {
             Mage::throwException(
@@ -72,4 +74,17 @@ class Mage_Catalog_Model_Product_Website extends Mage_Core_Model_Abstract
         return $this;
     }
 
+    /**
+     * Refresh products url rewrites
+     *
+     * @param array $productIds
+     */
+    protected function _refreshRewrites($productIds)
+    {
+        $urlModel = Mage::getModel('catalog/url');
+        /* @var $urlModel Mage_Catalog_Model_Url */
+        foreach ($productIds as $productId) {
+            $urlModel->refreshProductRewrite($productId);
+        }
+    }
 } // Class Mage_Catalog_Model_Product_Website End

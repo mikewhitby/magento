@@ -42,5 +42,24 @@ class Mage_Customer_Model_Entity_Customer_Collection extends Mage_Eav_Model_Enti
             ->group('email.email');
         return $this;
     }
-    
+
+    public function addNameToSelect()
+    {
+        $fields = array();
+        foreach (Mage::getConfig()->getFieldset('customer_account') as $code=>$node) {
+            if ($node->is('name')) {
+                //$this->addAttributeToSelect($code);
+                $fields[$code] = $code;
+            }
+        }
+
+        $expr = 'CONCAT('
+            .(isset($fields['prefix']) ? 'IF({{prefix}} IS NOT NULL, CONCAT({{prefix}}," "), ""),' : '')
+            .'{{firstname}}'.(isset($fields['middlename']) ?  ',IF({{middlename}} IS NOT NULL, CONCAT(" ",{{middlename}}), "")' : '').'," ",{{lastname}}'
+            .(isset($fields['suffix']) ? ',IF({{suffix}} IS NOT NULL, CONCAT(" ",{{suffix}}), "")' : '')
+        .')';
+
+        $this->addExpressionAttributeToSelect('name', $expr, $fields);
+        return $this;
+    }
 }

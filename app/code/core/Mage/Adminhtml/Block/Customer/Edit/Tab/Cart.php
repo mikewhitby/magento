@@ -109,7 +109,7 @@ class Mage_Adminhtml_Block_Customer_Edit_Tab_Cart extends Mage_Adminhtml_Block_W
                 array(
                     'caption' =>  Mage::helper('customer')->__('Delete'),
                     'url'     =>  '#',
-                    'onclick' =>  'return cartControl.removeItem($entity_id);'
+                    'onclick' =>  'return ' . $this->getJsObjectName() . 'cartControl.removeItem($item_id);'
                 )
             )
         ));

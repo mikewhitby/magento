@@ -168,7 +168,7 @@ class Mage_CatalogIndex_Model_Indexer extends Mage_Core_Model_Abstract
     {
         Mage::getSingleton('catalogrule/observer')->flushPriceCache();
         if ($product instanceof Mage_Catalog_Model_Product) {
-        	$productId = $product->getId();
+            $productId = $product->getId();
         } elseif (is_numeric($product)) {
             $productId = $product;
         } else {
@@ -191,17 +191,17 @@ class Mage_CatalogIndex_Model_Indexer extends Mage_Core_Model_Abstract
     {
         $indexableNames = array();
         switch ($reindexType) {
-        	case self::REINDEX_TYPE_ATTRIBUTE:
-        		$indexableNames = $this->_attributeIndexers;
-        		break;
-        	case self::REINDEX_TYPE_PRICE:
-        		$indexableNames = $this->_priceIndexers;
-        		break;
-        	case self::REINDEX_TYPE_ALL:
-        		$indexableNames = array_merge($this->_attributeIndexers, $this->_priceIndexers);
-        		break;
-        	default:
-        		break;
+            case self::REINDEX_TYPE_ATTRIBUTE:
+                $indexableNames = $this->_attributeIndexers;
+                break;
+            case self::REINDEX_TYPE_PRICE:
+                $indexableNames = $this->_priceIndexers;
+                break;
+            case self::REINDEX_TYPE_ALL:
+                $indexableNames = array_merge($this->_attributeIndexers, $this->_priceIndexers);
+                break;
+            default:
+                break;
         }
 
         foreach ($this->_indexers as $name=>$indexer) {

@@ -26,7 +26,6 @@
  * @author      Magento Core Team <core@magentocommerce.com>
  */
 class Mage_Adminhtml_Block_Report_Review_Customer_Grid extends Mage_Adminhtml_Block_Widget_Grid
-
 {
 
     public function __construct()
@@ -53,7 +52,6 @@ class Mage_Adminhtml_Block_Report_Review_Customer_Grid extends Mage_Adminhtml_Bl
             'header'    => Mage::helper('reports')->__('Customer Name'),
             'index'     => 'customer_name',
             'default'   => Mage::helper('reports')->__('Guest'),
-            'renderer'  => 'adminhtml/report_grid_column_renderer_customer',
         ));
 
         $this->addColumn('review_cnt', array(
@@ -61,6 +59,15 @@ class Mage_Adminhtml_Block_Report_Review_Customer_Grid extends Mage_Adminhtml_Bl
             'width'     => '40px',
             'align'     => 'right',
             'index'     => 'review_cnt'
+        ));
+
+        $this->addColumn('action', array(
+            'header'    => Mage::helper('reports')->__('Action'),
+            'width'     => '100px',
+            'align'     => 'center',
+            'filter'    => false,
+            'sortable'  => false,
+            'renderer'  => 'adminhtml/report_grid_column_renderer_customer'
         ));
 
         $this->setFilterVisibility(false);
@@ -71,4 +78,8 @@ class Mage_Adminhtml_Block_Report_Review_Customer_Grid extends Mage_Adminhtml_Bl
         return parent::_prepareColumns();
     }
 
+    public function getRowUrl($row)
+    {
+        return $this->getUrl('*/catalog_product_review', array('customerId' => $row->getCustomerId()));
+    }
 }

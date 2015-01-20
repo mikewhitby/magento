@@ -24,7 +24,7 @@ class Mage_Core_Controller_Varien_Router_Admin extends Mage_Core_Controller_Vari
     public function fetchDefault()
     {
     	// set defaults
-        $d = explode('/', Mage::getConfig()->getNode('default/web/default/admin'));
+        $d = explode('/', (string)Mage::getConfig()->getNode('default/web/default/admin'));
         $this->getFront()->setDefault(array(
             'module'     => !empty($d[0]) ? $d[0] : '',
             'controller' => !empty($d[1]) ? $d[1] : 'index',
@@ -64,6 +64,8 @@ class Mage_Core_Controller_Varien_Router_Admin extends Mage_Core_Controller_Vari
             }
         }
 
+        $request->setRouteName($this->getRouteByFrontName($module));
+
         if (!Mage::app()->isInstalled()) {
             Mage::app()->getFrontController()->getResponse()
                 ->setRedirect(Mage::getUrl('install'))
@@ -71,20 +73,7 @@ class Mage_Core_Controller_Varien_Router_Admin extends Mage_Core_Controller_Vari
             exit;
         }
 
-        if (Mage::app()->isInstalled() && !$request->isPost()) {
-            $shouldBeSecure = substr(Mage::getConfig()->getNode('default/web/unsecure/base_url'),0,5)==='https'
-                || Mage::getStoreConfigFlag('web/secure/use_in_adminhtml', Mage_Core_Model_App::ADMIN_STORE_ID)
-                && substr(Mage::getConfig()->getNode('default/web/secure/base_url'),0,5)==='https';
-
-            if ($shouldBeSecure && !Mage::app()->getStore()->isCurrentlySecure()) {
-                $url = Mage::getBaseUrl('link', true).ltrim($request->getPathInfo(), '/');
-
-                Mage::app()->getFrontController()->getResponse()
-                    ->setRedirect($url)
-                    ->sendResponse();
-                exit;
-            }
-        }
+        $this->_checkShouldBeSecure($request);
 
         // get controller name
         if ($request->getControllerName()) {
@@ -148,5 +137,17 @@ class Mage_Core_Controller_Varien_Router_Admin extends Mage_Core_Controller_Vari
         $controllerInstance->dispatch($action);
 
         return true;#$request->isDispatched();
+    }
+
+    protected function _shouldBeSecure($path)
+    {
+        return substr((string)Mage::getConfig()->getNode('default/web/unsecure/base_url'),0,5)==='https'
+            || Mage::getStoreConfigFlag('web/secure/use_in_adminhtml', Mage_Core_Model_App::ADMIN_STORE_ID)
+            && substr((string)Mage::getConfig()->getNode('default/web/secure/base_url'),0,5)==='https';
+    }
+
+    protected function _getCurrentSecureUrl($request)
+    {
+        return Mage::app()->getStore(Mage_Core_Model_App::ADMIN_STORE_ID)->getBaseUrl('link', true).ltrim($request->getPathInfo(), '/');
     }
 }

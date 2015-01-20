@@ -250,8 +250,12 @@ class Mage_GoogleCheckout_Model_Api_Xml_Callback extends Mage_GoogleCheckout_Mod
 
         if (!$order->getCustomerEmail()) {
             $order->setCustomerEmail($billing->getEmail())
+                ->setCustomerPrefix($billing->getPrefix())
                 ->setCustomerFirstname($billing->getFirstname())
-                ->setCustomerLastname($billing->getLastname());
+                ->setCustomerMiddlename($billing->getMiddlename())
+                ->setCustomerLastname($billing->getLastname())
+                ->setCustomerSuffix($billing->getSuffix())
+            ;
         }
 
         $order->setBillingAddress($convertQuote->addressToOrderAddress($quote->getBillingAddress()));

@@ -49,6 +49,7 @@
                         </tbody>
                     </table>
                     <br/>
+                    {{depend order.getIsNotVirtual()}}
                     <table cellspacing="0" cellpadding="0" border="0" width="100%">
                         <thead>
                         <tr>
@@ -70,6 +71,9 @@
                         </tbody>
                     </table>
                     <br/>
+                    {{/depend}}
+                    {{layout handle="sales_email_order_items" order=$order}}
+
                     {{var items_html}}
                     <br/>
                     {{var order.getEmailCustomerNote()}}

@@ -118,7 +118,6 @@ class Mage_Adminhtml_Controller_Action extends Mage_Core_Controller_Varien_Actio
         if ($this->getRequest()->isDispatched()
             && $this->getRequest()->getActionName()!=='denied'
             && !$this->_isAllowed()) {
-            $this->getResponse()->setHeader('HTTP/1.1','403 Forbidden');
             $this->_forward('denied');
             $this->setFlag('', self::FLAG_NO_DISPATCH, true);
             return $this;
@@ -143,7 +142,7 @@ class Mage_Adminhtml_Controller_Action extends Mage_Core_Controller_Varien_Actio
         /**
          * Don't check for data saving actions
          */
-        if ($this->getRequest()->getPost()) {
+        if ($this->getRequest()->getPost() || $this->getRequest()->getQuery('isAjax')) {
             return $this;
         }
 
@@ -154,7 +153,7 @@ class Mage_Adminhtml_Controller_Action extends Mage_Core_Controller_Varien_Actio
 
         if ($defaultSecure == '{{base_url}}' || $defaultUnsecure == '{{base_url}}') {
             $this->_getSession()->addNotice(
-                $this->__('{{base_url}} is not recommended to use in a production environment to declare the Base Unsecure Url / Base Secure Url. It is highly recommended to change this value in you Magento <a href="%s">configuration</a>.', $this->getUrl('*/system_config/edit', array('section'=>'web')))
+                $this->__('{{base_url}} is not recommended to use in a production environment to declare the Base Unsecure Url / Base Secure Url. It is highly recommended to change this value in you Magento <a href="%s">configuration</a>.', $this->getUrl('adminhtml/system_config/edit', array('section'=>'web')))
             );
             return $this;
         }
@@ -166,11 +165,11 @@ class Mage_Adminhtml_Controller_Action extends Mage_Core_Controller_Varien_Actio
         foreach ($dataCollection as $data) {
             if ($data->getScope() == 'stores') {
                 $code = Mage::app()->getStore($data->getScopeId())->getCode();
-                $url = $this->getUrl('*/system_config/edit', array('section'=>'web', 'store'=>$code));
+                $url = $this->getUrl('adminhtml/system_config/edit', array('section'=>'web', 'store'=>$code));
             }
             if ($data->getScope() == 'websites') {
                 $code = Mage::app()->getWebsite($data->getScopeId())->getCode();
-                $url = $this->getUrl('*/system_config/edit', array('section'=>'web', 'website'=>$code));
+                $url = $this->getUrl('adminhtml/system_config/edit', array('section'=>'web', 'website'=>$code));
             }
 
             if ($url) {
@@ -185,11 +184,12 @@ class Mage_Adminhtml_Controller_Action extends Mage_Core_Controller_Varien_Actio
 
     public function deniedAction()
     {
+        $this->getResponse()->setHeader('HTTP/1.1','403 Forbidden');
         if (!Mage::getSingleton('admin/session')->isLoggedIn()) {
             $this->_redirect('*/index/login');
             return;
         }
-        $this->loadLayout(array('default', 'admin_denied'));
+        $this->loadLayout(array('default', 'adminhtml_denied'));
         $this->renderLayout();
     }
 
@@ -204,7 +204,7 @@ class Mage_Adminhtml_Controller_Action extends Mage_Core_Controller_Varien_Actio
     {
         $this->getResponse()->setHeader('HTTP/1.1','404 Not Found');
         $this->getResponse()->setHeader('Status','404 File not found');
-        $this->loadLayout(array('default', 'admin_noroute'));
+        $this->loadLayout(array('default', 'adminhtml_noroute'));
         $this->renderLayout();
     }
 
@@ -268,6 +268,10 @@ class Mage_Adminhtml_Controller_Action extends Mage_Core_Controller_Varien_Actio
      */
     protected function _prepareDownloadResponse($fileName, $content, $contentType = 'application/octet-stream')
     {
+        if (!is_null($this->getRequest()->getQuery('ft'))) {
+            $this->_redirect('*/dashboard');
+            return ;
+        }
         $this->getResponse()
             ->setHttpResponseCode(200)
             ->setHeader('Pragma', 'public', true)

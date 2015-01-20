@@ -390,6 +390,48 @@ class Varien_Simplexml_Element extends SimpleXMLElement
         return $this;
     }
 
+    public function setNode($path, $value, $overwrite=true)
+    {
+        $arr1 = explode('/', $path);
+        $arr = array();
+        foreach ($arr1 as $v) {
+            if (!empty($v)) $arr[] = $v;
+        }
+        $last = sizeof($arr)-1;
+        $node = $this;
+        foreach ($arr as $i=>$nodeName) {
+            if ($last===$i) {
+                /*
+                if (isset($xml->$nodeName)) {
+                    if ($overwrite) {
+                        unset($xml->$nodeName);
+                    } else {
+                        continue;
+                    }
+                }
+                $xml->addChild($nodeName, $xml->xmlentities($value));
+                */
+                if (!isset($node->$nodeName) || $overwrite) {
+                    // http://bugs.php.net/bug.php?id=36795
+                    // comment on [8 Feb 8:09pm UTC]
+                    if (isset($node->$nodeName)) {
+                        $node->$nodeName = $node->xmlentities($value);
+                    } else {
+                        $node->$nodeName = $value;
+                    }
+                }
+            } else {
+                if (!isset($node->$nodeName)) {
+                    $node = $node->addChild($nodeName);
+                } else {
+                    $node = $node->$nodeName;
+                }
+            }
+
+        }
+        return $this;
+    }
+
 /*
     public function extendChildByNode($source, $overwrite=false, $mergeBy='name')
     {

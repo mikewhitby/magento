@@ -94,7 +94,7 @@ class Mage_Adminhtml_Tax_Class_CustomerController extends Mage_Adminhtml_Control
             return;
         }
 
-        $ruleCollection = Mage::getModel('tax/rule')
+        $ruleCollection = Mage::getModel('tax/calculation_rule')
             ->getCollection()
             ->setClassTypeFilter('CUSTOMER', $classId);
 

@@ -30,14 +30,7 @@
         <h3 class="legend"><?php echo $this->__('Personal Information') ?></h3>
         <ul>
             <li>
-                <div class="input-box">
-                    <label for="firstname"><?php echo $this->__('First Name') ?> <span class="required">*</span></label><br />
-                    <input type="text" name="firstname" id="firstname" title="<?php echo $this->__('First Name') ?>" value="<?php echo $this->htmlEscape($data->getFirstname()) ?>" class="required-entry input-text" />
-                </div>
-                <div class="input-box">
-                    <label for="lastname"><?php echo $this->__('Last Name') ?> <span class="required">*</span></label><br />
-                    <input type="text" name="lastname" id="lastname" title="<?php echo $this->__('Last Name') ?>" value="<?php echo $this->htmlEscape($data->getLastname()) ?>" class="required-entry input-text" />
-                </div>
+                <?php echo $this->getLayout()->createBlock('customer/widget_name')->setObject($data)->toHtml() ?>
             </li>
             <li>
                 <div class="input-box">
@@ -52,11 +45,13 @@
         <ul>
             <li>
                 <label for="street_1"><?php echo $this->__('Street Address') ?> <span class="required">*</span></label><br />
-                <input type="text" name="street[1]" value="<?php echo $this->htmlEscape($data->getStreet(1)) ?>" title="<?php echo $this->__('Street Address') ?>" id="street_1" class="required-entry input-text" />
+                <input type="text" name="street[]" value="<?php echo $this->htmlEscape($data->getStreet(1)) ?>" title="<?php echo $this->__('Street Address') ?>" id="street_1" class="required-entry input-text" />
             </li>
+<?php for ($_i=2, $_n=$this->helper('customer/address')->getStreetLines(); $_i<=$_n; $_i++): ?>
             <li>
-                <input type="text" name="street[2]" value="<?php echo $this->htmlEscape($data->getStreet(2)) ?>" title="<?php echo $this->__('Street Address 2') ?>" id="street_2" class="input-text" />
+                <input type="text" name="street[]" value="<?php echo $this->htmlEscape($data->getStreet($_i)) ?>" title="<?php echo $this->__('Street Address '.$_i) ?>" id="street_<?php echo $_i?>" class="input-text" />
             </li>
+<?php endfor ?>
             <li>
                 <div class="input-box">
                     <label for="city"><?php echo $this->__('City') ?> <span class="required">*</span></label><br />
@@ -115,6 +110,6 @@
 <script type="text/javascript">
     var dataForm = new VarienForm('form-validate', true);
     //dataForm.setElementsRelation('country', 'state', '<?php echo $this->getUrl('directory/json/childRegion') ?>');
-    
+
     new RegionUpdater('country', 'region', 'region_id', countryRegions);
 </script>

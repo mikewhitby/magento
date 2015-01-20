@@ -36,6 +36,32 @@ class Mage_Adminhtml_DashboardController extends Mage_Adminhtml_Controller_Actio
         $this->renderLayout();
     }
 
+    public function productsViewedAction()
+    {
+        $this->getResponse()->setBody($this->getLayout()->createBlock('adminhtml/dashboard_tab_products_viewed')->toHtml());
+    }
+
+    public function customersNewestAction()
+    {
+        $this->getResponse()->setBody($this->getLayout()->createBlock('adminhtml/dashboard_tab_customers_newest')->toHtml());
+    }
+
+    public function customersMostAction()
+    {
+        $this->getResponse()->setBody($this->getLayout()->createBlock('adminhtml/dashboard_tab_customers_most')->toHtml());
+    }
+
+    public function ajaxBlockAction()
+    {
+        $output   = '';
+        $blockTab = $this->getRequest()->getParam('block');
+        if (in_array($blockTab, array('tab_orders', 'tab_amounts'))) {
+            $output = $this->getLayout()->createBlock('adminhtml/dashboard_' . $blockTab)->toHtml();
+        }
+        $this->getResponse()->setBody($output);
+        return;
+    }
+
 /**
     public function configureAction()
     {

@@ -33,11 +33,15 @@ class Mage_Core_Model_Session_Abstract_Varien extends Varien_Object
         }
         Varien_Profiler::stop(__METHOD__.'/setOptions');
 
-        session_module_name('files');
-/*
-        $sessionResource = Mage::getResourceSingleton('core/session');
-        $sessionResource->setSaveHandler();
-*/
+        if ($this->getSessionSaveMethod() == 'files') {
+            session_module_name('files');
+        }
+        else {
+            ini_set('session.save_handler', 'user');
+            $sessionResource = Mage::getResourceSingleton('core/session');
+            /* @var $sessionResource Mage_Core_Model_Mysql4_Session */
+            $sessionResource->setSaveHandler();
+        }
 
         if (intval($this->getCookieLifetime()) > 0) {
             ini_set('session.gc_maxlifetime', $this->getCookieLifetime());
@@ -140,5 +144,16 @@ class Mage_Core_Model_Session_Abstract_Varien extends Varien_Object
     public function clear()
     {
         return $this->unsetAll();
+    }
+
+    /**
+     * Retrieve session save method
+     * Default files
+     *
+     * @return string
+     */
+    public function getSessionSaveMethod()
+    {
+        return 'files';
     }
 }

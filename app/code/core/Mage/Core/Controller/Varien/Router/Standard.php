@@ -62,9 +62,6 @@ class Mage_Core_Controller_Varien_Router_Standard extends Mage_Core_Controller_V
 
         $p = explode('/', trim($request->getPathInfo(), '/'));
 
-        // get store view code
-        //$request->getStoreCodeFromPath();
-
         // get module name
         if ($request->getModuleName()) {
             $module = $request->getModuleName();
@@ -83,6 +80,8 @@ class Mage_Core_Controller_Varien_Router_Standard extends Mage_Core_Controller_V
                 return false;
             }
         }
+
+        $request->setRouteName($this->getRouteByFrontName($module));
 
         // get controller name
         if ($request->getControllerName()) {
@@ -109,21 +108,7 @@ class Mage_Core_Controller_Varien_Router_Standard extends Mage_Core_Controller_V
             }
         }
 
-        if (Mage::app()->isInstalled() && !$request->getPost()) {
-            $shouldBeSecure = substr(Mage::getStoreConfig('web/unsecure/base_url'),0,5)==='https'
-                || Mage::getStoreConfigFlag('web/secure/use_in_frontend')
-                && substr(Mage::getStoreConfig('web/secure/base_url'),0,5)=='https'
-                && Mage::getConfig()->shouldUrlBeSecure('/'.$module.'/'.$controller.'/'.$action);
-
-            if ($shouldBeSecure && !Mage::app()->getStore()->isCurrentlySecure()) {
-                $url = Mage::getBaseUrl('link', true).ltrim($request->getPathInfo(), '/');
-
-                Mage::app()->getFrontController()->getResponse()
-                    ->setRedirect($url)
-                    ->sendResponse();
-                exit;
-            }
-        }
+        $this->_checkShouldBeSecure($request, '/'.$module.'/'.$controller.'/'.$action);
 
         // include controller file if needed
         if (!class_exists($controllerClassName, false)) {
@@ -230,5 +215,34 @@ class Mage_Core_Controller_Varien_Router_Standard extends Mage_Core_Controller_V
         }
 #echo "<pre>".print_r($p,1)."</pre>";
         return $p;
+    }
+
+    protected function _checkShouldBeSecure($request, $path='')
+    {
+        if (!Mage::app()->isInstalled() || $request->getPost()) {
+            return;
+        }
+
+        if ($this->_shouldBeSecure($path) && !Mage::app()->getStore()->isCurrentlySecure()) {
+            $url = $this->_getCurrentSecureUrl($request);
+
+            Mage::app()->getFrontController()->getResponse()
+                ->setRedirect($url)
+                ->sendResponse();
+            exit;
+        }
+    }
+
+    protected function _getCurrentSecureUrl($request)
+    {
+        return Mage::getBaseUrl('link', true).ltrim($request->getPathInfo(), '/');
+    }
+
+    protected function _shouldBeSecure($path)
+    {
+        return substr(Mage::getStoreConfig('web/unsecure/base_url'),0,5)==='https'
+            || Mage::getStoreConfigFlag('web/secure/use_in_frontend')
+            && substr(Mage::getStoreConfig('web/secure/base_url'),0,5)=='https'
+            && Mage::getConfig()->shouldUrlBeSecure($path);
     }
 }

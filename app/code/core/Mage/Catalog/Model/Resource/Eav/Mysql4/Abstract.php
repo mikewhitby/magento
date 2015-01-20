@@ -43,6 +43,19 @@ abstract class Mage_Catalog_Model_Resource_Eav_Mysql4_Abstract extends Mage_Eav_
     }
 
     /**
+     * Check whether the attribute is Applicable to the object
+     *
+     * @param   Varien_Object $object
+     * @param   Mage_Catalog_Model_Resource_Eav_Attribute $attribute
+     * @return  boolean
+     */
+    protected function _isApplicableAttribute ($object, $attribute)
+    {
+        $applyTo = $attribute->getApplyTo();
+        return count($applyTo) == 0 || in_array($object->getTypeId(), $applyTo);
+    }
+
+    /**
      * Retrieve select object for loading entity attributes values
      *
      * Join attribute store value

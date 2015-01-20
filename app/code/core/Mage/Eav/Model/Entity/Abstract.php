@@ -492,6 +492,18 @@ abstract class Mage_Eav_Model_Entity_Abstract
     }
 
     /**
+     * Check whether the attribute is Applicable to the object
+     *
+     * @param   Varien_Object $object
+     * @param   Mage_Catalog_Model_Resource_Eav_Attribute $attribute
+     * @return  boolean
+     */
+    protected function _isApplicableAttribute ($object, $attribute)
+    {
+        return true;
+    }
+
+    /**
      * Walk through the attributes and run method with optional arguments
      *
      * Returns array with results for each attribute
@@ -520,6 +532,11 @@ abstract class Mage_Eav_Model_Entity_Abstract
         }
         $results = array();
         foreach ($this->getAttributesByCode() as $attrCode=>$attribute) {
+
+            if (isset($args[0]) && is_object($args[0]) && !$this->_isApplicableAttribute($args[0], $attribute)) {
+                continue;
+            }
+
             switch ($part) {
                 case 'attribute':
                     $instance = $attribute;

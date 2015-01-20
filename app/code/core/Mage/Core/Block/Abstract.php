@@ -394,7 +394,7 @@ abstract class Mage_Core_Block_Abstract extends Varien_Object
             if ($sorted) {
                 $children = array();
                 foreach ($this->getSortedChildren() as $childName) {
-                    $children[] = $this->getChild($childName);
+                    $children[$childName] = $this->getLayout()->getBlock($childName);
                 }
             } else {
                 $children = $this->getChild();
@@ -407,6 +407,20 @@ abstract class Mage_Core_Block_Abstract extends Varien_Object
         } else {
             return $this->_getChildHtml($name, $useCache);
         }
+    }
+
+    /**
+     * Obtain sorted child blocks
+     *
+     * @return array
+     */
+    public function getSortedChildBlocks()
+    {
+        $children = array();
+        foreach ($this->getSortedChildren() as $childName) {
+            $children[$childName] = $this->getLayout()->getBlock($childName);
+        }
+        return $children;
     }
 
     /**
@@ -465,7 +479,7 @@ abstract class Mage_Core_Block_Abstract extends Varien_Object
     /**
      * Insert child block
      *
-     * @param   Mage_Core_Block_Abstract $block
+     * @param   Mage_Core_Block_Abstract|string $block
      * @param   string $siblingName
      * @param   boolean $after
      * @param   string $alias
@@ -473,6 +487,12 @@ abstract class Mage_Core_Block_Abstract extends Varien_Object
      */
     public function insert($block, $siblingName='', $after=false, $alias='')
     {
+        if (is_string($block)) {
+            $block = $this->getLayout()->getBlock($block);
+            if (!$block) {
+                Mage::throwException(Mage::helper('core')->__('Invalid block name to set child %s: %s', $alias, $block));
+            }
+        }
         if ($block->getIsAnonymous()) {
             $this->setChild('', $block);
             $name = $block->getNameInLayout();
@@ -550,9 +570,19 @@ abstract class Mage_Core_Block_Abstract extends Varien_Object
         }
 
         if (!($html = $this->_loadCache())) {
+            $translate = Mage::getSingleton('core/translate');
+            /* @var $translate Mage_Core_Model_Translate */
+            if ($this->hasData('translate_inline')) {
+                $translate->setTranslateInline($this->getData('translate_inline'));
+            }
+
             $this->_beforeToHtml();
             $html = $this->_toHtml();
             $this->_saveCache($html);
+
+            if ($this->hasData('translate_inline')) {
+                $translate->setTranslateInline(true);
+            }
         }
 
         Mage::dispatchEvent('core_block_abstract_to_html_after', array('block' => $this));
@@ -837,4 +867,13 @@ abstract class Mage_Core_Block_Abstract extends Varien_Object
         return $this->helper('core')->jsQuoteEscape($data, $quote);
     }
 
+    public function getNameInLayout()
+    {
+        return $this->_getData('name_in_layout');
+    }
+
+    public function countChildren()
+    {
+        return count($this->_children);
+    }
 }

@@ -26,7 +26,7 @@
  * @package    Mage_Catalog
  * @author      Magento Core Team <core@magentocommerce.com>
  */
- class Mage_Catalog_Block_Product_Compare_List extends Mage_Core_Block_Template
+ class Mage_Catalog_Block_Product_Compare_List extends Mage_Catalog_Block_Product_Abstract
  {
     protected $_items = null;
     protected $_attributes = null;
@@ -54,15 +54,7 @@
 
             $this->_items
                 ->loadComaparableAttributes()
-                ->addAttributeToSelect('name')
-                ->addAttributeToSelect('price')
-                ->addAttributeToSelect('special_price')
-                ->addAttributeToSelect('special_from_date')
-                ->addAttributeToSelect('special_to_date')
-                ->addAttributeToSelect('image')
-                ->addAttributeToSelect('status')
-                ->addAttributeToSelect('small_image')
-                ->addAttributeToSelect('tax_class_id');
+                ->addAttributeToSelect(Mage::getSingleton('catalog/config')->getProductAttributes());
 
             Mage::getSingleton('catalog/product_visibility')->addVisibleInSiteFilterToCollection($this->_items);
         }
@@ -107,7 +99,7 @@
         } else {
             $value = $product->getData($attribute->getAttributeCode());
         }
-        return $value ? $value : '&nbsp';
+        return $value ? $value : '&nbsp;';
     }
 
     public function getPrintUrl()

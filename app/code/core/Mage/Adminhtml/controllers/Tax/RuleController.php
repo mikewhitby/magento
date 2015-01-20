@@ -43,7 +43,7 @@ class Mage_Adminhtml_Tax_RuleController extends Mage_Adminhtml_Controller_Action
     public function editAction()
     {
         $taxRuleId  = $this->getRequest()->getParam('rule');
-        $ruleModel  = Mage::getModel('tax/rule');
+        $ruleModel  = Mage::getModel('tax/calculation_rule');
         if ($taxRuleId) {
             $ruleModel->load($taxRuleId);
             if (!$ruleModel->getId()) {
@@ -69,7 +69,7 @@ class Mage_Adminhtml_Tax_RuleController extends Mage_Adminhtml_Controller_Action
     public function saveAction()
     {
         if ($postData = $this->getRequest()->getPost()) {
-            $ruleModel = Mage::getSingleton('tax/rule');
+            $ruleModel = Mage::getSingleton('tax/calculation_rule');
             $ruleModel->setData($postData);
 
             try {
@@ -95,7 +95,7 @@ class Mage_Adminhtml_Tax_RuleController extends Mage_Adminhtml_Controller_Action
     public function deleteAction()
     {
         $ruleId = (int)$this->getRequest()->getParam('rule');
-        $ruleModel = Mage::getSingleton('tax/rule')
+        $ruleModel = Mage::getSingleton('tax/calculation_rule')
             ->load($ruleId);
         if (!$ruleModel->getId()) {
             Mage::getSingleton('adminhtml/session')->addError(Mage::helper('tax')->__('This rule no longer exists'));

@@ -115,7 +115,7 @@ class Mage_CatalogInventory_Model_Observer
             && is_null($product->getData('stock_data/use_config_backorders'))) {
             $item->setData('use_config_backorders', false);
         }
-				if (!is_null($product->getData('stock_data/notify_stock_qty'))
+		if (!is_null($product->getData('stock_data/notify_stock_qty'))
             && is_null($product->getData('stock_data/use_config_notify_stock_qty'))) {
             $item->setData('use_config_notify_stock_qty', false);
         }
@@ -131,11 +131,85 @@ class Mage_CatalogInventory_Model_Observer
      */
     public function checkQuoteItemQty($observer)
     {
-        $qty = $observer->getEvent()->getQty();
-        $item= $observer->getEvent()->getItem();
-        if (!$item || !$item->getProductId()) {
+        $item = $observer->getEvent()->getItem();
+        /* @var $item Mage_Sales_Model_Quote_Item */
+        if (!$item || !$item->getProductId() || $item->getQuote()->getIsSuperMode()) {
             return $this;
         }
+
+        /**
+         * Get Qty
+         */
+        $qty = $item->getQty();
+
+        /**
+         * Check item for options
+         */
+        if (($options = $item->getQtyOptions()) && $qty > 0) {
+            foreach ($options as $option) {
+                /* @var $option Mage_Sales_Model_Quote_Item_Option */
+                $optionQty = $qty * $option->getValue();
+
+                $stockItem = $option->getProduct()->getStockItem();
+                /* @var $stockItem Mage_CatalogInventory_Model_Stock_Item */
+                if (!$stockItem instanceof Mage_CatalogInventory_Model_Stock_Item) {
+                    Mage::throwException(Mage::helper('cataloginventory')->__('Stock item for Product in option is not valid'));
+                }
+
+                $result = $stockItem->checkQuoteItemQty($optionQty);
+
+                if (!is_null($result->getItemIsQtyDecimal())) {
+                    $option->setIsQtyDecimal($result->getItemIsQtyDecimal());
+                }
+                if (!is_null($result->getItemQty())) {
+                    $option->setValue(($result->getItemQty() / $qty));
+                }
+                if (!is_null($result->getMessage())) {
+                    $option->setMessage($result->getMessage());
+                }
+                if (!is_null($result->getItemBackorders())) {
+                    $option->setBackorders($result->getItemBackorders());
+                }
+
+                if ($result->getHasError()) {
+                    $option->setHasError(true);
+                    $item->getQuote()->setHasError(true)
+                        ->addMessage($result->getQuoteMessage(), $result->getQuoteMessageIndex());
+                }
+            }
+        }
+        else {
+            $stockItem = $item->getProduct()->getStockItem();
+            /* @var $stockItem Mage_CatalogInventory_Model_Stock_Item */
+            if (!$stockItem instanceof Mage_CatalogInventory_Model_Stock_Item) {
+                Mage::throwException(Mage::helper('cataloginventory')->__('Stock item for Product is not valid'));
+            }
+
+            $result = $stockItem->checkQuoteItemQty($qty);
+            if (!is_null($result->getItemIsQtyDecimal())) {
+                $item->setIsQtyDecimal($result->getItemIsQtyDecimal());
+            }
+            if (!is_null($result->getItemQty())) {
+                $item->setData('qty', $result->getItemQty());
+            }
+            if (!is_null($result->getItemUseOldQty())) {
+                $item->setUseOldQty($result->getItemUseOldQty());
+            }
+            if (!is_null($result->getMessage())) {
+                $item->setMessage($result->getMessage());
+            }
+            if (!is_null($result->getItemBackorders())) {
+                $item->setBackorders($result->getItemBackorders());
+            }
+
+            if ($result->getHasError()) {
+                $item->setHasError(true);
+                $item->getQuote()->setHasError(true)
+                    ->addMessage($result->getQuoteMessage(), $result->getQuoteMessageIndex());
+            }
+        }
+
+        return $this;
 
         /**
          * Try retrieve stock item object from product

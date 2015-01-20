@@ -34,6 +34,7 @@ class Mage_Checkout_Block_Onepage extends Mage_Checkout_Block_Onepage_Abstract
         if (!$this->isCustomerLoggedIn()) {
             $steps['login'] = $this->getCheckout()->getStepData('login');
         }
+
         $stepCodes = array('billing', 'shipping', 'shipping_method', 'payment', 'review');
 
         foreach ($stepCodes as $step) {
@@ -46,10 +47,10 @@ class Mage_Checkout_Block_Onepage extends Mage_Checkout_Block_Onepage_Abstract
     {
         return $this->isCustomerLoggedIn() ? 'billing' : 'login';
     }
-    
+
 /*
     // ADDRESSES
-    
+
     public function getAddressesHtmlSelect($address, $type)
     {
         if ($this->isCustomerLoggedIn()) {
@@ -86,7 +87,7 @@ class Mage_Checkout_Block_Onepage extends Mage_Checkout_Block_Onepage_Abstract
         }
         return '';
     }
-    
+
     public function getCountryHtmlSelect($address, $type)
     {
         $select = $this->getLayout()->createBlock('core/html_select')
@@ -117,41 +118,41 @@ class Mage_Checkout_Block_Onepage extends Mage_Checkout_Block_Onepage_Abstract
 
         return $select->getHtml();
     }
-    
+
     // LOGIN STEP
-    
+
     public function getMessages()
     {
         return Mage::getSingleton('customer/session')->getMessages(true);
     }
-    
+
     public function getLoginPostAction()
     {
         return Mage::getUrl('customer/account/loginPost', array('_secure'=>true));
     }
-    
+
     public function getSuccessUrl()
     {
         return $this->getUrl('* /*');////////////
     }
-    
+
     public function getErrorUrl()
     {
         return $this->getUrl('* /*');////////////
     }
-    
+
     public function getMethod()
     {
         return $this->getQuote()->getCheckoutMethod();
     }
-    
+
     public function getMethodData()
     {
         return $this->getCheckout()->getMethodData();
     }
 
     // BILLING STEP
-    
+
     public function getBillingAddress() {
         if (!$this->isCustomerLoggedIn()) {
             return $this->getQuote()->getBillingAddress();
@@ -159,9 +160,9 @@ class Mage_Checkout_Block_Onepage extends Mage_Checkout_Block_Onepage_Abstract
             return Mage::getModel('sales/quote_address');
         }
     }
-    
+
     // SHIPPING STEP
-    
+
     public function getShippingAddress()
     {
         if (!$this->isCustomerLoggedIn()) {
@@ -170,9 +171,9 @@ class Mage_Checkout_Block_Onepage extends Mage_Checkout_Block_Onepage_Abstract
             return Mage::getModel('sales/quote_address');
         }
     }
-    
+
     // PAYMENT STEP
-    
+
     public function getPayment()
     {
         $payment = $this->getQuote()->getPayment();

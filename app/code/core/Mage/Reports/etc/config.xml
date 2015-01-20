@@ -66,6 +66,15 @@
         </resources>
 
         <events>
+            <catalog_product_compare_remove_product>
+                <observers>
+                    <reports>
+                        <type>singleton</type>
+                        <class>reports/event_observer</class>
+                        <method>catalogProductCompareRemoveProduct</method>
+                    </reports>
+                </observers>
+            </catalog_product_compare_remove_product>
             <customer_login>
                 <observers>
                     <reports>
@@ -102,7 +111,7 @@
                     </reports>
                 </observers>
             </catalog_product_compare_add_product>
-            <checkout_cart_add_product>
+            <sales_quote_item_save_before>
                 <observers>
                     <reports>
                         <type>singleton</type>
@@ -110,7 +119,7 @@
                         <method>checkoutCartAddProduct</method>
                     </reports>
                 </observers>
-            </checkout_cart_add_product>
+            </sales_quote_item_save_before>
             <wishlist_add_product>
                 <observers>
                     <reports>
@@ -391,6 +400,15 @@
         </acl>
     </adminhtml>
     <frontend>
+        <translate>
+            <modules>
+                <Mage_Reports>
+                    <files>
+                        <default>Mage_Reports.csv</default>
+                    </files>
+                </Mage_Reports>
+            </modules>
+        </translate>
         <layout>
             <updates>
                 <reports>
@@ -399,7 +417,7 @@
             </updates>
         </layout>
     </frontend>
-    
+
      <default>
         <catalog>
             <recently_products>

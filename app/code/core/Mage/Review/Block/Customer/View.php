@@ -26,7 +26,7 @@
  * @author      Magento Core Team <core@magentocommerce.com>
  */
 
-class Mage_Review_Block_Customer_View extends Mage_Core_Block_Template
+class Mage_Review_Block_Customer_View extends Mage_Catalog_Block_Product_Abstract
 {
     public function __construct()
     {
@@ -54,7 +54,7 @@ class Mage_Review_Block_Customer_View extends Mage_Core_Block_Template
 
     public function getBackUrl()
     {
-        return Mage::getUrl('customer/review');
+        return Mage::getUrl('review/customer');
     }
 
     public function getRating()

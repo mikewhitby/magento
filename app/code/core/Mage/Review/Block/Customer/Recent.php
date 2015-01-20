@@ -61,7 +61,7 @@ class Mage_Review_Block_Customer_Recent extends Mage_Core_Block_Template
 
     public function getReviewLink()
     {
-        return Mage::getUrl('customer/review/view/');
+        return Mage::getUrl('review/customer/view/');
     }
 
     public function getProductLink()
@@ -76,11 +76,11 @@ class Mage_Review_Block_Customer_Recent extends Mage_Core_Block_Template
 
     public function getAllReviewsUrl()
     {
-        return Mage::getUrl('customer/review');
+        return Mage::getUrl('review/customer');
     }
 
     public function getReviewUrl($id)
     {
-        return Mage::getUrl('customer/review/view', array('id' => $id));
+        return Mage::getUrl('review/customer/view', array('id' => $id));
     }
 }

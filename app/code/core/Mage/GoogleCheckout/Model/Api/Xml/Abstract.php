@@ -192,6 +192,6 @@ abstract class Mage_GoogleCheckout_Model_Api_Xml_Abstract extends Varien_Object
 
     protected function _getCallbackUrl()
     {
-        return Mage::getUrl('googlecheckout/api');
+        return Mage::getUrl('googlecheckout/api', array('_secure'=>true));
     }
 }

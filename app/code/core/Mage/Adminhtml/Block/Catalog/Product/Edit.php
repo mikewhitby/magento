@@ -170,43 +170,6 @@ class Mage_Adminhtml_Block_Catalog_Product_Edit extends Mage_Adminhtml_Block_Wid
         return $setId;
     }
 
-    public function getRelatedProductsJSON()
-    {
-        $result = array();
-        foreach ($this->getProduct()->getRelatedProducts() as $product) {
-            $result[$product->getId()] = $product->toArray(array('qty', 'position'));
-        }
-        return $result ? Zend_Json_Encoder::encode($result) : '{}';
-    }
-
-
-    public function getUpSellProductsJSON()
-    {
-        $result = array();
-        foreach ($this->getProduct()->getUpSellProducts() as $product) {
-            $result[$product->getId()] = $product->toArray(array('qty', 'position'));
-        }
-        return $result ? Zend_Json_Encoder::encode($result) : '{}';
-    }
-
-    public function getCrossSellProductsJSON()
-    {
-        $result = array();
-        foreach ($this->getProduct()->getCrossSellProducts() as $product) {
-            $result[$product->getId()] = $product->toArray(array('qty', 'position'));
-        }
-        return $result ? Zend_Json_Encoder::encode($result) : '{}';
-    }
-
-    public function getSuperGroupProductJSON()
-    {
-        $result = array();
-        foreach ($this->getProduct()->getTypeInstance()->getAssociatedProducts() as $product) {
-            $result[$product->getEntityId()] = $product->toArray(array('qty', 'position'));
-        }
-        return $result ? Zend_Json_Encoder::encode($result) : '{}';
-    }
-
     public function getIsGrouped()
     {
         return $this->getProduct()->isGrouped();

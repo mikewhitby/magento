@@ -148,6 +148,7 @@ class Mage_Catalog_Block_Navigation extends Mage_Core_Block_Template
         }
 
         $html.= ' class="level'.$level;
+        $html.= ' nav-'.str_replace('/', '-', $category->getRequestPath());
         if ($this->isCategoryActive($category)) {
             $html.= ' active';
         }

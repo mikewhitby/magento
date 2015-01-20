@@ -243,8 +243,11 @@ class Mage_Paypal_Model_Express extends Mage_Payment_Model_Method_Abstract
         if ($this->getSession()->getExpressCheckoutMethod()=='shortcut'
         || ($this->getSession()->getExpressCheckoutMethod()=='mark' && $q->getCheckoutMethod()!='register')){
             $q->getBillingAddress()
+                ->setPrefix($a->getPrefix())
                 ->setFirstname($a->getFirstname())
+                ->setMiddlename($a->getMiddlename())
                 ->setLastname($a->getLastname())
+                ->setSuffix($a->getSuffix())
                 ->setEmail($a->getEmail());
         }
 

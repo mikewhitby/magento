@@ -62,7 +62,7 @@
 <div class="page-head">
     <h3><?php echo $this->__('Email to a Friend') ?></h3>
 </div>
-<form action="<?php echo $this->getUrl('*/*/sendmail',array('id'=>$this->getProductId())) ?>" method="post" id="product_sendtofriend_form">
+<form action="<?php echo $this->getUrl('*/*/sendmail', array('id'=>$this->getProductId(), 'cat_id'=>$this->getCategoryId())) ?>" method="post" id="product_sendtofriend_form">
 <div class="col-1 login-box">
     <div class="col-1 registered-users">
         <div class="content ">

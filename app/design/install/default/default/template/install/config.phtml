@@ -128,6 +128,19 @@
     </ul>
 </fieldset>
 
+<fieldset class="group-select">
+    <legend><?php echo $this->__('Session storage options') ?></legend>
+    <h4 class="legend"><?php echo $this->__('Session storage options') ?></h4>
+    <ul>
+        <li>
+            <div class="input-box">
+                <label for="password"><?php echo $this->__('Save session data in') ?></label><br/>
+                <?php echo $this->getSessionSaveSelect() ?>
+            </div>
+        </li>
+    </ul>
+</fieldset>
+
 <div class="button-set">
     <p class="required">* <?php echo $this->__('Required Fields') ?></p>
     <button class="form-button" type="submit"><span><?php echo $this->__('Continue') ?></span></button>

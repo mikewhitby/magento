@@ -72,8 +72,8 @@ class Mage_Adminhtml_Block_Catalog_Product_Attribute_Edit_Tab_Main extends Mage_
 
         $fieldset->addField('attribute_code', 'text', array(
             'name'  => 'attribute_code',
-            'label' => Mage::helper('catalog')->__('Attribute Identifier'),
-            'title' => Mage::helper('catalog')->__('Attribute Identifier'),
+            'label' => Mage::helper('catalog')->__('Attribute Code'),
+            'title' => Mage::helper('catalog')->__('Attribute Code'),
             'note'  => Mage::helper('catalog')->__('For internal use. Must be unique with no spaces'),
             'class' => 'validate-code',
             'required' => true,

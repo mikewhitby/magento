@@ -98,6 +98,11 @@ class Mage_Adminhtml_Block_Catalog_Product_Edit_Tab_Super_Config_Grid extends Ma
 
     protected function _prepareCollection()
     {
+        $allowProductTypes = array();
+        foreach (Mage::getConfig()->getNode('global/catalog/product/type/configurable/allow_product_types')->children() as $type) {
+            $allowProductTypes[] = $type->getName();
+        }
+
         $product = $this->_getProduct();
         $collection = $product->getCollection()
             ->addAttributeToSelect('name')
@@ -106,7 +111,8 @@ class Mage_Adminhtml_Block_Catalog_Product_Edit_Tab_Super_Config_Grid extends Ma
             ->addAttributeToSelect('type_id')
             ->addAttributeToSelect('price')
             ->addFieldToFilter('attribute_set_id',$product->getAttributeSetId())
-            ->addFieldToFilter('type_id', Mage_Catalog_Model_Product_Type::TYPE_SIMPLE);
+            ->addFieldToFilter('type_id', $allowProductTypes)
+            ->addFilterByRequiredOptions();
 
         Mage::getModel('cataloginventory/stock_item')->addCatalogInventoryToProductCollection($collection);
 

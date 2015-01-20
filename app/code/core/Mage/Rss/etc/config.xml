@@ -40,7 +40,19 @@
       </blocks>
    </global>
 
-    <adminhtml>
+   <admin>
+      <routers>
+         <rss>
+            <use>admin</use>
+            <args>
+               <module>Mage_Rss</module>
+               <frontName>rss</frontName>
+            </args>
+         </rss>
+      </routers>
+   </admin>
+
+   <adminhtml>
         <translate>
             <modules>
                 <Mage_Rss>

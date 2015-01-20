@@ -373,6 +373,11 @@ abstract class Mage_Core_Model_Mysql4_Abstract extends Mage_Core_Model_Resource_
         }
     }
 
+    public function resetUniqueField()
+    {
+         $this->_uniqueFields = array();
+    }
+
     /**
      * Prepare data for save
      *
@@ -390,6 +395,9 @@ abstract class Mage_Core_Model_Mysql4_Abstract extends Mage_Core_Model_Resource_
             }
         	elseif (!is_null($fieldValue)) {
         	    $data[$field] = $this->_prepareValueForSave($fieldValue, $fields[$field]['DATA_TYPE']);
+        	}
+        	else {
+//        	    $data[$field] = $fieldValue;
         	}
         }
         return $data;

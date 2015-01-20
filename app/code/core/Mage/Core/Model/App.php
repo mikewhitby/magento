@@ -36,6 +36,21 @@ class Mage_Core_Model_App
 
     const DISTRO_LOCALE_CODE = 'en_US';
 
+    /**
+     * Default store Id (for install)
+     */
+    const DISTRO_STORE_ID       = 1;
+
+    /**
+     * Default store code (for install)
+     *
+     */
+    const DISTRO_STORE_CODE     = 'default';
+
+    /**
+     * Admin store Id
+     *
+     */
     const ADMIN_STORE_ID = 0;
 
     /**
@@ -179,6 +194,13 @@ class Mage_Core_Model_App
      */
     protected $_events = array();
 
+    /**
+     * Update process run flag
+     *
+     * @var bool
+     */
+    protected $_updateMode = false;
+
     static protected $_isInstalled = NULL;
 
     /**
@@ -228,8 +250,10 @@ class Mage_Core_Model_App
                     $this->throwStoreException();
             }
 
-            $this->_checkCookieStore($type);
-            $this->_checkGetStore($type);
+            if (!empty($this->_currentStore)) {
+                $this->_checkCookieStore($type);
+                $this->_checkGetStore($type);
+            }
             $this->getRequest()->setPathInfo();
         }
         return $this;
@@ -246,12 +270,11 @@ class Mage_Core_Model_App
             return $this;
         }
 
-        $storeKey = 'store';
-        if (!isset($_GET[$storeKey])) {
+        if (!isset($_GET['___store'])) {
             return $this;
         }
 
-        $store = $_GET[$storeKey];
+        $store = $_GET['___store'];
         if (!isset($this->_stores[$store])) {
             return $this;
         }
@@ -275,7 +298,7 @@ class Mage_Core_Model_App
         if ($this->_currentStore == $store) {
             $cookie = Mage::getSingleton('core/cookie');
             /* @var $cookie Mage_Core_Model_Cookie */
-            $cookie->set($storeKey, $this->_currentStore);
+            $cookie->set('store', $this->_currentStore);
         }
         return $this;
     }
@@ -523,7 +546,7 @@ class Mage_Core_Model_App
      */
     public function getStore($id=null)
     {
-        if (!$this->isInstalled()) {
+        if (!$this->isInstalled() || $this->getUpdateMode()) {
             return $this->_getDefaultStore();
         }
 
@@ -560,6 +583,28 @@ class Mage_Core_Model_App
     }
 
     /**
+     * Retrieve application store object without Store_Exception
+     *
+     * @param string|int|Mage_Core_Model_Store $id
+     * @return Mage_Core_Model_Store
+     */
+    public function getSafeStore($id = null)
+    {
+        try {
+            return $this->getStore($id);
+        }
+        catch (Exception $e) {
+            if ($this->_currentStore) {
+                $this->getRequest()->setActionName('noRoute');
+                return new Varien_Object();
+            }
+            else {
+                Mage::throwException(Mage::helper('core')->__('Requested invalid store "%s"', $id));
+            }
+        }
+    }
+
+    /**
      * Retrieve stores array
      *
      * @param bool $withDefault
@@ -587,8 +632,9 @@ class Mage_Core_Model_App
     protected function _getDefaultStore()
     {
         if (empty($this->_store)) {
-            $this->_store = new Mage_Core_Model_Store();
-            $this->_store->setStoreId(1)->setCode('default');
+            $this->_store = Mage::getModel('core/store')
+                ->setId(self::DISTRO_STORE_ID)
+                ->setCode(self::DISTRO_STORE_CODE);
         }
         return $this->_store;
     }
@@ -687,6 +733,21 @@ class Mage_Core_Model_App
             $this->_locale = Mage::getSingleton('core/locale');
         }
         return $this->_locale;
+    }
+
+    /**
+     * Retrive layout object
+     *
+     * @return Mage_Core_Model_Layout
+     */
+    public function getLayout()
+    {
+        if (!$this->_layout) {
+            $this->_layout = ($this->getFrontController()->getAction()
+                                    ?  $this->getFrontController()->getAction()->getLayout()
+                                    :  Mage::getSingleton('core/layout'));
+        }
+        return $this->_layout;
     }
 
     /**
@@ -941,7 +1002,7 @@ class Mage_Core_Model_App
         }
         @fwrite($fp, serialize($data));
         @fclose($fp);
-        chmod($filename, 0666);
+        @chmod($filename, 0666);
         return $this;
     }
 
@@ -1024,6 +1085,7 @@ class Mage_Core_Model_App
             }
             foreach ($events[$eventName]['observers'] as $obsName=>$obs) {
                 $observer->setData(array('event'=>$event));
+                Varien_Profiler::start('OBSERVER: '.$obsName);
                 switch ($obs['type']) {
                     case 'singleton':
                         $method = $obs['method'];
@@ -1039,9 +1101,20 @@ class Mage_Core_Model_App
                         $object->$method($observer);
                         break;
                 }
+                Varien_Profiler::stop('OBSERVER: '.$obsName);
             }
         }
         return $this;
+    }
+
+    public function setUpdateMode($value)
+    {
+        $this->_updateMode = $value;
+    }
+
+    public function getUpdateMode()
+    {
+        return $this->_updateMode;
     }
 
     public function throwStoreException()

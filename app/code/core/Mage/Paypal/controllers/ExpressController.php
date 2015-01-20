@@ -182,8 +182,11 @@ class Mage_Paypal_ExpressController extends Mage_Core_Controller_Front_Action
                             $customer->addAddress($customerShipping);
                         }
 
+                        $customer->setPrefix($billing->getPrefix());
                         $customer->setFirstname($billing->getFirstname());
+                        $customer->setMiddlename($billing->getMiddlename());
                         $customer->setLastname($billing->getLastname());
+                        $customer->setSuffix($billing->getSuffix());
                         $customer->setEmail($billing->getEmail());
                         $customer->setPassword($customer->decryptPassword($this->getReview()->getQuote()->getPasswordHash()));
                         $customer->setPasswordHash($customer->hashPassword($customer->getPassword()));
@@ -266,8 +269,11 @@ class Mage_Paypal_ExpressController extends Mage_Core_Controller_Front_Action
 
                 $order->setCustomerId($customer->getId())
                     ->setCustomerEmail($customer->getEmail())
+                    ->setCustomerPrefix($customer->getPrefix())
                     ->setCustomerFirstname($customer->getFirstname())
+                    ->setCustomerMiddlename($customer->getMiddlename())
                     ->setCustomerLastname($customer->getLastname())
+                    ->setCustomerSuffix($customer->getSuffix())
                     ->setCustomerGroupId($customer->getGroupId())
                     ->setCustomerTaxClassId($customer->getTaxClassId());
 

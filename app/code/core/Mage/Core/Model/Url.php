@@ -259,9 +259,7 @@ class Mage_Core_Model_Url extends Varien_Object
 
         $route = array_shift($a);
         if ('*'===$route) {
-            $frontName = $this->getRequest()->getModuleName();
-            $router = Mage::app()->getFrontController()->getRouterByFrontName($frontName);
-            $route = $router->getRouteByFrontName($frontName);
+            $route = $this->getRequest()->getRouteName();
         }
         $this->setRouteName($route);
         $routePath = $route.'/';
@@ -623,15 +621,6 @@ class Mage_Core_Model_Url extends Varien_Object
     {
         $escapeQuery = false;
 
-        if (isset($routeParams['_query'])) {
-            if (is_string($routeParams['_query'])) {
-                $this->setQuery($routeParams['_query']);
-            } elseif (is_array($routeParams['_query'])) {
-                $this->setQueryParams($routeParams['_query']);
-            }
-            unset($routeParams['_query']);
-        }
-
         if (isset($routeParams['_fragment'])) {
             $this->setFragment($routeParams['_fragment']);
             unset($routeParams['_fragment']);
@@ -649,6 +638,17 @@ class Mage_Core_Model_Url extends Varien_Object
             $this->setQueryParam($session->getSessionIdQueryParam(), $sessionId);
         }
 
+        /**
+         * Apply query params, need call after getRouteUrl for rewrite _current values
+         */
+        if (isset($routeParams['_query'])) {
+            if (is_string($routeParams['_query'])) {
+                $this->setQuery($routeParams['_query']);
+            } elseif (is_array($routeParams['_query'])) {
+                $this->setQueryParams($routeParams['_query']);
+            }
+            unset($routeParams['_query']);
+        }
 
         if ($query = $this->getQuery($escapeQuery)) {
             $url .= '?'.$query;
@@ -657,15 +657,6 @@ class Mage_Core_Model_Url extends Varien_Object
         if ($this->getFragment()) {
             $url .= '#'.$this->getFragment();
         }
-        return $this->escape($url);
-    }
-
-    public function escape($value)
-    {
-        $value = str_replace('"', '%22', $value);
-        $value = str_replace("'", '%27', $value);
-        $value = str_replace('>', '%3E', $value);
-        $value = str_replace('<', '%3C', $value);
-        return $value;
+        return $url;
     }
 }

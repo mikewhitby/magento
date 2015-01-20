@@ -55,6 +55,10 @@ class Mage_Tag_CustomerController extends Mage_Core_Controller_Front_Action
             $navigationBlock->setActive('tag/customer');
         }
 
+        if ($block = $this->getLayout()->getBlock('customer_tags')) {
+            $block->setRefererUrl($this->_getRefererUrl());
+        }
+
         $this->renderLayout();
     }
 
@@ -73,6 +77,7 @@ class Mage_Tag_CustomerController extends Mage_Core_Controller_Front_Action
                 $navigationBlock->setActive('tag/customer');
             }
 
+            $this->_initLayoutMessages('checkout/session');
             $this->renderLayout();
         }
         else {

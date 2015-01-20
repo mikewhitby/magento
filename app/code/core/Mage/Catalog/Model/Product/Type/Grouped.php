@@ -27,8 +27,10 @@
  */
 class Mage_Catalog_Model_Product_Type_Grouped extends Mage_Catalog_Model_Product_Type_Abstract
 {
+    const TYPE_CODE = 'grouped';
     protected $_associatedProducts  = null;
     protected $_associatedProductIds= null;
+    protected $_isComposite = true;
 
     /**
      * Retrieve array of associated products
@@ -43,7 +45,7 @@ class Mage_Catalog_Model_Product_Type_Grouped extends Mage_Catalog_Model_Product
                 ->addAttributeToSelect('*')
                 ->setPositionOrder();
             foreach ($collection as $product) {
-            	$this->_associatedProducts[] = $product;
+                $this->_associatedProducts[] = $product;
             }
         }
         return $this->_associatedProducts;
@@ -59,7 +61,7 @@ class Mage_Catalog_Model_Product_Type_Grouped extends Mage_Catalog_Model_Product
         if (is_null($this->_associatedProductIds)) {
             $this->_associatedProductIds = array();
             foreach ($this->getAssociatedProducts() as $product) {
-            	$this->_associatedProductIds[] = $product->getId();
+                $this->_associatedProductIds[] = $product->getId();
             }
         }
         return $this->_associatedProductIds;
@@ -91,7 +93,7 @@ class Mage_Catalog_Model_Product_Type_Grouped extends Mage_Catalog_Model_Product
 
         $salable = false;
         foreach ($this->getAssociatedProducts() as $product) {
-        	$salable = $salable || $product->isSalable();
+            $salable = $salable || $product->isSalable();
         }
         return $salable;
     }
@@ -106,5 +108,36 @@ class Mage_Catalog_Model_Product_Type_Grouped extends Mage_Catalog_Model_Product
         parent::save();
         $this->getProduct()->getLinkInstance()->saveGroupedLinks($this->getProduct());
         return $this;
+    }
+
+    /**
+     * Initialize product(s) for add to cart process
+     *
+     * @param   Varien_Object $buyRequest
+     * @return  array || string || false
+     */
+    public function prepareForCart(Varien_Object $buyRequest)
+    {
+        $productsInfo = $buyRequest->getSuperGroup();
+        if (!empty($productsInfo) && is_array($productsInfo)) {
+            $products = array();
+            if ($associatedProducts = $this->getAssociatedProducts()) {
+                $productId = $this->getProduct()->getId();
+                foreach ($associatedProducts as $subProduct) {
+                    if(isset($productsInfo[$subProduct->getId()])) {
+                        $qty = $productsInfo[$subProduct->getId()];
+                        if (!empty($qty)) {
+                            $subProduct->setCartQty($qty);
+                            $subProduct->addCustomOption('product_type', self::TYPE_CODE, $this->getProduct());
+                            $products[] = $subProduct;
+                        }
+                    }
+                }
+            }
+            if (count($products)) {
+                return $products;
+            }
+        }
+        return Mage::helper('catalog')->__('Please specify the product(s) quantity');
     }
 }

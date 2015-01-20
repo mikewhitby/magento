@@ -314,18 +314,6 @@ abstract class Mage_Core_Model_Abstract extends Varien_Object
     }
 
     /**
-     * Safeguard func that will check, if we are in admin area
-     *
-     * @throws Mage_Core_Exception
-     */
-    protected function _protectFromNonAdmin()
-    {
-        if (!Mage::app()->getStore()->isAdmin()) {
-            Mage::throwException(Mage::helper('core')->__('Cannot complete this operation from non-admin area.'));
-        }
-    }
-
-    /**
      * Processing object after delete data
      *
      * @return Mage_Core_Model_Abstract
@@ -352,5 +340,10 @@ abstract class Mage_Core_Model_Abstract extends Varien_Object
     public function getResource()
     {
         return $this->_getResource();
+    }
+
+    public function getEntityId()
+    {
+        return $this->_getData('entity_id');
     }
 }
