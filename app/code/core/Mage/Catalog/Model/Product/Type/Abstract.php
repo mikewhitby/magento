@@ -24,6 +24,7 @@
  *
  * @category   Mage
  * @package    Mage_Catalog
+ * @author      Magento Core Team <core@magentocommerce.com>
  */
 abstract class Mage_Catalog_Model_Product_Type_Abstract
 {
@@ -54,19 +55,38 @@ abstract class Mage_Catalog_Model_Product_Type_Abstract
         return $this->_product;
     }
 
+    public function attributesCompare($attribute1, $attribute2)
+    {
+        $sortPath      = 'attribute_set_info/' . $this->getProduct()->getAttributeSetId() . '/sort';
+        $groupSortPath = 'attribute_set_info/' . $this->getProduct()->getAttributeSetId() . '/group_sort';
+
+        $sort1 =  ($attribute1->getData($groupSortPath) * 1000) + ($attribute1->getData($sortPath) * 0.0001);
+        $sort2 =  ($attribute2->getData($groupSortPath) * 1000) + ($attribute2->getData($sortPath) * 0.0001);
+
+        if ($sort1 > $sort2) {
+            return 1;
+        } elseif ($sort1 < $sort2) {
+            return -1;
+        }
+
+        return 0;
+    }
+
     public function getSetAttributes()
     {
         if (is_null($this->_setAttributes)) {
             $attributes = $this->getProduct()->getResource()
-                ->loadAllAttributes($this->getProduct())
+                ->loadAllAttributes()
                 ->getAttributesByCode();
             $this->_setAttributes = array();
             foreach ($attributes as $attribute) {
-                if ($attribute->getAttributeSetId() == $this->getProduct()->getAttributeSetId()) {
+                if ($attribute->isInSet($this->getProduct()->getAttributeSetId())) {
                     $attribute->setDataObject($this->getProduct());
                     $this->_setAttributes[$attribute->getAttributeCode()] = $attribute;
                 }
             }
+
+            uasort($this->_setAttributes, array($this, 'attributesCompare'));
         }
         return $this->_setAttributes;
     }

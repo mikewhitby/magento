@@ -27,6 +27,7 @@
  *
  * @category   Mage
  * @package    Mage_Core
+ * @author      Magento Core Team <core@magentocommerce.com>
  */
 abstract class Mage_Core_Block_Abstract extends Varien_Object
 {
@@ -614,6 +615,18 @@ abstract class Mage_Core_Block_Abstract extends Varien_Object
     }
 
     /**
+     * Generate url-encoded url by route and parameters
+     *
+     * @param   string $route
+     * @param   array $params
+     * @return  string
+     */
+    public function getUrlEncoded($route = '', $params = array())
+    {
+        return Mage::helper('core')->urlEncode($this->getUrl($route, $params));
+    }
+
+    /**
      * Retrieve url of skins file
      *
      * @param   string $file path to file in skin
@@ -810,6 +823,18 @@ abstract class Mage_Core_Block_Abstract extends Varien_Object
     public function htmlEscape($data)
     {
         return $this->helper('core')->htmlEscape($data);
+    }
+
+    /**
+     * Escape quotes in java scripts
+     *
+     * @param mixed $data
+     * @param string $quote
+     * @return mixed
+     */
+    public function jsQuoteEscape($data, $quote = '\'')
+    {
+        return $this->helper('core')->jsQuoteEscape($data, $quote);
     }
 
 }

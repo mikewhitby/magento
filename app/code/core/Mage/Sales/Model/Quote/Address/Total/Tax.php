@@ -66,6 +66,18 @@ class Mage_Sales_Model_Quote_Address_Total_Tax extends Mage_Sales_Model_Quote_Ad
             $address->setBaseTaxAmount($address->getBaseTaxAmount() + $item->getBaseTaxAmount());
         }
 
+        /*
+        * need to put this block before shippingtaxclass
+        * otherwise shipping tax will overwrite with catalogprice include tax
+        */
+        if (Mage::helper('tax')->priceIncludesTax($store)) {
+    	    $adj = $address->getTotalPriceIncTax()-($address->getSubtotal()+$address->getTaxAmount());
+    	    $address->setTaxAmount($address->getTaxAmount()+$adj);
+
+    	    $adj = $address->getBaseTotalPriceIncTax()-($address->getBaseSubtotal()+$address->getBaseTaxAmount());
+    	    $address->setBaseTaxAmount($address->getBaseTaxAmount()+$adj);
+    	}
+
         $shippingTaxClass = Mage::getStoreConfig('sales/tax/shipping_tax_class', $store);
         if ($shippingTaxClass) {
             $tax->setProductClassId($shippingTaxClass);
@@ -75,17 +87,13 @@ class Mage_Sales_Model_Quote_Address_Total_Tax extends Mage_Sales_Model_Quote_Ad
                 $shippingTax    = $store->roundPrice($shippingTax);
                 $shippingBaseTax= $store->roundPrice($shippingBaseTax);
 
+                $address->setShippingTaxAmount($shippingTax);
+                $address->setBaseShippingTaxAmount($shippingBaseTax);
+
                 $address->setTaxAmount($address->getTaxAmount() + $shippingTax);
                 $address->setBaseTaxAmount($address->getBaseTaxAmount() + $shippingBaseTax);
             }
         }
-    	if (Mage::helper('tax')->priceIncludesTax($store)) {
-    	    $adj = $address->getTotalPriceIncTax()-($address->getSubtotal()+$address->getTaxAmount());
-    	    $address->setTaxAmount($address->getTaxAmount()+$adj);
-
-    	    $adj = $address->getBaseTotalPriceIncTax()-($address->getBaseSubtotal()+$address->getBaseTaxAmount());
-    	    $address->setBaseTaxAmount($address->getBaseTaxAmount()+$adj);
-    	}
 
         $address->setGrandTotal($address->getGrandTotal() + $address->getTaxAmount());
         $address->setBaseGrandTotal($address->getBaseGrandTotal() + $address->getBaseTaxAmount());

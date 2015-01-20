@@ -84,9 +84,10 @@ class Zend_Currency
         $this->setLocale($locale);
 
         // get currency details
-        $this->_options['currency'] = self::getShortName($currency, $this->_locale);
-        $this->_options['name']     = self::getName     ($currency, $this->_locale);
-        $this->_options['symbol']   = self::getSymbol   ($currency, $this->_locale);
+        $this->_options['currency']      = self::getShortName   ($currency, $this->_locale);
+        $this->_options['name']          = self::getName        ($currency, $this->_locale);
+        $this->_options['symbol']        = self::getSymbol      ($currency, $this->_locale);
+        $this->_options['symbol_choice'] = self::getSymbolChoice($currency, $this->_locale);
 
         if (($this->_options['currency'] === null) and ($this->_options['name'] === null)) {
             require_once 'Zend/Currency/Exception.php';
@@ -154,12 +155,41 @@ class Zend_Currency
         if (empty($options['format'])) {
             $options['format'] = $this->_locale;
         }
+
+        // select currency symbol if needed
+        if ($options['symbol_choice']) {
+            $symbols = explode('|', $options['symbol']);
+            if (is_array($symbols)) {
+                foreach ($symbols as $symbol) {
+                    $type = $position = null;
+                    if (($tmp = iconv_strpos($symbol, '≤')) !== false) {
+                        $type = 1;
+                        $position = $tmp;
+                    }
+                    if (($tmp = iconv_strpos($symbol, '<')) !== false) {
+                        $type = 2;
+                        $position = $tmp;
+                    }
+                    
+                    if (!is_null($position)) {
+                        $number = iconv_substr($symbol, 0, $position);
+                        $sign = iconv_substr($symbol, $position+1);
+                        
+                        if (($type == 1 && $number <= $value) || ($type == 2 && $number < $value)) {
+                            $options['symbol'] = $sign;
+                        }
+                    }
+                }
+            }
+        }
+
         $value = Zend_Locale_Format::toNumber($value, array('locale' => $options['format'], 'precision' => $options['precision']));
 
         //localize the number digits
         if (!empty ($options['script'])) {
             $value = Zend_Locale_Format::convertNumerals($value, 'Latn', $options['script']);
         }
+
         //get the sign to be placed next to the number
         if (!is_numeric($options['display'])) {
             $sign = " " . $options['display'] . " ";
@@ -278,6 +308,26 @@ class Zend_Currency
         return $symbol;
     }
 
+
+    public function getSymbolChoice($currency = null, $locale = null)
+    {
+        if (($currency === null) and ($locale === null)) {
+            return $this->_options['symbol_choice'];
+        }
+
+        $params = self::_checkParams($currency, $locale);
+
+        //get the symbol
+
+        $symbol = Zend_Locale_Data::getContent($params['locale'], 'currencysymbolchoice', $params['currency']);
+        if (empty($symbol)) {
+            $symbol = Zend_Locale_Data::getContent($params['locale'], 'currencysymbolchoice', $params['name']);
+        }
+        if (empty($symbol)) {
+            return null;
+        }
+        return $symbol;
+    }
 
     /**
      * Returns the actual or details of other currency shortnames
@@ -405,7 +455,7 @@ class Zend_Currency
 
     /**
      * sets a cache for Zend_Currency
-     * 
+     *
      * @param Zend_Cache_Core $cache  Cache to set
      */
     public static function setCache(Zend_Cache_Core $cache)

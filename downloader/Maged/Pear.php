@@ -27,7 +27,11 @@ if (!defined('DS')) {
 
 // add PEAR lib in include_path if needed
 $_includePath = get_include_path();
-$_pearPhpDir = dirname(dirname(__FILE__)) . DS . 'pearlib' . DS . 'php';
+$_pearDir = dirname(dirname(__FILE__)) . DS . 'pearlib';
+if (!getenv('PHP_PEAR_INSTALL_DIR')) {
+    putenv('PHP_PEAR_INSTALL_DIR=' . $_pearDir);
+}
+$_pearPhpDir = $_pearDir . DS . 'php';
 if (strpos($_includePath, $_pearPhpDir) === false) {
     if (substr($_includePath, 0, 2) === '.' . PATH_SEPARATOR) {
         $_includePath = '.' . PATH_SEPARATOR . $_pearPhpDir . PATH_SEPARATOR . substr($_includePath, 2);
@@ -47,6 +51,7 @@ require_once "PEAR/Exception.php";
 
 require_once "Maged/Pear/Frontend.php";
 require_once "Maged/Pear/Package.php";
+require_once "Maged/Pear/Registry.php";
 require_once "Maged/Model/Pear/Request.php";
 
 class Maged_Pear
@@ -145,7 +150,7 @@ class Maged_Pear
 //        return $this->getConfig()->getRegistry();
 
         if (!$this->_registry) {
-            $this->_registry = new PEAR_Registry($this->getPearDir().DS.'php');
+            $this->_registry = new Maged_Pear_Registry($this->getPearDir().DS.'php');
 
             $changed = false;
             foreach ($this->getMagentoChannels() as $channel=>$channelName) {

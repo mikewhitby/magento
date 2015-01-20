@@ -5,7 +5,6 @@
 
 #    Action php5-cgi /cgi-bin/php5-cgi
 #    AddHandler php5-cgi .php
-#    php_flag cgi.fix_pathinfo on
 
 ############################################
 ## this line is specific for 1and1 hosting

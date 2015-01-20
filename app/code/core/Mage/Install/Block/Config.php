@@ -21,6 +21,7 @@
 /**
  * Config installation block
  *
+ * @author      Magento Core Team <core@magentocommerce.com>
  */
 class Mage_Install_Block_Config extends Mage_Install_Block_Abstract
 {

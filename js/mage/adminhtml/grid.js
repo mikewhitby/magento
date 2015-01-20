@@ -31,6 +31,7 @@ varienGrid.prototype = {
         this.preInitCallback = false;
         this.initCallback = false;
         this.initRowCallback = false;
+        this.doFilterCallback = false;
 
         this.reloadParams = false;
 
@@ -160,6 +161,22 @@ varienGrid.prototype = {
             location.href = url;
         }
     },
+    /*_processComplete : function(transport){
+        console.log(transport);
+        if (transport && transport.responseText){
+            try{
+                response = eval('(' + transport.responseText + ')');
+            }
+            catch (e) {
+                response = {};
+            }
+        }
+        if (response.ajaxExpired && response.ajaxRedirect) {
+            location.href = response.ajaxRedirect;
+            return false;
+        }
+        this.initGrid();
+    },*/
     _processFailure : function(transport){
         location.href = BASE_URL;
     },
@@ -205,7 +222,9 @@ varienGrid.prototype = {
         for(var i in filters){
             if(filters[i].value && filters[i].value.length) elements.push(filters[i]);
         }
-        this.reload(this.addVarToUrl(this.filterVar, encode_base64(Form.serializeElements(elements))));
+        if (!this.doFilterCallback || (this.doFilterCallback && this.doFilterCallback())) {
+            this.reload(this.addVarToUrl(this.filterVar, encode_base64(Form.serializeElements(elements))));
+        }
     },
     resetFilter : function(){
         this.reload(this.addVarToUrl(this.filterVar, ''));
@@ -402,7 +421,7 @@ varienGridMassaction.prototype = {
         }.bind(this));
     },
     selectAll: function() {
-        this.setCheckedValues(this.getGridIds());
+        this.addCheckedValues(this.getGridIds());
         this.checkCheckboxes();
         this.updateCount();
         return false;

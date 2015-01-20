@@ -21,6 +21,7 @@
 /**
  * Adminhtml sales orders controller
  *
+ * @author      Magento Core Team <core@magentocommerce.com>
  */
 class Mage_Adminhtml_Sales_ShipmentController extends Mage_Adminhtml_Controller_Action
 {
@@ -63,7 +64,7 @@ class Mage_Adminhtml_Sales_ShipmentController extends Mage_Adminhtml_Controller_
     public function viewAction()
     {
         if ($shipmentId = $this->getRequest()->getParam('shipment_id')) {
-            $this->_forward('view', 'sales_order_shipment');
+            $this->_forward('view', 'sales_order_shipment', null, array('come_from'=>'shipment'));
         } else {
             $this->_forward('noRoute');
         }

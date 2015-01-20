@@ -23,6 +23,7 @@
  *
  * @category   Mage
  * @package    Mage_Contacts
+ * @author      Magento Core Team <core@magentocommerce.com>
  */
 class Mage_Contacts_IndexController extends Mage_Core_Controller_Front_Action
 {

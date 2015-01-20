@@ -21,6 +21,7 @@
 /**
  * Locale model
  *
+ * @author      Magento Core Team <core@magentocommerce.com>
  */
 class Mage_Core_Model_Locale
 {
@@ -179,13 +180,16 @@ class Mage_Core_Model_Locale
                 if (!isset($languages[$data[0]]) || !isset($countries[$data[1]])) {
                     continue;
                 }
+                $language = $this->getLocale()->getLanguageTranslation($data[0], $code);
+                $country  = $this->getLocale()->getCountryTranslation($data[1], $code);
                 $options[] = array(
                     'value' => $code,
-                    'label' => $languages[$data[0]] . ' (' . $countries[$data[1]] . ')'
+                    'label' => $language . ' (' . $country . ')'
                 );
             }
         }
-        return $this->_sortOptionArray($options);
+        return $options;
+        //return $this->_sortOptionArray($options);
     }
 
     /**
@@ -273,15 +277,15 @@ class Mage_Core_Model_Locale
     {
         $data = array();
         foreach ($option as $item) {
-        	$data[$item['value']] = $item['label'];
+            $data[$item['value']] = $item['label'];
         }
         asort($data);
         $option = array();
         foreach ($data as $key => $label) {
-        	$option[] = array(
-        	   'value' => $key,
-        	   'label' => $label
-        	);
+            $option[] = array(
+               'value' => $key,
+               'label' => $label
+            );
         }
         return $option;
     }
@@ -433,5 +437,49 @@ class Mage_Core_Model_Locale
         }
         Varien_Profiler::stop('locale/currency');
         return self::$_currencyCache[$this->getLocaleCode()][$currency];
+    }
+
+    /**
+     * Returns the first found number from an string
+     * Parsing depends on given locale (grouping and decimal)
+     *
+     * Examples for input:
+     * '  2345.4356,1234' = 23455456.1234
+     * '+23,3452.123' = 233452.123
+     * ' 12343 ' = 12343
+     * '-9456km' = -9456
+     * '0' = 0
+     *
+     * @param string|int $value
+     * @return float
+     */
+    public function getNumber($value)
+    {
+        if (is_null($value)) {
+            return null;
+        }
+
+        if (!is_string($value)) {
+            return floatval($value);
+        }
+
+        $separatorComa = strpos($value, ',');
+        $separatorDot  = strpos($value, '.');
+
+        if ($separatorComa !== false && $separatorDot !== false) {
+            if ($separatorComa > $separatorDot) {
+                $value = str_replace('.', '', $value);
+                $value = str_replace(',', '.', $value);
+            }
+            else {
+                $value = str_replace(',', '', $value);
+            }
+        }
+        elseif ($separatorComa !== false) {
+            $value = str_replace(',', '.', $value);
+        }
+
+        return floatval($value);
+        //return Zend_Locale_Format::getNumber($value, array('locale' => $this->getLocaleCode()));
     }
 }

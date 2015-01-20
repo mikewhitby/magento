@@ -23,6 +23,7 @@
  *
  * @category   Mage
  * @package    Mage_CatalogSearch
+ * @author      Magento Core Team <core@magentocommerce.com>
  */
 class Mage_CatalogSearch_Model_Advanced extends Varien_Object
 {
@@ -142,7 +143,8 @@ class Mage_CatalogSearch_Model_Advanced extends Varien_Object
             $value = implode(', ', $value);
         } else if ($attribute->getFrontendInput() == 'select' || $attribute->getFrontendInput() == 'multiselect') {
             $value = $attribute->getSource()->getOptionText($value);
-            $value = $value['label'];
+            if (is_array($value))
+                $value = $value['label'];
         }
 
         $this->_searchCriterias[] = array('name'=>$name, 'value'=>$value);

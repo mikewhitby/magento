@@ -24,6 +24,7 @@
  *
  * @category   Mage
  * @package    Mage_Catalog
+ * @author      Magento Core Team <core@magentocommerce.com>
  */
 class Mage_Catalog_Model_Resource_Eav_Mysql4_Category_Tree extends Varien_Data_Tree_Dbp
 {
@@ -88,6 +89,10 @@ class Mage_Catalog_Model_Resource_Eav_Mysql4_Category_Tree extends Varien_Data_T
         $collection->addIdFilter($nodeIds);
         if ($onlyActive) {
             $collection->addAttributeToFilter('is_active', 1);
+            $disabledIds = $this->_getDisabledIds($collection);
+            if ($disabledIds) {
+                $collection->addFieldToFilter('entity_id', array('nin'=>$disabledIds));
+            }
         }
 
         if($toLoad) {
@@ -100,6 +105,37 @@ class Mage_Catalog_Model_Resource_Eav_Mysql4_Category_Tree extends Varien_Data_T
 
         return $this;
     }
+
+    protected function _getDisabledIds($collection)
+    {
+        $allIds = $collection->getAllIds();
+        $disabledIds = array();
+
+        foreach ($allIds as $id) {
+            $parents = $this->getNodeById($id)->getPath();
+            foreach ($parents as $parent) {
+                $activity = $this->_getItemIsActive($parent->getId());
+                if ($activity != 1) {
+                    $disabledIds[] = $id;
+                    continue;
+                }
+            }
+        }
+        return $disabledIds;
+    }
+
+
+    protected function _getItemIsActive($id)
+    {
+        if (!isset($this->_activityCache[$id])) {
+            $select = $this->_conn->select()
+                ->from(Mage::getSingleton('core/resource')->getTableName('catalog/category'), array('is_active'))
+                ->where('entity_id = ?', $id);
+            $this->_activityCache[$id] = $this->_conn->fetchOne($select);
+        }
+        return $this->_activityCache[$id];
+    }
+
 
     /**
      * Get categories collection

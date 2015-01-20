@@ -21,6 +21,7 @@
 /**
  * Shopping cart operation observer
  *
+ * @author      Magento Core Team <core@magentocommerce.com>
  */
 class Mage_Wishlist_Model_Observer extends Mage_Core_Model_Abstract
 {

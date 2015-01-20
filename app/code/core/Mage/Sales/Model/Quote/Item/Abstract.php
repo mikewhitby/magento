@@ -23,6 +23,7 @@
  *
  * @category   Mage
  * @package    Mage_Sales
+ * @author      Magento Core Team <core@magentocommerce.com>
  */
 abstract class Mage_Sales_Model_Quote_Item_Abstract extends Mage_Core_Model_Abstract
 {
@@ -177,7 +178,7 @@ abstract class Mage_Sales_Model_Quote_Item_Abstract extends Mage_Core_Model_Abst
     public function getBaseCalculationPrice()
     {
         if (!$this->hasBaseCalculationPrice()) {
-            if ($price = $this->getCustomPrice()) {
+            if ($price = (float) $this->getCustomPrice()) {
                 $rate = $this->getStore()->convertPrice($price) / $price;
                 $price = $price / $rate;
             }

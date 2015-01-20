@@ -21,6 +21,7 @@
 /**
  * Translate model
  *
+ * @author      Magento Core Team <core@magentocommerce.com>
  */
 class Mage_Core_Model_Translate
 {
@@ -414,9 +415,15 @@ class Mage_Core_Model_Translate
         $filePath = Mage::getBaseDir('locale')  . DS
                   . $localeCode . DS . 'template' . DS . $type . DS . $file;
 
-        if (!file_exists($filePath)) { // If no template specified for this locale, use default
+        if (!file_exists($filePath)) { // If no template specified for this locale, use store default
             $filePath = Mage::getBaseDir('locale') . DS
                       . Mage::app()->getLocale()->getDefaultLocale()
+                      . DS . 'template' . DS . $type . DS . $file;
+        }
+
+        if (!file_exists($filePath)) {  // If no template specified as  store default locale, use en_US
+            $filePath = Mage::getBaseDir('locale') . DS
+                      . Mage_Core_Model_Locale::DEFAULT_LOCALE
                       . DS . 'template' . DS . $type . DS . $file;
         }
 

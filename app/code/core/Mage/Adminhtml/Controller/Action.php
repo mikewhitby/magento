@@ -68,12 +68,18 @@ class Mage_Adminhtml_Controller_Action extends Mage_Core_Controller_Varien_Actio
         return $this;
     }
 
+    /**
+     * @return Mage_Adminhtml_Controller_Action
+     */
     protected function _addBreadcrumb($label, $title, $link=null)
     {
         $this->getLayout()->getBlock('breadcrumbs')->addLink($label, $title, $link);
         return $this;
     }
 
+    /**
+     * @return Mage_Adminhtml_Controller_Action
+     */
     protected function _addContent(Mage_Core_Block_Abstract $block)
     {
         $this->getLayout()->getBlock('content')->append($block);
@@ -101,9 +107,11 @@ class Mage_Adminhtml_Controller_Action extends Mage_Core_Controller_Varien_Actio
     {
         Mage::getDesign()->setArea('adminhtml')
             ->setPackageName((string)Mage::getConfig()->getNode('stores/admin/design/package/name'))
-            ->setTheme((string)Mage::getConfig()->getNode('stores/admin/design/theme/default_clean'));
+            ->setTheme((string)Mage::getConfig()->getNode('stores/admin/design/theme/default'));
 
         $this->getLayout()->setArea('adminhtml');
+
+        Mage::dispatchEvent('adminhtml_controller_action_predispatch_start', array());
 
         parent::preDispatch();
 
@@ -113,6 +121,10 @@ class Mage_Adminhtml_Controller_Action extends Mage_Core_Controller_Varien_Actio
             $this->getResponse()->setHeader('HTTP/1.1','403 Forbidden');
             $this->_forward('denied');
             $this->setFlag('', self::FLAG_NO_DISPATCH, true);
+        }
+
+        if (is_null(Mage::getSingleton('adminhtml/session')->getLocale())) {
+            Mage::getSingleton('adminhtml/session')->setLocale(Mage::app()->getLocale()->getLocaleCode());
         }
 
         return $this;

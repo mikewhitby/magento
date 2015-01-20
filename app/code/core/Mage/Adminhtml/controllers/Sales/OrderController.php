@@ -23,6 +23,7 @@
  *
  * @category    Mage
  * @package     Mage_Adminhtml
+ * @author      Magento Core Team <core@magentocommerce.com>
  */
 class Mage_Adminhtml_Sales_OrderController extends Mage_Adminhtml_Controller_Action
 {
@@ -160,7 +161,7 @@ class Mage_Adminhtml_Sales_OrderController extends Mage_Adminhtml_Controller_Act
                 $order->unhold()
                     ->save();
                 $this->_getSession()->addSuccess(
-                    $this->__('Order was successfully unholded.')
+                    $this->__('Order was successfully released from holding status.')
                 );
             }
             catch (Mage_Core_Exception $e) {
@@ -203,7 +204,7 @@ class Mage_Adminhtml_Sales_OrderController extends Mage_Adminhtml_Controller_Act
             catch (Exception $e) {
                 $response = array(
                     'error'     => true,
-                    'message'   => $this->__('Can nod add order history.')
+                    'message'   => $this->__('Can not add order history.')
                 );
             }
             if (is_array($response)) {
@@ -252,17 +253,17 @@ class Mage_Adminhtml_Sales_OrderController extends Mage_Adminhtml_Controller_Act
     public function massCancelAction()
     {
         $orderIds = $this->getRequest()->getPost('order_ids', array());
-        $cancelAnyOrder = false;
+        $countCancelOrder = 0;
         foreach ($orderIds as $orderId) {
             $order = Mage::getModel('sales/order')->load($orderId);
             if ($order->canCancel()) {
                 $order->cancel()
                     ->save();
-                $cancelAnyOrder = true;
+                $countCancelOrder++;
             }
         }
-        if ($cancelAnyOrder) {
-            $this->_getSession()->addSuccess($this->__('Orders was canceled'));
+        if ($countCancelOrder>0) {
+            $this->_getSession()->addSuccess($this->__('%s order(s) successfully canceled', $countCancelOrder));
         }
         else {
             // selected orders is not available for cancel
@@ -276,17 +277,17 @@ class Mage_Adminhtml_Sales_OrderController extends Mage_Adminhtml_Controller_Act
     public function massHoldAction()
     {
         $orderIds = $this->getRequest()->getPost('order_ids', array());
-        $holdAnyOrder = false;
+        $countHoldOrder = 0;
         foreach ($orderIds as $orderId) {
             $order = Mage::getModel('sales/order')->load($orderId);
             if ($order->canHold()) {
                 $order->hold()
                     ->save();
-                $holdAnyOrder = true;
+                $countHoldOrder++;
             }
         }
-        if ($holdAnyOrder) {
-            $this->_getSession()->addSuccess($this->__('Orders was successfully put on hold'));
+        if ($countHoldOrder>0) {
+            $this->_getSession()->addSuccess($this->__('%s order(s) successfully put on hold', $countHoldOrder));
         }
         else {
             // selected orders is not available for hold
@@ -300,17 +301,17 @@ class Mage_Adminhtml_Sales_OrderController extends Mage_Adminhtml_Controller_Act
     public function massUnholdAction()
     {
         $orderIds = $this->getRequest()->getPost('order_ids', array());
-        $unholdAnyOrder = false;
+        $countUnholdOrder = 0;
         foreach ($orderIds as $orderId) {
             $order = Mage::getModel('sales/order')->load($orderId);
             if ($order->canUnhold()) {
                 $order->unhold()
                     ->save();
-                $unholdAnyOrder = true;
+                $countUnholdOrder++;
             }
         }
-        if ($unholdAnyOrder) {
-            $this->_getSession()->addSuccess($this->__('Orders was unholded'));
+        if ($countUnholdOrder>0) {
+            $this->_getSession()->addSuccess($this->__('%s order(s) successfully released from holding status', $countUnholdOrder));
         }
         else {
             // selected orders is not available for hold

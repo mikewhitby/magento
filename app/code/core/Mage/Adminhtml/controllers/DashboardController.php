@@ -23,6 +23,7 @@
  *
  * @category   Mage
  * @package    Mage_Adminhtml
+ * @author      Magento Core Team <core@magentocommerce.com>
  */
 class Mage_Adminhtml_DashboardController extends Mage_Adminhtml_Controller_Action
 {
@@ -240,6 +241,27 @@ class Mage_Adminhtml_DashboardController extends Mage_Adminhtml_Controller_Actio
         $this->getResponse()->setBody( $xmlObject->toXml(array(), 'dataSource', true, false) );
     }
 */
+
+    public function tunnelAction()
+    {
+        $httpClient = new Varien_Http_Client();
+
+        foreach ($this->getRequest()->getParams() as $name => $value) {
+            // fixing slashes
+            $params[$name] = str_replace('\\', '/', urldecode($value));
+        }
+
+        $response = $httpClient->setUri(Mage_Adminhtml_Block_Dashboard_Graph::API_URL)
+                ->setParameterGet($params)
+                ->setConfig(array('timeout' => 15))
+                ->request('GET');
+
+        $headers = $response->getHeaders();
+
+        $this->getResponse()
+            ->setHeader('Content-type', $headers['Content-type'])
+            ->setBody($response->getBody());
+    }
 
     protected function _isAllowed()
     {

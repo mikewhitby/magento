@@ -24,6 +24,7 @@
  *
  * @category   Mage
  * @package    Mage_Wishlist
+ * @author      Magento Core Team <core@magentocommerce.com>
  */
 class Mage_Wishlist_Block_Customer_Wishlist extends Mage_Core_Block_Template
 {
@@ -89,6 +90,9 @@ class Mage_Wishlist_Block_Customer_Wishlist extends Mage_Core_Block_Template
 
     public function getBackUrl()
     {
+        if ($this->getRefererUrl()) {
+            return $this->getRefererUrl();
+        }
         return $this->getUrl('customer/account/');
     }
 

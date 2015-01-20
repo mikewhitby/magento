@@ -103,9 +103,9 @@ class Mage_Adminhtml_UrlrewriteController extends Mage_Adminhtml_Controller_Acti
         $this->loadLayout();
 
 //        $this->getLayout()->getBlock('head')->setCanLoadExtJs(true);
-        
+
         $this->_initAction()->_addContent($this->getLayout()->createBlock('adminhtml/urlrewrite_add'));
-        
+
         $this->getLayout()->getBlock('head')->setCanLoadExtJs(true);
 
         $this->renderLayout();
@@ -140,7 +140,7 @@ class Mage_Adminhtml_UrlrewriteController extends Mage_Adminhtml_Controller_Acti
             catch (Exception $e){
                 Mage::getSingleton('adminhtml/session')->addError($e->getMessage())->setUrlrewriteData($data);
 
-                $this->getResponse()->setRedirect($this->getUrl('*/urlrewrite/new', array('id'=>$model->getId())));
+                $this->getResponse()->setRedirect($this->getUrl('*/urlrewrite/edit', array('id'=>$model->getId())));
                 return;
             }
         }

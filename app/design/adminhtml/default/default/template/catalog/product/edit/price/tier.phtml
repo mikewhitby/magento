@@ -21,18 +21,18 @@
 <?php $_htmlId      = $this->getElement()->getHtmlId() ?>
 <?php $_htmlClass   = $this->getElement()->getClass() ?>
 <?php $_htmlName    = $this->getElement()->getName() ?>
-<?php $_multiWebsite= $this->getWebsiteCount()>1; ?>
+<?php $_multiWebsite= $this->isMultiWebsites(); ?>
 <tr>
     <td class="label"><?php echo $this->getElement()->getLabel() ?></td>
     <td colspan="10" class="grid tier">
-    <table cellspacing="0" class="data" id="tiers_table">
+    <table cellspacing="0" class="data border" id="tiers_table">
         <?php if ($_multiWebsite): ?>
-        <col width="120">
+        <col width="120" />
         <?php endif; ?>
-        <col width="100">
-        <col width="120">
-        <col>
-        <col width="50">
+        <col width="100" />
+        <col width="120" />
+        <col />
+        <col width="50" />
         <thead>
             <tr class="headings">
                 <th <?php if (!$_multiWebsite): ?>style="display:none"<?php endif; ?>><?php echo Mage::helper('sales')->__('Website') ?></th>

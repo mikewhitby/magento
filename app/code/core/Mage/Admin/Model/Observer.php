@@ -23,6 +23,7 @@
  *
  * @category   Mage
  * @package    Mage_Admin
+ * @author      Magento Core Team <core@magentocommerce.com>
  */
 class Mage_Admin_Model_Observer
 {
@@ -49,6 +50,7 @@ class Mage_Admin_Model_Observer
                         ->setDispatched(false);
                 } else {
                     $request->setParam('forwarded', true)
+                        ->setModuleName('admin')
                         ->setControllerName('index')
                         ->setActionName('login')
                         ->setDispatched(false);

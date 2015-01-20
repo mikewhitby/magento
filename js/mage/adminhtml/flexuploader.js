@@ -241,8 +241,8 @@ if(!window.Flex) {
                 case 4: // Security error
                     error = 'Upload Security Error';
                     break;
-                case 5: // SSL self-signed sertificate
-                    error = 'SSL Error: Invalid or self-signed sertificate';
+                case 5: // SSL self-signed certificate
+                    error = 'SSL Error: Invalid or self-signed certificate';
                     break;
             }
 

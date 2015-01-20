@@ -24,6 +24,7 @@
  *
  * @category   Mage
  * @package    Mage_Catalog
+ * @author      Magento Core Team <core@magentocommerce.com>
  */
  class Mage_Catalog_Block_Product_Compare_List extends Mage_Core_Block_Template
  {
@@ -61,8 +62,8 @@
                 ->addAttributeToSelect('image')
                 ->addAttributeToSelect('status')
                 ->addAttributeToSelect('small_image')
-                ->addAttributeToSelect('tax_class_id')
-                ->useProductItem();
+                ->addAttributeToSelect('tax_class_id');
+
             Mage::getSingleton('catalog/product_visibility')->addVisibleInSiteFilterToCollection($this->_items);
         }
 
@@ -82,25 +83,15 @@
     {
         $this->_attributes = array();
         foreach($this->getItems() as $item) {
-            foreach ($item->getAttributes() as $attribute) {
-                if($attribute->getIsComparable() && !$this->hasAttribute($attribute->getAttributeCode()) && $item->getData($attribute->getAttributeCode())!==null) {
-                    $this->_attributes[] = $attribute;
+            foreach ($item->getTypeInstance()->getSetAttributes() as $attribute) {
+                if ($attribute->getIsComparable()
+                    && !isset($this->_attributes[$attribute->getAttributeCode()])
+                    && $item->getData($attribute->getAttributeCode())!==null) {
+                    $this->_attributes[$attribute->getAttributeCode()] = $attribute;
                 }
             }
         }
-
         return $this;
-    }
-
-    public function hasAttribute($code)
-    {
-        foreach($this->_attributes as $attribute) {
-            if($attribute->getAttributeCode()==$code) {
-                return true;
-            }
-        }
-
-        return false;
     }
 
     public function getProductAttributeValue($product, $attribute)

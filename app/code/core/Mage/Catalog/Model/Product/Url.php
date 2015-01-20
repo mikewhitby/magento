@@ -21,6 +21,7 @@
 /**
  * Product Url model
  *
+ * @author      Magento Core Team <core@magentocommerce.com>
  */
 
 class Mage_Catalog_Model_Product_Url extends Varien_Object
@@ -60,25 +61,32 @@ class Mage_Catalog_Model_Product_Url extends Varien_Object
      */
     public function getProductUrl($product)
     {
+        $queryParams = '';
+//        $store = Mage::app()->getStore();
+//        if ($store->getId() && Mage::getStoreConfig(Mage_Core_Model_Url::XML_PATH_STORE_IN_URL)) {
+//            $queryParams = '?store='.$store->getCode();
+//        }
+
         if ($product->hasData('request_path') && $product->getRequestPath() != '') {
-            $url = $this->getUrlInstance()->getBaseUrl().$product->getRequestPath();
+            $url = $this->getUrlInstance()->getBaseUrl().$product->getRequestPath().$queryParams;
             return $url;
         }
-    
+
         Varien_Profiler::start('REWRITE: '.__METHOD__);
         $rewrite = $this->getUrlRewrite();
         if ($product->getStoreId()) {
             $rewrite->setStoreId($product->getStoreId());
         }
         $idPath = 'product/'.$product->getId();
-        if ($product->getCategoryId() && Mage::getStoreConfig('catalog/seo/product_use_categories')) {
+        if ($product->getCategoryId() && !$product->getDoNotUseCategoryId() && Mage::getStoreConfig('catalog/seo/product_use_categories')) {
             $idPath .= '/'.$product->getCategoryId();
         }
 
         $rewrite->loadByIdPath($idPath);
 
         if ($rewrite->getId()) {
-            $url = $this->getUrlInstance()->getBaseUrl().$rewrite->getRequestPath();
+            $url = $this->getUrlInstance()->getBaseUrl().$rewrite->getRequestPath().$queryParams;
+
         Varien_Profiler::stop('REWRITE: '.__METHOD__);
             return $url;
         }
@@ -90,7 +98,7 @@ class Mage_Catalog_Model_Product_Url extends Varien_Object
                 'id'=>$product->getId(),
                 's'=>$product->getUrlKey(),
                 'category'=>$product->getCategoryId()
-            ));
+            )).$queryParams;
         Varien_Profiler::stop('REGULAR: '.__METHOD__);
         return $url;
     }

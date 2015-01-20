@@ -65,9 +65,6 @@ class Mage_Core_Model_Session_Abstract extends Mage_Core_Model_Session_Abstract_
     public function getCookieLifetime()
     {
     	$lifetime = Mage::getStoreConfig(self::XML_PATH_COOKIE_LIFETIME);
-    	if (empty($lifetime)) {
-    		$lifetime = 60*60*3;
-    	}
     	return $lifetime;
     }
 
@@ -101,7 +98,6 @@ class Mage_Core_Model_Session_Abstract extends Mage_Core_Model_Session_Abstract_
      */
     public function addException(Exception $exception, $alternativeText)
     {
-        Mage::loadExtension($exception);
         $this->addMessage(Mage::getSingleton('core/message')->error($alternativeText));
         return $this;
     }

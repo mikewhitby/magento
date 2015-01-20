@@ -76,9 +76,11 @@
                 <simplexml/>
                 <pdo_mysql/>
                 <mcrypt/>
+                <hash/>
                 <curl/>
                 <iconv/>
                 <ctype/>
+                <gd/>
             </extensions>
         </php>
     </check>

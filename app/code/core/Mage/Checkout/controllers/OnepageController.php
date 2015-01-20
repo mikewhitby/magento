@@ -98,7 +98,7 @@ class Mage_Checkout_OnepageController extends Mage_Core_Controller_Front_Action
             $this->_redirect('checkout/cart');
             return;
         }
-
+        Mage::getSingleton('checkout/session')->setCartWasUpdated(false);
         Mage::getSingleton('customer/session')->setBeforeAuthUrl($this->getRequest()->getRequestUri());
         $this->getOnepage()->initCheckout();
         $this->loadLayout();
@@ -295,7 +295,7 @@ class Mage_Checkout_OnepageController extends Mage_Core_Controller_Front_Action
             Mage::logException($e);
             $result['success']  = false;
             $result['error']    = true;
-            $result['error_messages'] = $this->__('There was an error processing your order. Please contact us or try agian later.');
+            $result['error_messages'] = $this->__('There was an error processing your order. Please contact us or try again later.');
         }
 
         /**

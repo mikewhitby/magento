@@ -21,6 +21,7 @@
 /**
  * Adminhtml sales orders grid
  *
+ * @author      Magento Core Team <core@magentocommerce.com>
  */
 class Mage_Adminhtml_Block_Sales_Invoice_Grid extends Mage_Adminhtml_Block_Widget_Grid
 {
@@ -136,10 +137,9 @@ class Mage_Adminhtml_Block_Sales_Invoice_Grid extends Mage_Adminhtml_Block_Widge
 
     public function getRowUrl($row)
     {
-        return $this->getUrl('*/sales_order_invoice/view',
+        return $this->getUrl('*/*/view',
             array(
                 'invoice_id'=> $row->getId(),
-                'order_id'  => $row->getOrderId()
             )
         );
     }

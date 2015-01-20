@@ -23,12 +23,6 @@
     <modules>
         <Mage_Reports>
             <version>0.7.6</version>
-            <depends>
-                <Mage_Customer />
-                <Mage_Catalog />
-                <Mage_Sales />
-                <Mage_Cms />
-            </depends>
         </Mage_Reports>
     </modules>
     <global>

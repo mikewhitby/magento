@@ -23,6 +23,7 @@
  *
  * @category   Mage
  * @package    Mage_Adminhtml
+ * @author      Magento Core Team <core@magentocommerce.com>
  */
 
 class Mage_Adminhtml_Block_Sales_Order_Creditmemo_Create_Items extends Mage_Adminhtml_Block_Sales_Order_Abstract
@@ -159,5 +160,15 @@ class Mage_Adminhtml_Block_Sales_Order_Creditmemo_Create_Items extends Mage_Admi
             ->setItem($item)
             ->toHtml();
         return $html;
+    }
+
+    public function canReturnToStock() {
+
+        $canReturnToStock = Mage::getStoreConfig('cataloginventory/options/can_subtract');
+        if (Mage::getStoreConfig('cataloginventory/options/can_subtract')) {
+            return true;
+        } else {
+            return false;
+        }
     }
 }

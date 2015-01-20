@@ -28,18 +28,21 @@
  *  sales_order_delete_before
  *  sales_order_delete_after
  *
+ * @author      Magento Core Team <core@magentocommerce.com>
  */
 class Mage_Sales_Model_Order extends Mage_Core_Model_Abstract
 {
     /**
      * XML configuration paths
      */
-    const XML_PATH_NEW_ORDER_EMAIL_TEMPLATE     = 'sales_email/order/template';
-    const XML_PATH_NEW_ORDER_EMAIL_IDENTITY     = 'sales_email/order/identity';
-    const XML_PATH_NEW_ORDER_EMAIL_COPY_TO      = 'sales_email/order/copy_to';
-    const XML_PATH_UPDATE_ORDER_EMAIL_TEMPLATE  = 'sales_email/order_comment/template';
-    const XML_PATH_UPDATE_ORDER_EMAIL_IDENTITY  = 'sales_email/order_comment/identity';
-    const XML_PATH_UPDATE_ORDER_EMAIL_COPY_TO   = 'sales_email/order_comment/copy_to';
+    const XML_PATH_EMAIL_TEMPLATE       = 'sales_email/order/template';
+    const XML_PATH_EMAIL_GUEST_TEMPLATE = 'sales_email/order/guest_template';
+    const XML_PATH_EMAIL_IDENTITY       = 'sales_email/order/identity';
+    const XML_PATH_EMAIL_COPY_TO        = 'sales_email/order/copy_to';
+    const XML_PATH_UPDATE_EMAIL_TEMPLATE        = 'sales_email/order_comment/template';
+    const XML_PATH_UPDATE_EMAIL_GUEST_TEMPLATE  = 'sales_email/order_comment/guest_template';
+    const XML_PATH_UPDATE_EMAIL_IDENTITY        = 'sales_email/order_comment/identity';
+    const XML_PATH_UPDATE_EMAIL_COPY_TO         = 'sales_email/order_comment/copy_to';
 
     /**
      * Order states
@@ -552,25 +555,34 @@ class Mage_Sales_Model_Order extends Mage_Core_Model_Abstract
     public function sendNewOrderEmail()
     {
         $itemsBlock = Mage::getBlockSingleton('sales/order_email_items')->setOrder($this);
-        $paymentBlock = Mage::helper('payment')->getInfoBlock($this->getPayment());
+        $paymentBlock = Mage::helper('payment')->getInfoBlock($this->getPayment())
+            ->setIsSecureMode(true);
 
         $mailTemplate = Mage::getModel('core/email_template');
         /* @var $mailTemplate Mage_Core_Model_Email_Template */
-        if ($bcc = $this->_getEmails(self::XML_PATH_NEW_ORDER_EMAIL_COPY_TO)) {
+        if ($bcc = $this->_getEmails(self::XML_PATH_EMAIL_COPY_TO)) {
             $mailTemplate->addBcc($bcc);
+        }
+
+        if ($this->getCustomerIsGuest()) {
+            $template = Mage::getStoreConfig(self::XML_PATH_EMAIL_GUEST_TEMPLATE, $this->getStoreId());
+            $customerName = $this->getBillingAddress()->getName();
+        } else {
+            $template = Mage::getStoreConfig(self::XML_PATH_EMAIL_TEMPLATE, $this->getStoreId());
+            $customerName = $this->getCustomerName();
         }
 
         $mailTemplate->setDesignConfig(array('area'=>'frontend', 'store'=>$this->getStoreId()))
             ->sendTransactional(
-                Mage::getStoreConfig(self::XML_PATH_NEW_ORDER_EMAIL_TEMPLATE, $this->getStoreId()),
-                Mage::getStoreConfig(self::XML_PATH_NEW_ORDER_EMAIL_IDENTITY, $this->getStoreId()),
+                $template,
+                Mage::getStoreConfig(self::XML_PATH_EMAIL_IDENTITY, $this->getStoreId()),
                 $this->getCustomerEmail(),
-                $this->getBillingAddress()->getName(),
+                $customerName,
                 array(
-                  'order'       => $this,
-                  'billing'     => $this->getBillingAddress(),
-                  'payment_html'=> $paymentBlock->toHtml(),
-                  'items_html'  => $itemsBlock->toHtml(),
+                    'order'         => $this,
+                    'billing'       => $this->getBillingAddress(),
+                    'payment_html'  => $paymentBlock->toHtml(),
+                    'items_html'    => $itemsBlock->toHtml(),
                 )
             );
         return $this;
@@ -583,7 +595,7 @@ class Mage_Sales_Model_Order extends Mage_Core_Model_Abstract
      */
     public function sendOrderUpdateEmail($notifyCustomer=true, $comment='')
     {
-        $bcc = $this->_getEmails(self::XML_PATH_UPDATE_ORDER_EMAIL_COPY_TO);
+        $bcc = $this->_getEmails(self::XML_PATH_UPDATE_EMAIL_COPY_TO);
         if (!$notifyCustomer && !$bcc) {
             return $this;
         }
@@ -592,21 +604,28 @@ class Mage_Sales_Model_Order extends Mage_Core_Model_Abstract
         if ($notifyCustomer) {
             $customerEmail = $this->getCustomerEmail();
             $mailTemplate->addBcc($bcc);
-        }
-        else {
+        } else {
             $customerEmail = $bcc;
+        }
+
+        if ($this->getCustomerIsGuest()) {
+            $template = Mage::getStoreConfig(self::XML_PATH_UPDATE_EMAIL_GUEST_TEMPLATE, $this->getStoreId());
+            $customerName = $this->getBillingAddress()->getName();
+        } else {
+            $template = Mage::getStoreConfig(self::XML_PATH_UPDATE_EMAIL_TEMPLATE, $this->getStoreId());
+            $customerName = $this->getCustomerName();
         }
 
         $mailTemplate->setDesignConfig(array('area'=>'frontend', 'store' => $this->getStoreId()))
             ->sendTransactional(
-                Mage::getStoreConfig(self::XML_PATH_UPDATE_ORDER_EMAIL_TEMPLATE, $this->getStoreId()),
-                Mage::getStoreConfig(self::XML_PATH_UPDATE_ORDER_EMAIL_IDENTITY, $this->getStoreId()),
+                $template,
+                Mage::getStoreConfig(self::XML_PATH_UPDATE_EMAIL_IDENTITY, $this->getStoreId()),
                 $customerEmail,
-                $this->getBillingAddress()->getName(),
+                $customerName,
                 array(
-                    'order'=>$this,
-                    'billing'=>$this->getBillingAddress(),
-                    'comment'=>$comment
+                    'order'     => $this,
+                    'billing'   => $this->getBillingAddress(),
+                    'comment'   => $comment
                 )
             );
         return $this;
@@ -1181,16 +1200,42 @@ class Mage_Sales_Model_Order extends Mage_Core_Model_Abstract
             }
         }
 
-        if ($this->getState() == self::STATE_NEW) {
+        if ($this->getState() == self::STATE_NEW && $this->getIsInProcess()) {
             $this->setState(self::STATE_PROCESSING, true);
         }
         return $this;
     }
 
-    public function belongsToCurrentCustomer()
+    public function getStoreGroupName()
     {
-        $customerId = Mage::getSingleton('customer/session')->getCustomerId();
+        $storeId = $this->getStoreId();
+        if (is_null($storeId)) {
+            return $this->getStoreName(1); // 0 - website name, 1 - store group name, 2 - store name
+        }
+        return $this->getStore()->getGroup()->getName();
+    }
 
-        return ($this->getCustomerId() == $customerId && $customerId != 0);
+    /**
+     * Resets all data in object
+     * so after another load it will be complete new object
+     *
+     * @return Mage_Sales_Model_Order
+     */
+    public function reset()
+    {
+        $this->unsetData();
+        $this->_addresses = null;
+        $this->_items = null;
+        $this->_payments = null;
+        $this->_statusHistory = null;
+        $this->_invoices = null;
+        $this->_tracks = null;
+        $this->_shipments = null;
+        $this->_creditmemos = null;
+        $this->_relatedObjects = array();
+        $this->_orderCurrency = null;
+        $this->_storeCurrency = null;
+
+        return $this;
     }
 }

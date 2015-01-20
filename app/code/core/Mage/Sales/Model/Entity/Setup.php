@@ -38,6 +38,7 @@ class Mage_Sales_Model_Entity_Setup extends Mage_Eav_Model_Entity_Setup
                     'billing_address_id'=> array('type'=>'static'),
                     'orig_order_id'     => array('type'=>'static'),
                     'converted_at'      => array('type'=>'static'),
+                    'reserved_order_id' => array('type'=>'static'),
 
                     'coupon_code'           => array('type'=>'static'),
                     'base_currency_code'    => array('type'=>'static'),
@@ -119,6 +120,7 @@ class Mage_Sales_Model_Entity_Setup extends Mage_Eav_Model_Entity_Setup
 
                     'customer_id'   => array('type'=>'static'),
                     'customer_address_id' => array('type'=>'static'),
+                    'save_in_address_book' => array('type'=>'static'),
                     'email'     => array('type'=>'static'),
                     'firstname' => array('type'=>'static'),
                     'lastname'  => array('type'=>'static'),
@@ -446,7 +448,7 @@ class Mage_Sales_Model_Entity_Setup extends Mage_Eav_Model_Entity_Setup
                     'quote_payment_id'      => array('type'=>'int'),
                     'method'                => array(),
                     'additional_data'       => array('type'=>'text'),
-
+                    'last_trans_id'         => array(),
                     'po_number'     => array(),
 
                     'cc_type'       => array(),
@@ -514,16 +516,16 @@ class Mage_Sales_Model_Entity_Setup extends Mage_Eav_Model_Entity_Setup
 
             'invoice' => array(
                 'entity_model'      => 'sales/order_invoice',
-                //'table'=>'sales/invoice',
-                'table'=>'sales/order_entity',
-                'increment_model'=>'eav/entity_increment_numeric',
+                'table'             =>'sales/order_entity',
+                'increment_model'   =>'eav/entity_increment_numeric',
                 'increment_per_store'=>true,
-                'backend_prefix'=>'sales_entity/order_attribute_backend',
+                'backend_prefix'    =>'sales_entity/order_attribute_backend',
                 'attributes' => array(
-                    'entity_id'     => array(
+                    'entity_id' => array(
                         'type'=>'static',
                         'backend'=>'sales_entity/order_invoice_attribute_backend_parent'
                     ),
+
                     'state'    => array('type'=>'int'),
                     'is_used_for_refund' => array('type'=>'int'),
                     'transaction_id' => array(),

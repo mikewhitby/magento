@@ -21,6 +21,7 @@
 /**
  * Stock model
  *
+ * @author      Magento Core Team <core@magentocommerce.com>
  */
 class Mage_CatalogInventory_Model_Stock extends Mage_Core_Model_Abstract
 {
@@ -58,7 +59,7 @@ class Mage_CatalogInventory_Model_Stock extends Mage_Core_Model_Abstract
             foreach($productCollection as $product){
                 if($product->getId()==$item->getProductId()){
                     if($product instanceof Mage_Catalog_Model_Product) {
-                    	$item->assignProduct($product);
+                        $item->assignProduct($product);
                     }
                 }
             }
@@ -101,22 +102,13 @@ class Mage_CatalogInventory_Model_Stock extends Mage_Core_Model_Abstract
         return $this;
     }
 
-    /**
-     * Back stock item data when we cancel order items
-     *
-     * @param Varien_Object $item
-     */
-    public function cancelItemSale(Varien_Object $item)
+
+    public function backItemQty($productId, $qty)
     {
-        if (($productId = $item->getProductId()) && ($qty = $item->getQtyToShip())) {
-            $stockItem = Mage::getModel('cataloginventory/stock_item')->loadByProduct($productId);
-            if ($stockItem->getId()) {
-                if ($item->getStoreId()) {
-                    $stockItem->setStoreId($item->getStoreId());
-                }
-                $stockItem->addQty($qty)
-                    ->save();
-            }
+        $stockItem = Mage::getModel('cataloginventory/stock_item')->loadByProduct($productId);
+        if ($stockItem->getId()) {
+            $stockItem->addQty($qty)
+                ->save();
         }
         return $this;
     }
@@ -141,7 +133,7 @@ class Mage_CatalogInventory_Model_Stock extends Mage_Core_Model_Abstract
      */
     public function addInStockFilterToCollection($collection)
     {
-    	$this->getResource()->setInStockFilterToCollection($collection);
-    	return $this;
+        $this->getResource()->setInStockFilterToCollection($collection);
+        return $this;
     }
 }

@@ -24,6 +24,11 @@ class Mage_GoogleCheckout_RedirectController extends Mage_Core_Controller_Front_
     {
         $session = Mage::getSingleton('checkout/session');
 
+        if (!$session->getQuote()->hasItems()) {
+            $this->getResponse()->setRedirect(Mage::getUrl('checkout/cart'));
+            return;
+        }
+
         $api = Mage::getModel('googlecheckout/api')
             ->setAnalyticsData($this->getRequest()->getPost('analyticsdata'))
             ->checkout($session->getQuote());

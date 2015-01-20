@@ -22,6 +22,7 @@
 /**
  * Price index model
  *
+ * @author      Magento Core Team <core@magentocommerce.com>
  */
 class Mage_CatalogIndex_Model_Price extends Mage_Core_Model_Abstract
 {

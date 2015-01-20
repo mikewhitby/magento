@@ -31,7 +31,7 @@
     <ul class="generic-product-list">
     <?php foreach ($this->getItems() as $_item): ?>
         <li>
-            <a href="<?php echo $_item->getProductUrl() ?>"><img src="<?php echo $this->helper('catalog/image')->init($_item, 'thumbnail')->resize(75); ?>" width="75" alt="<?php echo $this->htmlEscape($_item->getName()) ?>" class="product-image"/></a>
+            <a href="<?php echo $_item->getProductUrl() ?>"><img src="<?php echo $this->helper('catalog/image')->init($_item, 'thumbnail')->resize(75); ?>" width="75" alt="<?php echo $this->htmlEscape($_item->getName()) ?>" class="product-image" /></a>
             <div class="product-shop">
                 <h5><a href="<?php echo $_item->getProductUrl() ?>"><?php echo $this->htmlEscape($_item->getName()) ?></a></h5>
                 <?php echo $this->helper('catalog/product')->getPriceHtml($_item) ?>

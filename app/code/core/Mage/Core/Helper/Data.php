@@ -21,6 +21,7 @@
 /**
  * Core data helper
  *
+ * @author      Magento Core Team <core@magentocommerce.com>
  */
 class Mage_Core_Helper_Data extends Mage_Core_Helper_Abstract
 {
@@ -80,10 +81,10 @@ class Mage_Core_Helper_Data extends Mage_Core_Helper_Abstract
             return '';
         }
         if (is_null($date)) {
-            $date = Mage::app()->getLocale()->date(time(), null, null, $showTime);
+            $date = Mage::app()->getLocale()->date(Mage::getSingleton('core/date')->gmtTimestamp(), null, null, true);
         }
         else {
-            $date = Mage::app()->getLocale()->date(strtotime($date), null, null, $showTime);
+            $date = Mage::app()->getLocale()->date(Mage::getSingleton('core/date')->gmtTimestamp($date), null, null, true);
         }
 
         if ($showTime) {
@@ -157,6 +158,7 @@ class Mage_Core_Helper_Data extends Mage_Core_Helper_Abstract
             return $data;
         }
         $result = trim($this->_getCrypt()->decrypt(base64_decode((string)$data)));
+        $result = str_replace("\x0", '', $result);
         return $result;
     }
 
@@ -288,5 +290,4 @@ class Mage_Core_Helper_Data extends Mage_Core_Helper_Abstract
         }
         return $types;
     }
-
 }

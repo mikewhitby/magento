@@ -20,6 +20,7 @@ h1#logo { display:inline; }
 .one-page-checkout { position:relative; }
 .group-select .legend { position:relative; zoom:1; }
 .advanced-search .legend { position:relative; zoom:1; }
+.link-feed { zoom:1; }
 
 /* Min-height for IE */
 .login-box .content { height:180px; }
@@ -34,7 +35,7 @@ h1#logo { display:inline; }
 .login-box .content { height:230px; }
 
 
-/*menu fixing for IE*/
+/* menu fixing for IE* /
 
 /* Show menu */
 #nav li.over ul.shown-sub { left:0; }

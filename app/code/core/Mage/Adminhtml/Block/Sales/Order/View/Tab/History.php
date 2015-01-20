@@ -23,6 +23,7 @@
  *
  * @category   Mage
  * @package    Mage_Adminhtml
+ * @author      Magento Core Team <core@magentocommerce.com>
  */
 class Mage_Adminhtml_Block_Sales_Order_View_Tab_History extends Mage_Adminhtml_Block_Template
 {
@@ -60,12 +61,12 @@ class Mage_Adminhtml_Block_Sales_Order_View_Tab_History extends Mage_Adminhtml_B
 
         foreach ($order->getCreditmemosCollection() as $_memo){
             $_fullHistory[$_memo->getEntityId()] =
-                $this->_prepareHistoryItem($this->__('Creditmemo #%s created', $_memo->getIncrementId()),
+                $this->_prepareHistoryItem($this->__('Credit Memo #%s created', $_memo->getIncrementId()),
                     $_memo->getEmailSent(), $_memo->getCreatedAt());
 
             foreach ($_memo->getCommentsCollection() as $_comment){
                 $_fullHistory[$_comment->getEntityId()] =
-                    $this->_prepareHistoryItem($this->__('Creditmemo #%s comment added', $_memo->getIncrementId()),
+                    $this->_prepareHistoryItem($this->__('Credit Memo #%s comment added', $_memo->getIncrementId()),
                         $_comment->getIsCustomerNotified(), $_comment->getCreatedAt(), $_comment->getComment());
             }
         }
@@ -100,7 +101,7 @@ class Mage_Adminhtml_Block_Sales_Order_View_Tab_History extends Mage_Adminhtml_B
                     false, $_track->getCreatedAt());
         }
 
-        ksort($_fullHistory);
+        krsort($_fullHistory);
         return $_fullHistory;
     }
 

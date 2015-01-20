@@ -39,8 +39,9 @@ class Mage_Catalog_Model_Product_Price extends Varien_Object
     {
         if($value['is_percent']) {
             $ratio = $value['pricing_value']/100;
-            $price = $this->_applyTierPrice($product, $qty, $product->getPrice());
-            $price = $this->_applySpecialPrice($product, $price);
+            /*$price = $this->_applyTierPrice($product, $qty, $product->getPrice());
+            $price = $this->_applySpecialPrice($product, $price);*/
+            $price = $product->getFinalPrice($qty);
             $price = $price * $ratio;
         } else {
             $price = $value['pricing_value'];
@@ -196,6 +197,7 @@ class Mage_Catalog_Model_Product_Price extends Varien_Object
                     }
                 }
             }
+            $product->setFinalPrice($finalPrice);
         }
         /**
          * Calculating final price of simple product
@@ -206,11 +208,12 @@ class Mage_Catalog_Model_Product_Price extends Varien_Object
             $finalPrice = $this->_applyTierPrice($product, $qty, $finalPrice);
 
             $finalPrice = $this->_applySpecialPrice($product, $finalPrice);
+
+            $product->setFinalPrice($finalPrice);
+            Mage::dispatchEvent('catalog_product_get_final_price', array('product'=>$product));
         }
 
-        $product->setFinalPrice($finalPrice);
-        Mage::dispatchEvent('catalog_product_get_final_price', array('product'=>$product));
-        return $product->getData('final_price');
+        return max(0, $product->getData('final_price'));
     }
 
     /**
@@ -232,7 +235,8 @@ class Mage_Catalog_Model_Product_Price extends Varien_Object
                 }
             }
         }
-        return $price;
+
+        return max(0, $price);
     }
 
     public function getValueByIndex($values, $index)

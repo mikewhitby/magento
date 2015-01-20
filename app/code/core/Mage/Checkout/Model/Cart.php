@@ -23,6 +23,7 @@
  *
  * @category   Mage
  * @package    Mage_Checkout
+ * @author      Magento Core Team <core@magentocommerce.com>
  */
 class Mage_Checkout_Model_Cart extends Varien_Object
 {
@@ -407,6 +408,12 @@ class Mage_Checkout_Model_Cart extends Varien_Object
         }
     }
 
+    /**
+     * Retrieve cart information for sidebar
+     *
+     * @param integer $quoteId
+     * @return Varien_Object
+     */
     public function getCartInfo($quoteId=null)
     {
         $store = Mage::app()->getStore();
@@ -437,7 +444,12 @@ class Mage_Checkout_Model_Cart extends Varien_Object
             foreach ($productIds as $id) {
                 $cacheTags[] = 'catalog_product_'.$id;
             }
-
+            /* +MK
+            $quoteItems = Mage::getModel('sales/quote_item')
+                ->getCollection()
+                ->setQuote( Mage::getSingleton('checkout/session')->getQuote())
+                ->addAttributeToSelect('*');
+            */
             $products = Mage::getModel('catalog/product')->getCollection()
                 ->addAttributeToSelect('*')
                 ->addMinimalPrice()
@@ -450,8 +462,11 @@ class Mage_Checkout_Model_Cart extends Varien_Object
                 if (!$product) {
                     continue;
                 }
+                $product->setDoNotUseCategoryId(true);
 
+                //-MK:
                 $item = new Varien_Object($it);
+                //+MK $item = $quoteItems->getItemById($it['id']);
                 $item->setProduct($product);
 
                 $superProduct = null;
@@ -460,9 +475,16 @@ class Mage_Checkout_Model_Cart extends Varien_Object
                     $item->setSuperProduct($superProduct);
                     $product->setProduct($product);
                     $product->setSuperProduct($superProduct);
+                    $superProduct->setDoNotUseCategoryId(true);
                 }
+                /* +MK
+                if ($item->getCalculationPrice()) {
+                    $item->setPrice($item->getCalculationPrice());
+                }
+                */
                 $item->setProductName(!empty($superProduct) ? $superProduct->getName() : $product->getName());
                 $item->setProductUrl(!empty($superProduct) ? $superProduct->getProductUrl() : $product->getProductUrl());
+                //-MK:
                 $item->setPrice($product->getFinalPrice($it['qty']));
 
                 $thumbnailObjOrig = Mage::helper('checkout')->getQuoteItemProductThumbnail($item);
@@ -476,11 +498,16 @@ class Mage_Checkout_Model_Cart extends Varien_Object
 
                 $item->setProductDescription(Mage::helper('catalog/product')->getProductDescription($product));
 
+                Mage::dispatchEvent('checkout_cart_info_item_unset_product_before', array(
+                    'item' => $item
+                ));
+
                 $item->unsProduct()->unsSuperProduct();
 
                 $cart['items'][] = $item;
 
                 $cart['subtotal'] += $item->getPrice()*$item->getQty();
+                //+MK $cart['subtotal'] += $item->getCalculationPrice()*$item->getQty();
             }
         }
 

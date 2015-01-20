@@ -23,9 +23,6 @@
     <modules>
         <Mage_Directory>
             <version>0.8.0</version>
-            <depends>
-                <Mage_Core />
-            </depends>
         </Mage_Directory>
     </modules>
     <global>

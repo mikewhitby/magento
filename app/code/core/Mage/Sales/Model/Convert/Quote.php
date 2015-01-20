@@ -26,6 +26,7 @@
  *
  * @category   Mage
  * @package    Mage_Sales
+ * @author      Magento Core Team <core@magentocommerce.com>
  */
 class Mage_Sales_Model_Convert_Quote extends Varien_Object
 {
@@ -47,6 +48,7 @@ class Mage_Sales_Model_Convert_Quote extends Varien_Object
             /**
              * Base Data
              */
+            ->setIncrementId($quote->getReservedOrderId())
             ->setStoreId($quote->getStoreId())
             ->setQuoteId($quote->getId())
 
@@ -110,6 +112,7 @@ class Mage_Sales_Model_Convert_Quote extends Varien_Object
             ->setTaxAmount($address->getTaxAmount())
             ->setDiscountAmount($address->getDiscountAmount())
             ->setShippingAmount($address->getShippingAmount())
+            ->setShippingTaxAmount($address->getShippingTaxAmount())
             ->setGiftcertAmount($address->getGiftcertAmount())
             ->setCustbalanceAmount($address->getCustbalanceAmount())
             ->setGrandTotal($address->getGrandTotal())
@@ -118,6 +121,7 @@ class Mage_Sales_Model_Convert_Quote extends Varien_Object
             ->setBaseTaxAmount($address->getBaseTaxAmount())
             ->setBaseDiscountAmount($address->getBaseDiscountAmount())
             ->setBaseShippingAmount($address->getBaseShippingAmount())
+            ->setBaseShippingTaxAmount($address->getBaseShippingTaxAmount())
             ->setBaseGiftcertAmount($address->getBaseGiftcertAmount())
             ->setBaseCustbalanceAmount($address->getBaseCustbalanceAmount())
             ->setBaseGrandTotal($address->getBaseGrandTotal());
@@ -177,7 +181,15 @@ class Mage_Sales_Model_Convert_Quote extends Varien_Object
 
             ->setCcNumber($payment->getCcNumber()) // only for doing first transaction, not for save
             ->setCcCid($payment->getCcCid()) // only for doing first transaction, not for save
+
+                        ->setCcSsIssue($payment->getCcSsIssue())	//for direct payment
+                        ->setCcSsStartMonth($payment->getCcSsStartMonth()) //for direct payment
+            ->setCcSsStartYear($payment->getCcSsStartYear())	//for direct payment
             ;
+
+        Mage::dispatchEvent('sales_convert_quote_payment_to_order_payment',
+            array('order_payment' => $orderPayment, 'quote_payment' => $payment));
+
         return $orderPayment;
     }
 

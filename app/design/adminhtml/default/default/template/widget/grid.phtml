@@ -109,7 +109,7 @@ $numColumns = sizeof($this->getColumns());
 <?php if($this->getMassactionBlock()->isAvailable()): ?>
 <?php echo $this->getMassactionBlockHtml() ?>
 <?php endif ?>
-<div class="grid">
+<div class="grid hor-scroll">
 <table cellspacing="0" class="data" id="<?php echo $this->getId() ?>_table">
     <?php foreach ($this->getColumns() as $_column): ?>
     <col <?php echo $_column->getHtmlProperty() ?> />

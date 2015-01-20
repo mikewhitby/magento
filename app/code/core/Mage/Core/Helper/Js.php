@@ -21,6 +21,7 @@
 /**
  * JavaScript helper
  *
+ * @author      Magento Core Team <core@magentocommerce.com>
  */
 class Mage_Core_Helper_Js extends Mage_Core_Helper_Abstract
 {

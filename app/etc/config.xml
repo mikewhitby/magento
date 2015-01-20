@@ -29,32 +29,44 @@
                 <codes>
                     <ar_EG/><!-- Arabic (Egypt) -->
                     <ar_KW/><!-- Arabic (Kuwait) -->
+                    <ar_MA/><!-- Arabic (Morocco) -->
                     <ar_SA/><!-- Arabic (Saudi Arabia) -->
                     <bg_BG/><!-- Bulgarian (Bulgaria) -->
+                    <bs_BA/><!-- Bosnian (Bosnia) -->
+                    <ca_ES/><!-- Catalan (Catalania) -->
                     <cs_CZ/><!-- Czech (Czech Republic) -->
                     <da_DK/><!-- Danish (Denmark) -->
+                    <de_AT/><!-- German (Austria) -->
                     <de_CH/><!-- German (Switzerland) -->
                     <de_DE/><!-- German (Germany) -->
                     <el_GR/><!-- Greek (Greece) -->
                     <en_AU/><!-- English (Australian) -->
                     <en_GB/><!-- English (United Kingdom) -->
                     <en_US/><!-- English (United States) -->
-                    <es_ES/><!-- Spanish (Spain) -->
                     <es_AR/><!-- Spanish (Argentina) -->
+                    <es_ES/><!-- Spanish (Spain) -->
+                    <es_MX/><!-- Spanish (Mexico) -->
+                    <et_EE/><!-- Estonian (Estonia) -->
                     <fa_IR/><!-- Persian (Iran) -->
                     <fi_FI/><!-- Finnish (Finland) -->
+                    <fil_PH/><!-- Filipino (Philippines) -->
+                    <fr_CA/><!-- French (Canada) -->
                     <fr_FR/><!-- French (France) -->
                     <he_IL/><!-- Hebrew (Israel) -->
                     <hr_HR/><!-- Croatian (Croatia) -->
                     <hu_HU/><!-- Hungarian (Hungary) -->
                     <id_ID/><!-- Indonesian (Indonesia) -->
+                    <is_IS/><!-- Icelandic (Iceland) -->
                     <it_IT/><!-- Italian (Italy) -->
                     <ja_JP/><!-- Japanese (Japan) -->
                     <lt_LT/><!-- Lithuanian (Lithuania) -->
+                    <lv_LV/><!-- Latvian (Latvia) -->
                     <mk_MK/><!-- Macedonian (Macedonia) -->
+                    <mn_MN/><!-- Mongolian (Mongolia) -->
                     <ms_MY/><!-- Malaysian (Malaysia) -->
                     <nl_NL/><!-- Dutch (Netherlands) -->
-                    <nn_NO/><!-- Norwegian (Norway) -->
+                    <nb_NO/><!-- Norwegian Bokmål (Norway) -->
+                    <nn_NO/><!-- Norwegian Nynorsk (Norway) -->
                     <pl_PL/><!-- Polish (Poland) -->
                     <pt_BR/><!-- Portuguese (Brazil) -->
                     <pt_PT/><!-- Portuguese (Portugal) -->
@@ -62,6 +74,7 @@
                     <ru_RU/><!-- Russian (Russia) -->
                     <sk_SK/><!-- Slovak (Slovakia) -->
                     <sl_SI/><!-- Slovenian (Slovenia) -->
+                    <sq_AL/><!-- Albanian (Albania) -->
                     <sr_RS/><!-- Serbian (Serbia) -->
                     <sv_SE/><!-- Swedish (Sweden) -->
                     <th_TH/><!-- Thai (Thailand) -->

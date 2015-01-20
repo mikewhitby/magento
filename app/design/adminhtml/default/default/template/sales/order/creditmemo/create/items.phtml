@@ -25,7 +25,8 @@
         <col/>
         <col width="100"/>
         <col width="100"/>
-        <col width="60"/>
+        <col width="105"/>
+        <?php if ($this->canReturnToStock()) : ?><col width="60"/><?php endif; ?>
         <col width="100"/>
         <col width="100"/>
         <col width="100"/>
@@ -35,6 +36,9 @@
                 <th><?php echo $this->helper('sales')->__('Product') ?></th>
                 <th><?php echo $this->helper('sales')->__('Price') ?></th>
                 <th><?php echo $this->helper('sales')->__('Qty') ?></th>
+                <?php if ($this->canReturnToStock()) : ?>
+                <th><?php echo $this->helper('sales')->__('Return to Stock') ?></th>
+                <?php endif; ?>
                 <th><?php echo $this->helper('sales')->__('Qty to Refund') ?></th>
                 <th><?php echo $this->helper('sales')->__('Subtotal') ?></th>
                 <th><?php echo $this->helper('sales')->__('Tax Amount') ?></th>
@@ -53,9 +57,12 @@
                     </td>
                     <td class="price"><?php echo $this->displayPriceAttribute('price') ?></td>
                     <td><?php echo $this->getQtyHtml($_item->getOrderItem()) ?></td>
+                    <?php if ($this->canReturnToStock()) : ?>
+                        <td class="a-center"><input type="checkbox" name="creditmemo[items][<?php echo $_item->getOrderItemId() ?>][back_to_stock]" value="1"<?php if ($_item->getBackToStock()):?> checked<?php endif;?>/></td>
+                    <?php endif; ?>
                     <td class="a-center">
                     <?php if ($this->canEditQty()) : ?>
-                        <input type="text" class="input-text qty-input" name="creditmemo[items][<?php echo $_item->getOrderItemId() ?>]" value="<?php echo $_item->getQty()*1 ?>"/>
+                        <input type="text" class="input-text qty-input" name="creditmemo[items][<?php echo $_item->getOrderItemId() ?>][qty]" value="<?php echo $_item->getQty()*1 ?>"/>
                     <?php else : ?>
                         <?php echo $_item->getQty()*1 ?>
                     <?php endif; ?>
@@ -75,7 +82,7 @@
         <?php if ($this->canEditQty()): ?>
         <tfoot>
             <tr>
-                <td colspan="2"></td>
+                <td colspan="3"></td>
                 <td colspan="3" class="a-center">
                     <?php echo $this->getUpdateButtonHtml() ?>
                 </td>
@@ -174,11 +181,11 @@ function bindSendEmail()
 {
     if (sendEmailCheckbox.checked == true) {
         notifyCustomerCheckbox.disabled = false;
-        creditmemoCommentText.disabled = false;
+        //creditmemoCommentText.disabled = false;
     }
     else {
         notifyCustomerCheckbox.disabled = true;
-        creditmemoCommentText.disabled = true;
+        //creditmemoCommentText.disabled = true;
     }
 }
 </script>

@@ -23,10 +23,6 @@
     <modules>
         <Mage_Usa>
             <version>0.7.0</version>
-            <depends>
-                <Mage_Sales />
-                <Mage_Shipping />
-            </depends>
         </Mage_Usa>
     </modules>
     <global>

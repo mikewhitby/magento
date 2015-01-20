@@ -58,7 +58,7 @@ class Mage_Sales_Model_Quote_Address_Total_Discount
                 $eventArgs['item'] = $item;
                 Mage::dispatchEvent('sales_quote_address_discount_item', $eventArgs);
 
-                if ($item->getDiscountAmount()) {
+                if ($item->getDiscountAmount() || $item->getFreeShipping()) {
                     $hasDiscount = true;
                 }
 

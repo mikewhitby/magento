@@ -24,6 +24,7 @@
  *
  * @category   Mage
  * @package    Mage_Catalog
+ * @author      Magento Core Team <core@magentocommerce.com>
  */
 class Mage_Catalog_Model_Resource_Eav_Mysql4_Product_Link_Product_Collection
     extends Mage_Catalog_Model_Resource_Eav_Mysql4_Product_Collection
@@ -92,6 +93,28 @@ class Mage_Catalog_Model_Resource_Eav_Mysql4_Product_Link_Product_Collection
         if (is_array($products) && !empty($products)) {
             $this->_hasLinkFilter = true;
             $this->getSelect()->where('links.linked_product_id NOT IN (?)', $products);
+        }
+        return $this;
+    }
+
+
+    /**
+     * Add attribute to sort order
+     *
+     * @param string $attribute
+     * @param string $dir
+     * @return Mage_Eav_Model_Entity_Collection_Abstract
+     */
+    public function addAttributeToSort($attribute, $dir='asc')
+    {
+        /*
+        * position is not eav attributes so we cannot use default attributes to sort
+        */
+        if ($attribute == 'position') {
+            $this->getSelect()->order($attribute.' '.$dir);
+        }
+        else {
+        	parent::addAttributeToSort($attribute, $dir);
         }
         return $this;
     }
@@ -170,6 +193,14 @@ class Mage_Catalog_Model_Resource_Eav_Mysql4_Product_Link_Product_Collection
             }
         }
 
+        return $this;
+    }
+
+    public function setPositionOrder($dir='asc')
+    {
+        if ($this->getProduct() && $this->getProduct()->getId()) {
+            $this->setOrder('position', $dir);
+        }
         return $this;
     }
 }

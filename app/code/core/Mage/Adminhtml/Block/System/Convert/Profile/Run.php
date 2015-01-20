@@ -23,6 +23,7 @@
  *
  * @category   Mage
  * @package    Mage_Adminhtml
+ * @author      Magento Core Team <core@magentocommerce.com>
  */
 class Mage_Adminhtml_Block_System_Convert_Profile_Run extends Mage_Adminhtml_Block_Abstract
 {
@@ -39,6 +40,7 @@ class Mage_Adminhtml_Block_System_Convert_Profile_Run extends Mage_Adminhtml_Blo
 
         $headBlock = $this->getLayout()->createBlock('page/html_head');
         $headBlock->addJs('prototype/prototype.js');
+        $headBlock->addJs('mage/adminhtml/loader.js');
         echo $headBlock->getCssJsHtml();
 
         echo '<style type="text/css">

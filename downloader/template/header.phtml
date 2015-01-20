@@ -42,7 +42,7 @@
             <h1 id="logo">Magento Downloader</h1>
         </div>
         <div class="main">
-        <?php if ($this->controller()->getAction()!='login'): ?>
+        <?php if ($this->controller()->getAction()!='login' && !$this->get('exception')): ?>
             <div class="nav">
             <?php if ($this->controller()->isWritable()): ?>
                 <?php if ($this->controller()->session()->getUserId()): ?>

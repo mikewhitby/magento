@@ -327,11 +327,11 @@ class Mage_Checkout_Model_Type_Onepage
         if ($addressValidation !== true) {
             Mage::throwException($helper->__('Please check shipping address information.'));
         }
-    	$method= $address->getShippingMethod();
-    	$rate  = $address->getShippingRateByCode($method);
-    	if (!$method || !$rate) {
-    	    Mage::throwException($helper->__('Please specify shipping method.'));
-    	}
+        $method= $address->getShippingMethod();
+        $rate  = $address->getShippingRateByCode($method);
+        if (!$method || !$rate) {
+            Mage::throwException($helper->__('Please specify shipping method.'));
+        }
 
         $addressValidation = $this->getQuote()->getBillingAddress()->validate();
         if ($addressValidation !== true) {
@@ -354,7 +354,6 @@ class Mage_Checkout_Model_Type_Onepage
         $this->validateOrder();
         $billing = $this->getQuote()->getBillingAddress();
         $shipping = $this->getQuote()->getShippingAddress();
-
         switch ($this->getQuote()->getCheckoutMethod()) {
         case 'guest':
             $this->getQuote()->setCustomerEmail($billing->getEmail())
@@ -379,17 +378,19 @@ class Mage_Checkout_Model_Type_Onepage
             $customer->setEmail($billing->getEmail());
             $customer->setPassword($customer->decryptPassword($this->getQuote()->getPasswordHash()));
             $customer->setPasswordHash($customer->hashPassword($customer->getPassword()));
-
+            $this->getQuote()->setCustomer($customer);
             break;
 
         default:
             $customer = Mage::getSingleton('customer/session')->getCustomer();
 
-            if (!$billing->getCustomerAddressId()) {
+            if (!$billing->getCustomerId() || $billing->getSaveInAddressBook()) {
                 $customerBilling = $billing->exportCustomerAddress();
                 $customer->addAddress($customerBilling);
             }
-            if (!$shipping->getCustomerAddressId() && !$shipping->getSameAsBilling()) {
+            if ((!$shipping->getCustomerId() && !$shipping->getSameAsBilling()) ||
+                (!$shipping->getSameAsBilling() && $shipping->getSaveInAddressBook())) {
+
                 $customerShipping = $shipping->exportCustomerAddress();
                 $customer->addAddress($customerShipping);
             }
@@ -415,16 +416,15 @@ class Mage_Checkout_Model_Type_Onepage
             }
         }
 
+        $this->getQuote()->reserveOrderId();
         $convertQuote = Mage::getModel('sales/convert_quote');
         /* @var $convertQuote Mage_Sales_Model_Convert_Quote */
         //$order = Mage::getModel('sales/order');
-
         $order = $convertQuote->addressToOrder($shipping);
         /* @var $order Mage_Sales_Model_Order */
         $order->setBillingAddress($convertQuote->addressToOrderAddress($billing));
         $order->setShippingAddress($convertQuote->addressToOrderAddress($shipping));
         $order->setPayment($convertQuote->paymentToOrderPayment($this->getQuote()->getPayment()));
-
         foreach ($this->getQuote()->getAllItems() as $item) {
             $item->setDescription(
                 Mage::helper('checkout')->getQuoteItemProductDescription($item)
@@ -444,6 +444,8 @@ class Mage_Checkout_Model_Type_Onepage
             $customerShippingId = isset($customerShipping) ? $customerShipping->getId() : $customerBilling->getId();
             $customer->setDefaultShipping($customerShippingId);
             $customer->save();
+
+            $this->getQuote()->setCustomerId($customer->getId());
 
             $order->setCustomerId($customer->getId())
                 ->setCustomerEmail($customer->getEmail())
@@ -471,14 +473,10 @@ class Mage_Checkout_Model_Type_Onepage
 
         Mage::dispatchEvent('checkout_type_onepage_save_order_after', array('order'=>$order, 'quote'=>$this->getQuote()));
 
-
         /**
          * need to have somelogic to set order as new status to make sure order is not finished yet
          * quote will be still active when we send the customer to paypal
          */
-
-        $this->getQuote()->setIsActive(false);
-        $this->getQuote()->save();
 
         $orderId = $order->getIncrementId();
         $this->getCheckout()->setLastQuoteId($this->getQuote()->getId());
@@ -494,8 +492,17 @@ class Mage_Checkout_Model_Type_Onepage
         }
 
         if ($this->getQuote()->getCheckoutMethod()=='register') {
+            /**
+             * we need to save quote here to have it saved with Customer Id.
+             * so when loginById() executes checkout/session method loadCustomerQuote
+             * it would not create new quotes and merge it with old one.
+             */
+            $this->getQuote()->save();
             Mage::getSingleton('customer/session')->loginById($customer->getId());
         }
+
+        $this->getQuote()->setIsActive(false);
+        $this->getQuote()->save();
 
         return $this;
     }

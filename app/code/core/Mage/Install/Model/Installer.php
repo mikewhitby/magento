@@ -24,6 +24,7 @@
  *
  * @category   Mage
  * @package    Mage_Install
+ * @author      Magento Core Team <core@magentocommerce.com>
  */
 class Mage_Install_Model_Installer extends Varien_Object
 {
@@ -208,7 +209,7 @@ class Mage_Install_Model_Installer extends Varien_Object
         if ($user && $user->getPassword()=='4297f44b13955235245b2497399d7a93') {
             $user->delete();
         }
-        
+
         $user = Mage::getModel('admin/user')
             ->load($data['username'], 'username');
         $user->addData($data)->save();
@@ -246,8 +247,7 @@ class Mage_Install_Model_Installer extends Varien_Object
         foreach (Mage::helper('core')->getCacheTypes() as $type=>$label) {
             $cacheData[$type] = 1;
         }
-        Mage::app()->saveCache(serialize($cacheData), 'use_cache', array(), null);
-
+        Mage::app()->saveUseCache($cacheData);
         return $this;
     }
 

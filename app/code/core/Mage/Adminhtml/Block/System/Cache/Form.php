@@ -24,6 +24,7 @@
  *
  * @category   Mage
  * @package    Mage_Adminhtml
+ * @author      Magento Core Team <core@magentocommerce.com>
  */
 class Mage_Adminhtml_Block_System_Cache_Form extends Mage_Adminhtml_Block_Widget_Form
 {
@@ -75,6 +76,13 @@ class Mage_Adminhtml_Block_System_Cache_Form extends Mage_Adminhtml_Block_Widget
             'label'=>$hlp->__('Clear Images Cache'),
             'value'=>1,
         ));
+
+        $fieldset->addField('refresh_layered_navigation', 'checkbox', array(
+            'name'=>'refresh_layered_navigation',
+            'label'=>$hlp->__('Refresh Layered Navigation Indices'),
+            'value'=>1,
+        ));
+
 /*
         $fieldset = $form->addFieldset('database', array(
             'legend'=>$hlp->__('Database')

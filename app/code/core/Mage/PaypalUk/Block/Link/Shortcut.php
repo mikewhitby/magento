@@ -23,6 +23,7 @@
  *
  * @category   Mage
  * @package    Mage_Paypal
+ * @author      Magento Core Team <core@magentocommerce.com>
  */
 class Mage_PaypalUk_Block_Link_Shortcut extends Mage_Core_Block_Template
 {

@@ -25,6 +25,7 @@
  *
  * @category    Mage
  * @package     Mage_Core
+ * @author      Magento Core Team <core@magentocommerce.com>
  */
 
 // no files specified return 404
@@ -46,6 +47,7 @@ if (isset($_GET['c'])) {
 $files = is_array($_GET['f']) ? $_GET['f'] : explode(',', $_GET['f']);
 
 $out = '';
+$lastModified = 0;
 foreach ($files as $f) {
     // get correct file disk path
     $p = trim(str_replace('/', DIRECTORY_SEPARATOR, $f), DIRECTORY_SEPARATOR);
@@ -72,7 +74,11 @@ foreach ($files as $f) {
 
     // append file contents
     $out .= file_get_contents($p);
+    $lastModified = max($lastModified, filemtime($p));
 }
+
+// last modified is the max mtime for loaded files
+header('Last-modified: '.gmdate('r', $lastModified));
 
 // optional custom content type, can be emulated by proxy.php/x.js or x.css
 if (is_string($contentType)) {
