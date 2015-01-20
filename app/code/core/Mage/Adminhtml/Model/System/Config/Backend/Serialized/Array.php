@@ -18,19 +18,23 @@
  * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
-class Mage_Adminhtml_Model_System_Config_Backend_Serialized extends Mage_Core_Model_Config_Data
+/**
+ * Backend for serialized array data
+ *
+ */
+class Mage_Adminhtml_Model_System_Config_Backend_Serialized_Array extends Mage_Adminhtml_Model_System_Config_Backend_Serialized
 {
-    protected function _afterLoad()
-    {
-        if (!is_array($this->getValue())) {
-            $this->setValue(unserialize($this->getValue()));
-        }
-    }
-
+    /**
+     * Unset array element with '__empty' key
+     *
+     */
     protected function _beforeSave()
     {
-        if (is_array($this->getValue())) {
-            $this->setValue(serialize($this->getValue()));
+        $value = $this->getValue();
+        if (is_array($value)) {
+            unset($value['__empty']);
         }
+        $this->setValue($value);
+        parent::_beforeSave();
     }
 }

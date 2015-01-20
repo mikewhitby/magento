@@ -19,23 +19,26 @@
  */
 
 /**
- * Adminhtml abstract block
+ * Adminhtml system config array field renderer
  *
  * @category   Mage
  * @package    Mage_Adminhtml
- * @author      Magento Core Team <core@magentocommerce.com>
+ * @author     Magento Core Team <core@magentocommerce.com>
  */
-class Mage_Adminhtml_Block_Abstract extends Mage_Core_Block_Template
+class Mage_Adminhtml_Block_System_Config_Form_Field_Regexceptions extends Mage_Adminhtml_Block_System_Config_Form_Field_Array_Abstract
 {
-
-    /**
-     * Enter description here...
-     *
-     * @return string
-     */
-    protected function _getUrlModelClass()
+    public function __construct()
     {
-        return 'adminhtml/url';
+        $this->addColumn('regexp', array(
+            'label' => Mage::helper('adminhtml')->__('Matched expression'),
+            'size'  => 30,
+        ));
+        $this->addColumn('value', array(
+            'label' => Mage::helper('adminhtml')->__('Value'),
+            'size'  => 20
+        ));
+        $this->_addAfter = false;
+        $this->_addButtonLabel = Mage::helper('adminhtml')->__('Add Exception');
+        parent::__construct();
     }
-
 }

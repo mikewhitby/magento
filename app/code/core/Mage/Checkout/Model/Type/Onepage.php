@@ -146,9 +146,7 @@ class Mage_Checkout_Model_Type_Onepage
         }
 
         if (!$this->getQuote()->getCustomerId() && 'register' == $this->getQuote()->getCheckoutMethod()) {
-            $email = $address->getEmail();
-            $customer = Mage::getModel('customer/customer')->loadByEmail($email);
-            if ($customer->getId()) {
+            if ($this->_customerEmailExists($address->getEmail(), Mage::app()->getWebsite()->getId())) {
                 $res = array(
                     'error' => 1,
                     'message' => Mage::helper('checkout')->__('There is already a customer registered using this email address')
@@ -403,6 +401,14 @@ class Mage_Checkout_Model_Type_Onepage
          * We can use configuration data for declare new order status
          */
         Mage::dispatchEvent('checkout_type_onepage_save_order', array('order'=>$order, 'quote'=>$this->getQuote()));
+
+        // check again, if customer exists
+        if ($this->getQuote()->getCheckoutMethod() == 'register') {
+            if ($this->_customerEmailExists($customer->getEmail(), Mage::app()->getWebsite()->getId())) {
+                Mage::throwException(Mage::helper('checkout')->__('There is already a customer registered using this email address'));
+            }
+        }
+
         $order->place();
 
         if ($this->getQuote()->getCheckoutMethod()=='register') {
@@ -501,5 +507,25 @@ class Mage_Checkout_Model_Type_Onepage
         $order->load($this->getCheckout()->getLastOrderId());
         $orderId = $order->getIncrementId();
         return $orderId;
+    }
+
+    /**
+     * Check if customer email exists
+     *
+     * @param string $email
+     * @param int $websiteId
+     * @return false|Mage_Customer_Model_Customer
+     */
+    protected function _customerEmailExists($email, $websiteId = null)
+    {
+        $customer = Mage::getModel('customer/customer');
+        if ($websiteId) {
+            $customer->setWebsiteId($websiteId);
+        }
+        $customer->loadByEmail($email);
+        if ($customer->getId()) {
+            return $customer;
+        }
+        return false;
     }
 }

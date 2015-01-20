@@ -287,12 +287,14 @@ class Mage_Checkout_OnepageController extends Mage_Core_Controller_Front_Action
         }
         catch (Mage_Core_Exception $e) {
             Mage::logException($e);
+            Mage::helper('checkout')->sendPaymentFailedEmail($this->getOnepage()->getQuote(), $e->getMessage());
             $result['success'] = false;
             $result['error'] = true;
             $result['error_messages'] = $e->getMessage();
         }
         catch (Exception $e) {
             Mage::logException($e);
+            Mage::helper('checkout')->sendPaymentFailedEmail($this->getOnepage()->getQuote(), $e->getMessage());
             $result['success']  = false;
             $result['error']    = true;
             $result['error_messages'] = $this->__('There was an error processing your order. Please contact us or try again later.');

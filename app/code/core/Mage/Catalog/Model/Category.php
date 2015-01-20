@@ -410,4 +410,9 @@ class Mage_Catalog_Model_Category extends Mage_Catalog_Model_Abstract
     {
         return $this->_getResource()->getChildrenAmount($this) > 0;
     }
+    protected function _beforeDelete()
+    {
+        $this->_protectFromNonAdmin();
+        return parent::_beforeDelete();
+    }
 }
