@@ -256,7 +256,17 @@ class Mage_Adminhtml_System_Convert_ProfileController extends Mage_Adminhtml_Con
             /* @var $batchModel Mage_Dataflow_Model_Batch */
 
             if ($batchModel->getId()) {
+                try {
+                    $batchModel->beforeFinish();
+                }
+                catch (Mage_Core_Exception $e) {
+                    $result['error'] = $e->getMessage();
+                }
+                catch (Exception $e) {
+                    $result['error'] = Mage::helper('adminhtml')->__('Error while finished process. Please refresh cache');
+                }
                 $batchModel->delete();
+                $this->getResponse()->setBody(Zend_Json::encode($result));
             }
         }
     }

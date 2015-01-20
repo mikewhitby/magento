@@ -45,7 +45,8 @@ class Mage_Catalog_Model_Product_Attribute_Backend_Urlkey extends Mage_Eav_Model
     public function afterSave($object)
     {
         /* @var $object Mage_Catalog_Model_Product */
-        if ($object->dataHasChangedFor('url_key') || $object->getIsChangedCategories() || $object->getIsChangedWebsites()) {
+        if (!$object->getExcludeUrlRewrite() &&
+            ($object->dataHasChangedFor('url_key') || $object->getIsChangedCategories() || $object->getIsChangedWebsites())) {
             Mage::getSingleton('catalog/url')->refreshProductRewrite($object->getId());
         }
         return $this;

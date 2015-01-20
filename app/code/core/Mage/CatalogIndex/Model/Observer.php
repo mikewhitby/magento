@@ -111,4 +111,9 @@ class Mage_CatalogIndex_Model_Observer extends Mage_Core_Model_Abstract
         $store = $observer->getEvent()->getStore();
         Mage::getSingleton('catalogindex/indexer')->plainReindex(null, null, $store);
     }
+
+    public function catalogProductImportAfter(Varien_Event_Observer $observer)
+    {
+        Mage::getSingleton('catalogindex/indexer')->plainReindex();
+    }
 }

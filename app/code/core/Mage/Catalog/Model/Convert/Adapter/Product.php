@@ -561,6 +561,9 @@ class Mage_Catalog_Model_Convert_Adapter_Product
             catch (Exception $e) {}
         }
 
+        $product->setIsMassupdate(true);
+        $product->setExcludeUrlRewrite(true);
+
         $product->save();
 
         return true;
@@ -714,5 +717,10 @@ class Mage_Catalog_Model_Convert_Adapter_Product
     function getProductId()
     {
         return $this->_productId;
+    }
+
+    public function finish()
+    {
+        Mage::dispatchEvent('catalog_product_import_after');
     }
 }

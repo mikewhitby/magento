@@ -82,10 +82,10 @@ class Mage_CatalogIndex_Model_Indexer extends Mage_Core_Model_Abstract
         if (is_null($stores)) {
             $stores = array();
 
-            $stores = Mage::getModel('core/store')->getCollection()->load();
+            $stores = Mage::getModel('core/store')->getCollection()->setLoadDefault(false)->load();
             /* @var $stores Mage_Core_Model_Mysql4_Store_Collection */
 
-            $stores->removeItemByKey(0);
+            //$stores->removeItemByKey(0);
 
             $this->setData('_stores', $stores);
         }
@@ -217,9 +217,7 @@ class Mage_CatalogIndex_Model_Indexer extends Mage_Core_Model_Abstract
     }
 
     public function cleanup($product) {
-        foreach ($this->_indexers as $name=>$indexer) {
-            $indexer->cleanup($product->getId());
-        }
+        $this->_getResource()->clear(true, true, true, true, true, $product);
     }
 
     protected function _addFilterableAttributesToCollection($collection)
@@ -334,7 +332,7 @@ class Mage_CatalogIndex_Model_Indexer extends Mage_Core_Model_Abstract
             Mage::throwException('Invalid attributes supplied for indexing');
         }
 
-        $this->_getResource()->clear($attributeCodes, $priceAttributeCodes, count($priceAttributeCodes)>0, $products, $stores);
+        $this->_getResource()->clear($attributeCodes, $priceAttributeCodes, count($priceAttributeCodes)>0, count($priceAttributeCodes)>0, count($priceAttributeCodes)>0, $products, $stores);
         foreach ($stores as $store) {
             $collection = Mage::getModel('catalog/product')
                 ->getCollection()
@@ -353,17 +351,24 @@ class Mage_CatalogIndex_Model_Indexer extends Mage_Core_Model_Abstract
             if (!$products)
                 continue;
 
-            if (count($attributeCodes)) {
-                $this->_getResource()->reindexAttributes($products, $attributeCodes, $store);
-            }
+            $step = 1000;
+            $productCount = count($products);
+            for ($i=0;$i<$productCount/$step;$i++) {
+                $stepData = array_slice($products, $i*$step, $step);
 
-            if (count($priceAttributeCodes)) {
-                $this->_getResource()->reindexPrices($products, $priceAttributeCodes, $store);
+                if (count($attributeCodes)) {
+                    $this->_getResource()->reindexAttributes($stepData, $attributeCodes, $store);
+                }
 
-                $this->_getResource()->reindexTiers($products, $store);
-                $this->_getResource()->reindexFinalPrices($products, $store);
-                $this->_getResource()->reindexMinimalPrices($products, $store);
+                if (count($priceAttributeCodes)) {
+                    $this->_getResource()->reindexPrices($stepData, $priceAttributeCodes, $store);
+
+                    $this->_getResource()->reindexTiers($stepData, $store);
+                    $this->_getResource()->reindexFinalPrices($stepData, $store);
+                    $this->_getResource()->reindexMinimalPrices($stepData, $store);
+                }
             }
+            return $this;
         }
     }
 }

@@ -298,7 +298,8 @@ class Mage_Install_WizardController extends Mage_Install_Controller_Action
 
             Mage::getSingleton('install/session')
                 ->setConfigData($data)
-                ->setSkipUrlValidation($this->getRequest()->getPost('skip_url_validation'));
+                ->setSkipUrlValidation($this->getRequest()->getPost('skip_url_validation'))
+                ->setSkipBaseUrlValidation($this->getRequest()->getPost('skip_base_url_validation'));
             try {
                 if($data['db_prefix']!='') {
                     if(!preg_match('/^[a-z]+[a-z0-9_]*$/',$data['db_prefix'])) {
