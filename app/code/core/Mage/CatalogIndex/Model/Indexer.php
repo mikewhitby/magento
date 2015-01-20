@@ -346,15 +346,15 @@ class Mage_CatalogIndex_Model_Indexer extends Mage_Core_Model_Abstract
             } else if (is_array($products) || is_numeric($products)) {
                 $collection->addIdFilter($products);
             }
-            $products = $collection->getAllIds();
+            $productIds = $collection->getAllIds();
 
-            if (!$products)
+            if (!$productIds)
                 continue;
 
             $step = 1000;
-            $productCount = count($products);
+            $productCount = count($productIds);
             for ($i=0;$i<$productCount/$step;$i++) {
-                $stepData = array_slice($products, $i*$step, $step);
+                $stepData = array_slice($productIds, $i*$step, $step);
 
                 if (count($attributeCodes)) {
                     $this->_getResource()->reindexAttributes($stepData, $attributeCodes, $store);
@@ -368,7 +368,7 @@ class Mage_CatalogIndex_Model_Indexer extends Mage_Core_Model_Abstract
                     $this->_getResource()->reindexMinimalPrices($stepData, $store);
                 }
             }
-            return $this;
         }
+        return $this;
     }
 }
