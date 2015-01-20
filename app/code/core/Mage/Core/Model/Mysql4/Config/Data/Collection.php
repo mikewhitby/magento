@@ -47,4 +47,10 @@ class Mage_Core_Model_Mysql4_Config_Data_Collection extends Mage_Core_Model_Mysq
             ->where('path like ?', $section . '/%');
         return $this;
     }
+
+    public function addValueFilter($value)
+    {
+        $this->getSelect()->where('value=?', $value);
+        return $this;
+    }
 }
