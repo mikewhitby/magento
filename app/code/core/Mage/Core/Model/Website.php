@@ -427,4 +427,9 @@ class Mage_Core_Model_Website extends Mage_Core_Model_Abstract
     {
         return $this->_getData('default_group_id');
     }
+    protected function _beforeDelete()
+    {
+        $this->_protectFromNonAdmin();
+        return parent::_beforeDelete();
+    }
 }

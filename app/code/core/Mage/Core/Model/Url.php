@@ -657,6 +657,15 @@ class Mage_Core_Model_Url extends Varien_Object
         if ($this->getFragment()) {
             $url .= '#'.$this->getFragment();
         }
-        return $url;
+        return $this->escape($url);
+    }
+
+    public function escape($value)
+    {
+        $value = str_replace('"', '%22', $value);
+        $value = str_replace("'", '%27', $value);
+        $value = str_replace('>', '%3E', $value);
+        $value = str_replace('<', '%3C', $value);
+        return $value;
     }
 }

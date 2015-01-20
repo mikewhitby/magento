@@ -296,7 +296,8 @@ class Mage_Catalog_Model_Product extends Mage_Catalog_Model_Abstract
     protected function _beforeDelete()
     {
         $this->cleanCache();
-        parent::_beforeDelete();
+        $this->_protectFromNonAdmin();
+        return parent::_beforeDelete();
     }
 
     public function cleanCache()

@@ -215,25 +215,30 @@ class Mage_Reports_Model_Mysql4_Order_Collection extends Mage_Sales_Model_Entity
 
         $orderItem = Mage::getResourceSingleton('sales/order_item');
         /* @var $orderItem Mage_Sales_Model_Entity_Quote */
-        $attr = $orderItem->getAttribute('parent_id');
-        /* @var $attr Mage_Eav_Model_Entity_Attribute_Abstract */
-        $attrId = $attr->getAttributeId();
-        $tableName = $attr->getBackend()->getTable();
+        $attrParentId = $orderItem->getAttribute('parent_id');
+        /* @var $attrParentId Mage_Eav_Model_Entity_Attribute_Abstract */
+        $attrIdParentId = $attrParentId->getAttributeId();
+        $tableNameParentId = $attrParentId->getBackend()->getTable();
 
-        $this->getSelect()
-            ->joinLeft(array("order_items" => $tableName),
-                "order_items.parent_id = e.entity_id and order_items.entity_type_id=".$orderItem->getTypeId(), array());
+        $attrQtyOrdered = $orderItem->getAttribute('qty_ordered');
+        /* @var $attrQtyOrdered Mage_Eav_Model_Entity_Attribute_Abstract */
+        $attrIdQtyOrdered = $attrQtyOrdered->getAttributeId();
+        $tableNameQtyOrdered = $attrQtyOrdered->getBackend()->getTable();
+        $fieldNameQtyOrdered = $attrQtyOrdered->getBackend()->isStatic() ? 'qty_ordered' : 'value';
 
-        $attr = $orderItem->getAttribute('qty_ordered');
-        /* @var $attr Mage_Eav_Model_Entity_Attribute_Abstract */
-        $attrId = $attr->getAttributeId();
-        $tableName = $attr->getBackend()->getTable();
-        $fieldName = $attr->getBackend()->isStatic() ? 'qty_ordered' : 'value';
+        ////////////////////////
 
-        $this->getSelect()
-            ->joinLeft(array("order_items2" => $tableName),
-                "order_items2.entity_id = `order_items`.entity_id and order_items2.attribute_id = {$attrId}", array())
-            ->from("", array("items" => "sum(order_items2.{$fieldName})"));
+        $countSql = clone $this->getSelect();
+        $countSql->reset();
+
+        $countSql->from(array("order_items" => $tableNameParentId), array("sum(`order_items2`.`" . $fieldNameQtyOrdered . "`)"))
+            ->joinLeft(array("order_items2" => $tableNameQtyOrdered),
+                "`order_items2`.`entity_id` = `order_items`.`entity_id` AND `order_items2`.`attribute_id` = {$attrIdQtyOrdered}", array())
+            ->where("`order_items`.`parent_id` = `e`.`entity_id` AND `order_items`.`entity_type_id` = ".$orderItem->getTypeId());
+
+        $this->getSelect()->from("", array("items" => "SUM((".$countSql."))"));
+
+        ///////////////////////
 
         return $this;
     }
@@ -386,5 +391,21 @@ class Mage_Reports_Model_Mysql4_Order_Collection extends Mage_Sales_Model_Entity
     {
         $this->addAttributeToSort('customer_id', $dir);
         return $this;
+    }
+
+    public function getSelectCountSql()
+    {
+        $countSelect = clone $this->getSelect();
+        $countSelect->reset(Zend_Db_Select::ORDER);
+        $countSelect->reset(Zend_Db_Select::LIMIT_COUNT);
+        $countSelect->reset(Zend_Db_Select::LIMIT_OFFSET);
+        $countSelect->reset(Zend_Db_Select::COLUMNS);
+        $countSelect->reset(Zend_Db_Select::GROUP);
+        $countSelect->reset(Zend_Db_Select::HAVING);
+        $countSelect->from("", "count(DISTINCT e.entity_id)");
+
+        $sql = $countSelect->__toString();
+
+        return $sql;
     }
 }

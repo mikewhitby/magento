@@ -235,4 +235,9 @@ class Mage_Core_Model_Store_Group extends Mage_Core_Model_Abstract
 
         return $this->getWebsite()->getDefaultGroupId() != $this->getId();
     }
+    protected function _beforeDelete()
+    {
+        $this->_protectFromNonAdmin();
+        return parent::_beforeDelete();
+    }
 }
