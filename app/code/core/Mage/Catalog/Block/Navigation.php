@@ -24,6 +24,7 @@
  *
  * @category   Mage
  * @package    Mage_Catalog
+ * @author      Magento Core Team <core@magentocommerce.com>
  */
 class Mage_Catalog_Block_Navigation extends Mage_Core_Block_Template
 {
@@ -163,7 +164,7 @@ class Mage_Catalog_Block_Navigation extends Mage_Core_Block_Template
             $html .= ' parent';
         }
         $html.= '">'."\n";
-        $html.= '<a href="'.$this->getCategoryUrl($category).'"><span>'.$category->getName().'</span></a>'."\n";
+        $html.= '<a href="'.$this->getCategoryUrl($category).'"><span>'.$this->htmlEscape($category->getName()).'</span></a>'."\n";
         //$html.= '<span>'.$level.'</span>';
 
         if ($hasChildren){
@@ -232,7 +233,7 @@ class Mage_Catalog_Block_Navigation extends Mage_Core_Block_Template
         }
 
         $html.= '>'."\n";
-        $html.= '<a href="'.$this->getCategoryUrl($category).'"><span>'.$category->getName().'</span></a>'."\n";
+        $html.= '<a href="'.$this->getCategoryUrl($category).'"><span>'.$this->htmlEscape($category->getName()).'</span></a>'."\n";
 
         if (in_array($category->getId(), $this->getCurrentCategoryPath())){
             $children = $category->getChildren();

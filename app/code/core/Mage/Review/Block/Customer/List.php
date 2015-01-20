@@ -24,6 +24,7 @@
  *
  * @category   Mage
  * @package    Mage_Review
+ * @author      Magento Core Team <core@magentocommerce.com>
  */
 class Mage_Review_Block_Customer_List extends Mage_Core_Block_Template
 {

@@ -35,6 +35,7 @@ class Mage_Catalog_Model_Observer
         $store = $observer->getEvent()->getStore();
         /* @var $store Mage_Core_Model_Store */
         Mage::app()->reinitStores();
+        Mage::getConfig()->reinit();
         Mage::getModel('catalog/url')->refreshRewrites($store->getId());
     }
 

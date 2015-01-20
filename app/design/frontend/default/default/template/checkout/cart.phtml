@@ -36,12 +36,15 @@
 <?php echo $this->getMessagesBlock()->getGroupedHtml() ?>
 <form action="<?php echo $this->getUrl('checkout/cart/updatePost') ?>" method="post">
 <table cellspacing="0" id="shopping-cart-table" class="data-table box-table shopping-cart">
-    <col width="75"/>
-    <col/>
-    <col width="80"/>
-    <col width="140"/>
-    <col width="120"/>
-    <col width="140"/>
+    <col width="75" />
+    <col />
+    <col width="80" />
+    <?php if ($this->helper('wishlist')->isAllowInCart()) : ?>
+    <col width="1" />
+    <?php endif ?>
+    <col width="130" />
+    <col width="1" />
+    <col width="130" />
     <thead>
         <tr>
             <th>&nbsp;</th>
@@ -70,11 +73,11 @@
         <tr>
             <td>
                 <a href="<?php echo $this->getItemUrl($_item) ?>">
-                    <img src="<?php echo $this->helper('catalog/image')->init($this->getItemProductForThumbnail($_item), 'thumbnail')->resize(75); ?>" alt="<?php echo $this->htmlEscape($this->getItemName($_item)) ?>" width="75"/>
+                    <img src="<?php echo $this->helper('catalog/image')->init($this->getItemProductForThumbnail($_item), 'thumbnail')->resize(75); ?>" alt="<?php echo $this->htmlEscape($this->getItemName($_item)) ?>" width="75" />
                 </a>
             </td>
             <td class="attributes-col">
-                <a href="<?php echo $this->getItemUrl($_item) ?>"><strong><?php echo $this->getItemName($_item) ?></strong></a>
+                <p class="pname"><a href="<?php echo $this->getItemUrl($_item) ?>"><strong><?php echo $this->getItemName($_item) ?></strong></a></p>
                 <?php echo $this->getItemDescription($_item) ?>
                 <?php if($_item->getMessage()): ?>
                 <div style="font-size:95%;margin-top:6px;" class="shopping-cart-item-message <?php if($_item->getHasError()): ?>error<?php else: ?>notice<?php endif; ?>">
@@ -84,19 +87,19 @@
             </td>
             <td class="a-center">
                 <a href="<?php echo $this->getItemDeleteUrl($_item) ?>">
-                    <img src="<?php echo $this->getSkinUrl('images/btn_trash.gif') ?>" width="16" height="16" alt="Remove item"/>
+                    <img src="<?php echo $this->getSkinUrl('images/btn_trash.gif') ?>" width="16" height="16" alt="Remove item" />
                 </a>
             </td>
             <?php if ($this->helper('wishlist')->isAllowInCart()) : ?>
             <td class="a-center">
-                <input type="checkbox" value="1" name="cart[<?php echo $_item->getId() ?>][wishlist]"/>
+                <input type="checkbox" value="1" name="cart[<?php echo $_item->getId() ?>][wishlist]" />
             </td>
             <?php endif ?>
             <td class="a-right">
                 <?php echo $this->helper('checkout')->formatPrice($_item->getCalculationPrice()) ?>
             </td>
             <td class="a-center">
-                <input name="cart[<?php echo $_item->getId() ?>][qty]" value="<?php echo $this->getItemQty($_item) ?>" size="4" class="input-text qty" maxlength="8"/>
+                <input name="cart[<?php echo $_item->getId() ?>][qty]" value="<?php echo $this->getItemQty($_item) ?>" size="4" class="input-text qty" maxlength="8" />
             </td>
             <td class="a-right">
                 <?php echo $this->helper('checkout')->formatPrice($_item->getRowTotal()) ?>

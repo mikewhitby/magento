@@ -72,6 +72,7 @@ class Mage_Adminhtml_IndexController extends Mage_Adminhtml_Controller_Action
     public function logoutAction()
     {
         $auth = Mage::getSingleton('admin/session')->unsetAll();
+        Mage::getSingleton('adminhtml/session')->unsetAll();
         Mage::getSingleton('adminhtml/session')->addSuccess(Mage::helper('adminhtml')->__('You successfully logged out.'));
         $this->_redirect('*');
     }

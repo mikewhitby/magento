@@ -168,76 +168,80 @@ function mageCoreErrorHandler($errno, $errstr, $errfile, $errline){
         // there's no way to distinguish between caught system exceptions and warnings
         return false;
     }
-#echo "TEST:".error_reporting();
+
     $errno = $errno & error_reporting();
-    if($errno == 0) return false;
-    if(!defined('E_STRICT'))            define('E_STRICT', 2048);
-    if(!defined('E_RECOVERABLE_ERROR')) define('E_RECOVERABLE_ERROR', 4096);
+    if ($errno == 0) {
+        return false;
+    }
+    if (!defined('E_STRICT')) {
+        define('E_STRICT', 2048);
+    }
+    if (!defined('E_RECOVERABLE_ERROR')) {
+        define('E_RECOVERABLE_ERROR', 4096);
+    }
 
     // PEAR specific message handling
-    if (stripos($errfile.$errstr, 'pear')!==false) {
+    if (stripos($errfile.$errstr, 'pear') !== false) {
          // ignore strict notices
         if ($errno == E_STRICT) {
             return false;
         }
         // ignore attempts to read system files when open_basedir is set
-        if ($errno == E_WARNING && stripos($errstr, 'open_basedir')!==false) {
+        if ($errno == E_WARNING && stripos($errstr, 'open_basedir') !== false) {
             return false;
         }
     }
 
-    mageSendErrorHeader();
+    $errorMessage = '';
 
-    echo "<pre>\n<strong>";
     switch($errno){
-        case E_ERROR:               echo "Error";                  break;
-        case E_WARNING:             echo "Warning";                break;
-        case E_PARSE:               echo "Parse Error";            break;
-        case E_NOTICE:              echo "Notice";                 break;
-        case E_CORE_ERROR:          echo "Core Error";             break;
-        case E_CORE_WARNING:        echo "Core Warning";           break;
-        case E_COMPILE_ERROR:       echo "Compile Error";          break;
-        case E_COMPILE_WARNING:     echo "Compile Warning";        break;
-        case E_USER_ERROR:          echo "User Error";             break;
-        case E_USER_WARNING:        echo "User Warning";           break;
-        case E_USER_NOTICE:         echo "User Notice";            break;
-        case E_STRICT:              echo "Strict Notice";          break;
-        case E_RECOVERABLE_ERROR:   echo "Recoverable Error";      break;
-        default:                    echo "Unknown error ($errno)"; break;
-    }
-    echo ":</strong> <i>$errstr</i> in <strong>$errfile</strong> on line <strong>$errline</strong><br/>";
-
-    $backtrace = debug_backtrace();
-    array_shift($backtrace);
-    foreach($backtrace as $i=>$l){
-        echo "[$i] in <strong>"
-            .(!empty($l['class']) ? $l['class'] : '')
-            .(!empty($l['type']) ? $l['type'] : '')
-            ."{$l['function']}</strong>(";
-        if(!empty($l['args'])) foreach ($l['args'] as $i=>$arg) {
-            if ($i>0) echo ", ";
-            if (is_object($arg)) echo get_class($arg);
-            elseif (is_string($arg)) echo '"'.substr($arg,0,100).'"';
-            elseif (is_null($arg)) echo 'NULL';
-            elseif (is_numeric($arg)) echo $arg;
-            elseif (is_array($arg)) echo "Array[".sizeof($arg)."]";
-            else print_r($arg);
-        }
-        echo ")";
-        if(!empty($l['file'])) echo " in <strong>{$l['file']}</strong>";
-        if(!empty($l['line'])) echo " on line <strong>{$l['line']}</strong>";
-        echo "<br/>";
-    }
-
-    echo "\n</pre>";
-    switch ($errno) {
         case E_ERROR:
-            die('fatal');
+            $errorMessage .= "Error";
+            break;
+        case E_WARNING:
+            $errorMessage .= "Warning";
+            break;
+        case E_PARSE:
+            $errorMessage .= "Parse Error";
+            break;
+        case E_NOTICE:
+            $errorMessage .= "Notice";
+            break;
+        case E_CORE_ERROR:
+            $errorMessage .= "Core Error";
+            break;
+        case E_CORE_WARNING:
+            $errorMessage .= "Core Warning";
+            break;
+        case E_COMPILE_ERROR:
+            $errorMessage .= "Compile Error";
+            break;
+        case E_COMPILE_WARNING:
+            $errorMessage .= "Compile Warning";
+            break;
+        case E_USER_ERROR:
+            $errorMessage .= "User Error";
+            break;
+        case E_USER_WARNING:
+            $errorMessage .= "User Warning";
+            break;
+        case E_USER_NOTICE:
+            $errorMessage .= "User Notice";
+            break;
+        case E_STRICT:
+            $errorMessage .= "Strict Notice";
+            break;
+        case E_RECOVERABLE_ERROR:
+            $errorMessage .= "Recoverable Error";
+            break;
+        default:
+            $errorMessage .= "Unknown error ($errno)";
+            break;
     }
 
-    mageSendErrorFooter();
+    $errorMessage .= ": {$errstr}  in {$errfile} on line {$errline}";
 
-    return true;
+    throw new Exception($errorMessage);
 }
 
 function mageDebugBacktrace($return=false, $html=true, $showFirst=false)

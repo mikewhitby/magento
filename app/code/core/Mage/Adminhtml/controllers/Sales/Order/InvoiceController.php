@@ -23,6 +23,7 @@
  *
  * @category   Mage
  * @package    Mage_Adminhtml
+ * @author      Magento Core Team <core@magentocommerce.com>
  */
 class Mage_Adminhtml_Sales_Order_InvoiceController extends Mage_Adminhtml_Controller_Action
 {
@@ -111,6 +112,7 @@ class Mage_Adminhtml_Sales_Order_InvoiceController extends Mage_Adminhtml_Contro
      */
     protected function _saveInvoice($invoice)
     {
+        $invoice->getOrder()->setIsInProcess(true);
         $transactionSave = Mage::getModel('core/resource_transaction')
             ->addObject($invoice)
             ->addObject($invoice->getOrder())
@@ -150,7 +152,7 @@ class Mage_Adminhtml_Sales_Order_InvoiceController extends Mage_Adminhtml_Contro
         if ($invoice = $this->_initInvoice()) {
             $this->loadLayout()
                 ->_setActiveMenu('sales/order')
-                ->_addContent($this->getLayout()->createBlock('adminhtml/sales_order_invoice_view')->updateBackButtonUrl())
+                ->_addContent($this->getLayout()->createBlock('adminhtml/sales_order_invoice_view')->updateBackButtonUrl($this->getRequest()->getParam('come_from')))
                 ->renderLayout();
         }
         else {
@@ -223,8 +225,8 @@ class Mage_Adminhtml_Sales_Order_InvoiceController extends Mage_Adminhtml_Contro
         try {
             if ($invoice = $this->_initInvoice()) {
 
-                if (!empty($data['do_capture'])) {
-                    $invoice->setCaptureRequested(true);
+                if (!empty($data['capture_case'])) {
+                    $invoice->setRequestedCaptureCase($data['capture_case']);
                 }
 
                 if (!empty($data['comment_text'])) {
@@ -259,7 +261,12 @@ class Mage_Adminhtml_Sales_Order_InvoiceController extends Mage_Adminhtml_Contro
                     $shipment->sendEmail(!empty($data['send_email']));
                 }
 
-                $this->_getSession()->addSuccess($this->__('Invoice was successfully created'));
+                if (!empty($data['do_shipment'])) {
+                    $this->_getSession()->addSuccess($this->__('Invoice and shipment was successfully created.'));
+                }
+                else {
+                    $this->_getSession()->addSuccess($this->__('Invoice was successfully created.'));
+                }
 
                 $this->_redirect('*/sales_order/view', array('order_id' => $invoice->getOrderId()));
                 return;

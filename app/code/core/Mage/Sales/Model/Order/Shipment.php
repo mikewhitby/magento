@@ -23,19 +23,21 @@ class Mage_Sales_Model_Order_Shipment extends Mage_Core_Model_Abstract
 {
     const STATUS_NEW    = 1;
 
-    const XML_PATH_EMAIL_TEMPLATE   = 'sales_email/shipment/template';
-    const XML_PATH_EMAIL_IDENTITY   = 'sales_email/shipment/identity';
-    const XML_PATH_EMAIL_COPY_TO    = 'sales_email/shipment/copy_to';
-    const XML_PATH_UPDATE_EMAIL_TEMPLATE= 'sales_email/shipment_comment/template';
-    const XML_PATH_UPDATE_EMAIL_IDENTITY= 'sales_email/shipment_comment/identity';
-    const XML_PATH_UPDATE_EMAIL_COPY_TO = 'sales_email/shipment_comment/copy_to';
+    const XML_PATH_EMAIL_TEMPLATE       = 'sales_email/shipment/template';
+    const XML_PATH_EMAIL_GUEST_TEMPLATE = 'sales_email/shipment/guest_template';
+    const XML_PATH_EMAIL_IDENTITY       = 'sales_email/shipment/identity';
+    const XML_PATH_EMAIL_COPY_TO        = 'sales_email/shipment/copy_to';
+    const XML_PATH_UPDATE_EMAIL_TEMPLATE        = 'sales_email/shipment_comment/template';
+    const XML_PATH_UPDATE_EMAIL_GUEST_TEMPLATE  = 'sales_email/shipment_comment/guest_template';
+    const XML_PATH_UPDATE_EMAIL_IDENTITY        = 'sales_email/shipment_comment/identity';
+    const XML_PATH_UPDATE_EMAIL_COPY_TO         = 'sales_email/shipment_comment/copy_to';
 
     protected $_items;
     protected $_tracks;
     protected $_order;
 
     /**
-     * Initialize creditmemo resource model
+     * Initialize shipment resource model
      */
     protected function _construct()
     {
@@ -57,7 +59,7 @@ class Mage_Sales_Model_Order_Shipment extends Mage_Core_Model_Abstract
     }
 
     /**
-     * Retrieve the order the creditmemo for created for
+     * Retrieve the order the shipment for created for
      *
      * @return Mage_Sales_Model_Order
      */
@@ -232,12 +234,13 @@ class Mage_Sales_Model_Order_Shipment extends Mage_Core_Model_Abstract
         return $this;
     }
 
-    public function getCommentsCollection()
+    public function getCommentsCollection($reload=false)
     {
-        if (is_null($this->_comments)) {
+        if (is_null($this->_comments) || $reload) {
             $this->_comments = Mage::getResourceModel('sales/order_shipment_comment_collection')
                 ->addAttributeToSelect('*')
-                ->setShipmentFilter($this->getId());
+                ->setShipmentFilter($this->getId())
+                ->setCreatedAtOrder();
             if ($this->getId()) {
                 foreach ($this->_comments as $comment) {
                     $comment->setShipment($this);
@@ -260,7 +263,8 @@ class Mage_Sales_Model_Order_Shipment extends Mage_Core_Model_Abstract
         if (!$notifyCustomer && !$bcc) {
             return $this;
         }
-        $paymentBlock   = Mage::helper('payment')->getInfoBlock($order->getPayment());
+        $paymentBlock   = Mage::helper('payment')->getInfoBlock($order->getPayment())
+            ->setIsSecureMode(true);
         $mailTemplate = Mage::getModel('core/email_template');
 
         if ($notifyCustomer) {
@@ -271,12 +275,20 @@ class Mage_Sales_Model_Order_Shipment extends Mage_Core_Model_Abstract
             $customerEmail = $bcc;
         }
 
+        if ($order->getCustomerIsGuest()) {
+            $template = Mage::getStoreConfig(self::XML_PATH_EMAIL_GUEST_TEMPLATE, $order->getStoreId());
+            $customerName = $order->getBillingAddress()->getName();
+        } else {
+            $template = Mage::getStoreConfig(self::XML_PATH_EMAIL_TEMPLATE, $order->getStoreId());
+            $customerName = $order->getCustomerName();
+        }
+        
         $mailTemplate->setDesignConfig(array('area'=>'frontend', 'store'=>$order->getStoreId()))
             ->sendTransactional(
-                Mage::getStoreConfig(self::XML_PATH_EMAIL_TEMPLATE, $order->getStoreId()),
+                $template,
                 Mage::getStoreConfig(self::XML_PATH_EMAIL_IDENTITY, $order->getStoreId()),
                 $customerEmail,
-                $order->getBillingAddress()->getName(),
+                $customerName,
                 array(
                     'order'       => $order,
                     'shipment'    => $this,
@@ -295,7 +307,8 @@ class Mage_Sales_Model_Order_Shipment extends Mage_Core_Model_Abstract
      */
     public function sendUpdateEmail($notifyCustomer = true, $comment='')
     {
-        $bcc = $this->_getEmails(self::XML_PATH_UPDATE_EMAIL_COPY_TO);
+        $order  = $this->getOrder();
+        $bcc    = $this->_getEmails(self::XML_PATH_UPDATE_EMAIL_COPY_TO);
         if (!$notifyCustomer && !$bcc) {
             return $this;
         }
@@ -309,16 +322,23 @@ class Mage_Sales_Model_Order_Shipment extends Mage_Core_Model_Abstract
             $customerEmail = $bcc;
         }
 
-
+        if ($order->getCustomerIsGuest()) {
+            $template = Mage::getStoreConfig(self::XML_PATH_UPDATE_EMAIL_GUEST_TEMPLATE, $order->getStoreId());
+            $customerName = $order->getBillingAddress()->getName();
+        } else {
+            $template = Mage::getStoreConfig(self::XML_PATH_UPDATE_EMAIL_TEMPLATE, $order->getStoreId());
+            $customerName = $order->getCustomerName();
+        }
+        
         $mailTemplate->setDesignConfig(array('area'=>'frontend', 'store'=>$this->getStoreId()))
             ->sendTransactional(
-                Mage::getStoreConfig(self::XML_PATH_UPDATE_EMAIL_TEMPLATE, $this->getStoreId()),
+                $template,
                 Mage::getStoreConfig(self::XML_PATH_UPDATE_EMAIL_IDENTITY, $this->getStoreId()),
                 $customerEmail,
-                $this->getOrder()->getBillingAddress()->getName(),
+                $customerName,
                 array(
-                    'order'   => $this->getOrder(),
-                    'billing' => $this->getOrder()->getBillingAddress(),
+                    'order'   => $order,
+                    'billing' => $order->getBillingAddress(),
                     'shipment'=> $this,
                     'comment' => $comment
                 )

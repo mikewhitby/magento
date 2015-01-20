@@ -23,6 +23,7 @@
  *
  * @category   Mage
  * @package    Mage_Sales
+ * @author      Magento Core Team <core@magentocommerce.com>
  */
 
 class Mage_Sales_OrderController extends Mage_Core_Controller_Front_Action
@@ -108,13 +109,13 @@ class Mage_Sales_OrderController extends Mage_Core_Controller_Front_Action
         }
         return false;
     }
-        
+
     /**
      * osCommerce Order view page
      */
     public function viewOldAction()
     {
-        
+
         $orderId = (int) $this->getRequest()->getParam('order_id');
         if (!$orderId) {
             $this->_forward('noRoute');
@@ -128,15 +129,15 @@ class Mage_Sales_OrderController extends Mage_Core_Controller_Front_Action
             if ($navigationBlock = $this->getLayout()->getBlock('customer_account_navigation')) {
                 $navigationBlock->setActive('sales/order/history');
             }
-            
+
             $this->renderLayout();
         }
         else {
             $this->_redirect('*/*/history');
         }
-       
+
     }
-        
+
     public function invoiceAction()
     {
         $orderId = (int) $this->getRequest()->getParam('order_id');
@@ -252,6 +253,20 @@ class Mage_Sales_OrderController extends Mage_Core_Controller_Front_Action
         }
     }
 
+    public function printAction()
+    {
+        $orderId = (int) $this->getRequest()->getParam('order_id');
+        $order = Mage::getModel('sales/order')->load($orderId);
+
+        if ($this->_canViewOrder($order)) {
+            Mage::register('current_order', $order);
+            $this->loadLayout('print');
+            $this->renderLayout();
+        } else {
+            $this->_redirect('*/*/history');
+        }
+    }
+
     public function printInvoiceAction()
     {
         $invoiceId = (int) $this->getRequest()->getParam('invoice_id');
@@ -273,8 +288,6 @@ class Mage_Sales_OrderController extends Mage_Core_Controller_Front_Action
         } else {
             $this->_redirect('*/*/history');
         }
-
-
     }
 
     public function printShipmentAction()

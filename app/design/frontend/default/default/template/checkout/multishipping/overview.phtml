@@ -23,7 +23,7 @@
 </div>
 <?php echo $this->getMessagesBlock()->getGroupedHtml() ?>
 <div class="multi-address-checkout-box">
-    <form action="<?php echo $this->getPostActionUrl() ?>" method="post" onsubmit="return showLoader();" >
+    <form action="<?php echo $this->getPostActionUrl() ?>" method="post" onsubmit="return showLoader();">
         <div class="box">
             <h4 class="legend"><?php echo $this->__('Billing Information') ?></h4>
             <div class="clear"></div>
@@ -41,8 +41,8 @@
                     <div class="head">
                         <h4><?php echo $this->__('Payment Method') ?><span class="separator">|</span><a href="<?php echo $this->getEditBillingUrl() ?>"><?php echo $this->__('Change Payment Method') ?></a></h4>
                     </div>
-                    <input type="hidden" name="payment[cc_number]" value="<?echo $this->htmlEscape($this->getPayment()->getCcNumber())?>">
-                    <input type="hidden" name="payment[cc_cid]" value="<?echo $this->htmlEscape($this->getPayment()->getCcCid())?>">
+                    <input type="hidden" name="payment[cc_number]" value="<?php echo $this->htmlEscape($this->getPayment()->getCcNumber())?>" />
+                    <input type="hidden" name="payment[cc_cid]" value="<?php echo $this->htmlEscape($this->getPayment()->getCcCid())?>" />
                     <?php echo $this->getPaymentHtml() ?>
                 </div>
             </div>
@@ -60,7 +60,7 @@
                         <address>
                             <?php echo $_address->format('html') ?>
                         </address>
-                        <br/>
+                        <br />
                         <div class="head">
                             <h4><?php echo $this->__('Shipping Method') ?><span class="separator">|</span><a href="<?php echo $this->getEditShippingUrl() ?>"><?php echo $this->__('Change Shipping Method') ?></a></h4>
                         </div>
@@ -73,14 +73,13 @@
                             <h4><?php echo $this->__('Items') ?><span class="separator">|</span><a href="<?php echo $this->getAddressesEditUrl() ?>"><?php echo $this->__('Edit Items') ?></a></h4>
                         </div>
                         <table cellspacing="0" id="overview-table-<?php echo $_address->getId() ?>" class="data-table nested-data-table">
-                            <col/>
-                            <col width="70"/>
-                            <col width="30"/>
-                            <col width="70"/>
+                            <col />
+                            <col width="70" />
+                            <col width="30" />
+                            <col width="70" />
                             <thead>
                                 <tr>
                                     <th><?php echo $this->__('Product Name') ?></th>
-
                                     <th class="a-right"><?php echo $this->__('Price') ?></th>
                                     <th class="a-center"><?php echo $this->__('Qty') ?></th>
                                     <th class="a-right"><?php echo $this->__('Subtotal') ?></th>
@@ -121,7 +120,7 @@
             <tr>
                 <td class="v-middle">
                     <span id="review-please-wait" style="display:none;" class="opc-please-wait f-right">
-                        <img src="<?php echo $this->getSkinUrl('images/opc-ajax-loader.gif') ?>" class="v-middle" alt=""/> &nbsp; <?php echo $this->__('Submitting order information...') ?> &nbsp;
+                        <img src="<?php echo $this->getSkinUrl('images/opc-ajax-loader.gif') ?>" class="v-middle" alt="" /> &nbsp; <?php echo $this->__('Submitting order information...') ?> &nbsp;
                     </span>
                 </td>
                 <td class="left-radius">&nbsp;</td>

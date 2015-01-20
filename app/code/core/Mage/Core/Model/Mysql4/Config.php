@@ -70,6 +70,14 @@ class Mage_Core_Model_Mysql4_Config extends Mage_Core_Model_Mysql4_Abstract
         }
 
         // initialize websites config
+//        $websites = array();
+//        $websiteCollection = Mage::app()->getWebsites(true);
+//        foreach ($websiteCollection as $website) {
+//            $xmlConfig->setNode('websites/' . $website->getCode() . '/system/website/id', $website->getId());
+//            $xmlConfig->setNode('websites/' . $website->getCode() . '/system/website/name', $website->getName());
+//            $websites[$website->getId()] = array('code' => $website->getCode());
+//        }
+
         $websites = array();
         $rows = $read->fetchAssoc("select website_id, code, name from ".$this->getTable('website'));
         foreach ($rows as $w) {
@@ -79,6 +87,17 @@ class Mage_Core_Model_Mysql4_Config extends Mage_Core_Model_Mysql4_Abstract
         }
 
         // initialize stores config
+//        $stores = array();
+//        $storeCollection = Mage::app()->getStores(true);
+//        foreach ($storeCollection as $store) {
+//            $xmlConfig->setNode('stores/' . $store->getCode() . '/system/store/id', $store->getId());
+//            $xmlConfig->setNode('stores/' . $store->getCode() . '/system/store/name', $store->getName());
+//            $xmlConfig->setNode('stores/' . $store->getCode() . '/system/website/id', $store->getWebsiteId());
+//            $xmlConfig->setNode('websites/' . $websites[$store->getWebsiteId()]['code'] . '/system/stores/' . $store->getCode(), $store->getId());
+//            $stores[$store->getId()] = array('code' => $store->getCode());
+//            $websites[$store->getWebsiteId()]['stores'][$store->getId()] = $store->getCode();
+//        }
+
         $stores = array();
         $rows = $read->fetchAssoc("select store_id, code, name, website_id from ".$this->getTable('store')." order by sort_order asc");
         foreach ($rows as $s) {
@@ -111,13 +130,19 @@ class Mage_Core_Model_Mysql4_Config extends Mage_Core_Model_Mysql4_Abstract
             $websiteNode->extend($extendSource);
         }
 
+        $deleteWebsites = array();
         // set websites config values from database
         foreach ($rows as $r) {
             if ($r['scope']!=='websites') {
                 continue;
             }
             $value = str_replace($subst_from, $subst_to, $r['value']);
-            $xmlConfig->setNode('websites/'.$websites[$r['scope_id']]['code'].'/'.$r['path'], $value);
+            if (isset($websites[$r['scope_id']])) {
+                $xmlConfig->setNode('websites/'.$websites[$r['scope_id']]['code'].'/'.$r['path'], $value);
+            }
+            else {
+                $deleteWebsites[$r['scope_id']] = $r['scope_id'];
+            }
         }
 
         // extend website config values to all associated stores
@@ -131,13 +156,33 @@ class Mage_Core_Model_Mysql4_Config extends Mage_Core_Model_Mysql4_Abstract
             }
         }
 
+        $deleteStores = array();
         // set stores config values from database
         foreach ($rows as $r) {
             if ($r['scope']!=='stores') {
                 continue;
             }
             $value = str_replace($subst_from, $subst_to, $r['value']);
-            $xmlConfig->setNode('stores/'.$stores[$r['scope_id']]['code'].'/'.$r['path'], $value);
+            if (isset($stores[$r['scope_id']])) {
+                $xmlConfig->setNode('stores/'.$stores[$r['scope_id']]['code'].'/'.$r['path'], $value);
+            }
+            else {
+                $deleteStores[$r['scope_id']] = $r['scope_id'];
+            }
+        }
+
+        if ($deleteWebsites) {
+            $this->_getWriteAdapter()->delete($this->getMainTable(), array(
+                $this->_getWriteAdapter()->quoteInto('scope=?', 'websites'),
+                $this->_getWriteAdapter()->quoteInto('scope_id IN(?)', $deleteWebsites),
+            ));
+        }
+
+        if ($deleteStores) {
+            $this->_getWriteAdapter()->delete($this->getMainTable(), array(
+                $this->_getWriteAdapter()->quoteInto('scope=?', 'stores'),
+                $this->_getWriteAdapter()->quoteInto('scope_id IN(?)', $deleteStores),
+            ));
         }
 
 #echo "<xmp>".$xmlConfig->getNode()->asNiceXml()."</xmp>"; exit;

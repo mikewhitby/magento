@@ -22,10 +22,7 @@
 <config>
     <modules>
         <Mage_Customer>
-            <version>0.8.2</version>
-            <depends>
-                <Mage_Eav />
-            </depends>
+            <version>0.8.3</version>
         </Mage_Customer>
     </modules>
     <global>
@@ -143,7 +140,7 @@ T: {{var telephone}}
                     <type>html</type>
                 </customer_create_account_email_template>
                 <customer_password_forgot_email_template translate="label" module="customer">
-                    <label>New passowrd</label>
+                    <label>New password</label>
                     <file>password_new.html</file>
                     <type>html</type>
                 </customer_password_forgot_email_template>

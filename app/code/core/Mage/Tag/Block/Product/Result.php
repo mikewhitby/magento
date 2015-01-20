@@ -23,6 +23,7 @@
  *
  * @category   Mage
  * @package    Mage_Tag
+ * @author      Magento Core Team <core@magentocommerce.com>
  */
 
 class Mage_Tag_Block_Product_Result extends Mage_Core_Block_Template
@@ -63,13 +64,31 @@ class Mage_Tag_Block_Product_Result extends Mage_Core_Block_Template
         if(is_null($this->_productCollection)) {
             $tagModel = Mage::getModel('tag/tag');
             $this->_productCollection = $tagModel->getEntityCollection()
+                ->addAttributeToSelect('name')
+                ->addAttributeToSelect('url_key')
+
+                ->addAttributeToSelect('price')
+                ->addAttributeToSelect('special_price')
+                ->addAttributeToSelect('special_from_date')
+                ->addAttributeToSelect('special_to_date')
+                ->addMinimalPrice()
+
+                ->addAttributeToSelect('description')
+                ->addAttributeToSelect('short_description')
+
+                ->addAttributeToSelect('image')
+                ->addAttributeToSelect('thumbnail')
+                ->addAttributeToSelect('small_image')
+
+                ->addAttributeToSelect('tax_class_id')
+
                 ->addTagFilter($this->getTag()->getId())
                 ->addStoreFilter()
                 ->addUrlRewrite();
             Mage::getSingleton('catalog/product_status')->addSaleableFilterToCollection($this->_productCollection);
             Mage::getSingleton('catalog/product_visibility')->addVisibleInCatalogFilterToCollection($this->_productCollection);
         }
-        
+
         return $this->_productCollection;
     }
 

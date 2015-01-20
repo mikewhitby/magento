@@ -23,6 +23,7 @@
  *
  * @category   Mage
  * @package    Mage_Adminhtml
+ * @author      Magento Core Team <core@magentocommerce.com>
  */
 class Mage_Adminhtml_Block_Sales_Order_Grid extends Mage_Adminhtml_Block_Widget_Grid
 {
@@ -68,6 +69,7 @@ class Mage_Adminhtml_Block_Sales_Order_Grid extends Mage_Adminhtml_Block_Widget_
                 'header'    => Mage::helper('sales')->__('Purchased from (store)'),
                 'index'     => 'store_id',
                 'type'      => 'store',
+                'store_view'=> true,
                 'display_deleted' => true,
             ));
         }

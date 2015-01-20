@@ -23,6 +23,7 @@
  *
  * @category   Mage
  * @package    Mage_Adminhtml
+ * @author      Magento Core Team <core@magentocommerce.com>
  */
 class Mage_Adminhtml_Catalog_ProductController extends Mage_Adminhtml_Controller_Action
 {
@@ -62,6 +63,9 @@ class Mage_Adminhtml_Catalog_ProductController extends Mage_Adminhtml_Controller
         if ($productId) {
             $product->load($productId);
         }
+
+        // Init attribute label names for store selected in dropdown
+        Mage_Catalog_Model_Resource_Eav_Attribute::initLabels($product->getStoreId());
 
         // Required attributes of simple product for configurable creation
         if ($this->getRequest()->getParam('popup')
@@ -520,12 +524,15 @@ class Mage_Adminhtml_Catalog_ProductController extends Mage_Adminhtml_Controller
         } else {
             try {
                 foreach ($productIds as $productId) {
-                    $product = Mage::getModel('catalog/product')
+                    $product = Mage::getSingleton('catalog/product')
+                        ->unsetData()
                         ->setStoreId($storeId)
                         ->load($productId)
                         ->setStatus($this->getRequest()->getParam('status'))
+                        ->setIsMassupdate(true)
                         ->save();
                 }
+                Mage::dispatchEvent('catalog_product_massupdate_after', array('products'=>$productIds));
                 $this->_getSession()->addSuccess(
                     $this->__('Total of %d record(s) were successfully updated', count($productIds))
                 );

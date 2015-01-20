@@ -23,6 +23,7 @@
  *
  * @category   Mage
  * @package    Mage_Shipping
+ * @author      Magento Core Team <core@magentocommerce.com>
  */
 class Mage_Shipping_Model_Mysql4_Carrier_Tablerate extends Mage_Core_Model_Mysql4_Abstract
 {
@@ -58,15 +59,21 @@ class Mage_Shipping_Model_Mysql4_Carrier_Tablerate extends Mage_Core_Model_Mysql
             $country = $read->quote($request->getDestCountryId());
         }
         */
-        $bind = array(
-            'zip'       => $read->quote($request->getDestPostcode()),
-            'region'    => $read->quote($request->getDestRegionId()),
-            'country'   => $read->quote($request->getDestCountryId())
+//        $bind = array(
+//            'zip'       => $read->quote($request->getDestPostcode()),
+//            'region'    => $read->quote($request->getDestRegionId()),
+//            'country'   => $read->quote($request->getDestCountryId())
+//        );
+        $select->where(
+            $read->quoteInto("(dest_country_id=? AND dest_zip=?)", $request->getDestCountryId(), $request->getDestPostcode()).
+            $read->quoteInto(" OR (dest_region_id=? AND dest_zip='')", $request->getDestRegionId()).
+            $read->quoteInto(" OR (dest_country_id=? AND dest_region_id='0' AND dest_zip='')", $request->getDestCountryId()).
+            "OR (dest_country_id='0' AND dest_region_id='0' AND dest_zip='')"
         );
-        $select->where("(dest_zip=:zip)
-                     OR (dest_region_id=:region AND dest_zip='')
-                     OR (dest_country_id=:country AND dest_region_id='0' AND dest_zip='')
-                     OR (dest_country_id='0' AND dest_region_id='0' AND dest_zip='')");
+//        $select->where("(dest_zip=:zip)
+//                     OR (dest_region_id=:region AND dest_zip='')
+//                     OR (dest_country_id=:country AND dest_region_id='0' AND dest_zip='')
+//                     OR (dest_country_id='0' AND dest_region_id='0' AND dest_zip='')");
         if (is_array($request->getConditionName())) {
             $i = 0;
             foreach ($request->getConditionName() as $conditionName) {
@@ -84,7 +91,10 @@ class Mage_Shipping_Model_Mysql4_Carrier_Tablerate extends Mage_Core_Model_Mysql
         }
         $select->where('website_id=?', $request->getWebsiteId());
         $select->order('condition_value DESC')->limit(1);
-        $row = $read->fetchRow($select, $bind);
+        /*
+        pdo has an issue. we cannot use bind
+        */
+        $row = $read->fetchRow($select);
         return $row;
     }
 
@@ -100,14 +110,23 @@ class Mage_Shipping_Model_Mysql4_Carrier_Tablerate extends Mage_Core_Model_Mysql
 
             $websiteId = $object->getScopeId();
             $websiteModel = Mage::app()->getWebsite($websiteId);
-            $conditionName = $object->getValue();
-            if ($conditionName{0} == '_') {
-                $conditionName = substr($conditionName, 1, strpos($conditionName, '/')-1);
-            } else {
-                $conditionName = $websiteModel->getConfig('carriers/tablerate/condition_name');
-            }
-            $conditionFullName = Mage::getModel('shipping/carrier_tablerate')->getCode('condition_name_short', $conditionName);
+            /*
+            getting condition name from post instead of the following commented logic
+            */
 
+            if (isset($_POST['groups']['tablerate']['fields']['condition_name']['inherit'])) {
+                $conditionName = (string)Mage::getConfig()->getNode('default/carriers/tablerate/condition_name');
+            } else {
+                $conditionName = $_POST['groups']['tablerate']['fields']['condition_name']['value'];
+            }
+
+//            $conditionName = $object->getValue();
+//            if ($conditionName{0} == '_') {
+//                $conditionName = substr($conditionName, 1, strpos($conditionName, '/')-1);
+//            } else {
+//                $conditionName = $websiteModel->getConfig('carriers/tablerate/condition_name');
+//            }
+            $conditionFullName = Mage::getModel('shipping/carrier_tablerate')->getCode('condition_name_short', $conditionName);
             if (!empty($csv)) {
                 $exceptions = array();
                 $csvLines = explode("\n", $csv);

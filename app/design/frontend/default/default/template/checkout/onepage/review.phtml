@@ -26,11 +26,11 @@
     <p class="left"><?php echo $this->__('Forgot an Item?') ?> <a href="<?php echo $this->getUrl('checkout/cart', array('_secure'=>false)) ?>"><?php echo $this->__('Edit Your Cart') ?></a></p>
     <p>
         <span id="review-please-wait" style="display:none;" class="opc-please-wait">
-            <img src="<?php echo $this->getSkinUrl('images/opc-ajax-loader.gif') ?>" class="v-middle" alt=""/> &nbsp; <?php echo $this->__('Submitting order information...') ?> &nbsp;
+            <img src="<?php echo $this->getSkinUrl('images/opc-ajax-loader.gif') ?>" class="v-middle" alt="" /> &nbsp; <?php echo $this->__('Submitting order information...') ?> &nbsp;
         </span>
 
         <span id="review-buttons-container" class="a-center">
-            <input type="image" src="<?php echo $this->getSkinUrl('images/btn_place_order.gif') ?>" onclick="review.save();" value="<?php echo $this->__('Place Order') ?>"/>
+            <input type="image" src="<?php echo $this->getSkinUrl('images/btn_place_order.gif') ?>" onclick="review.save();" value="<?php echo $this->__('Place Order') ?>" />
         </span>
     </p>
 </div>

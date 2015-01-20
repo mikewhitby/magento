@@ -95,7 +95,7 @@ function giftMessageToogle(giftMessageIdentifier)
 
     </tbody>
     <tfoot>
-            <?php if ((float) $_creditmemo->getSubtotal()): ?>
+        <?php if ((float) $_creditmemo->getSubtotal()): ?>
         <tr>
             <td colspan="7" class="a-right"><?php echo $this->__('Subtotal') ?></td>
             <td class="last a-right"><?php echo $_order->formatPrice($_creditmemo->getSubtotal()) ?></td>

@@ -23,6 +23,7 @@
  *
  * @category   Mage
  * @package    Mage_Catalog
+ * @author      Magento Core Team <core@magentocommerce.com>
  */
 class Mage_Catalog_Model_Resource_Eav_Mysql4_Product_Collection
     extends Mage_Catalog_Model_Resource_Eav_Mysql4_Collection_Abstract
@@ -351,9 +352,7 @@ class Mage_Catalog_Model_Resource_Eav_Mysql4_Product_Collection
         /* @var $select Zend_Db_Select */
         $select->reset(Zend_Db_Select::COLUMNS);
         $select->distinct(true);
-        $select->join(array('set_distinct'=>$this->getEntity()->getEntityTable()), 'e.entity_id=set_distinct.entity_id',
-            'set_distinct.attribute_set_id');
-
+        $select->from('', 'attribute_set_id');
         return $this->getConnection()->fetchCol($select);
     }
 

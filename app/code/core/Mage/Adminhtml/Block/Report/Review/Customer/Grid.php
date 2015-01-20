@@ -23,6 +23,7 @@
  *
  * @category   Mage
  * @package    Mage_Adminhtml
+ * @author      Magento Core Team <core@magentocommerce.com>
  */
 class Mage_Adminhtml_Block_Report_Review_Customer_Grid extends Mage_Adminhtml_Block_Widget_Grid
 
@@ -32,7 +33,7 @@ class Mage_Adminhtml_Block_Report_Review_Customer_Grid extends Mage_Adminhtml_Bl
     {
         parent::__construct();
         $this->setId('customers_grid');
-        $this->setDefaultSort('id');
+        $this->setDefaultSort('review_cnt');
         $this->setDefaultDir('desc');
     }
 
@@ -49,16 +50,17 @@ class Mage_Adminhtml_Block_Report_Review_Customer_Grid extends Mage_Adminhtml_Bl
     protected function _prepareColumns()
     {
         $this->addColumn('customer_name', array(
-            'header'    =>Mage::helper('reports')->__('Customer Name'),
-            'index'     =>'customer_name',
-            'default'   =>Mage::helper('reports')->__('Guest')
+            'header'    => Mage::helper('reports')->__('Customer Name'),
+            'index'     => 'customer_name',
+            'default'   => Mage::helper('reports')->__('Guest'),
+            'renderer'  => 'adminhtml/report_grid_column_renderer_customer',
         ));
 
         $this->addColumn('review_cnt', array(
-            'header'    =>Mage::helper('reports')->__('Number Of Reviews'),
-            'width'     =>'40px',
-            'align'     =>'right',
-            'index'     =>'review_cnt'
+            'header'    => Mage::helper('reports')->__('Number Of Reviews'),
+            'width'     => '40px',
+            'align'     => 'right',
+            'index'     => 'review_cnt'
         ));
 
         $this->setFilterVisibility(false);

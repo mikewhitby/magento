@@ -41,7 +41,7 @@
             <ol>
             <?php if (!$this->isFirstPage()): ?>
                 <li>
-                    <a href="<?php echo $this->getPreviousPageUrl() ?>"><img src="<?php echo $this->getSkinUrl('images/pager_arrow_left.gif') ?>" alt="<?php echo $this->__('Previous Page') ?>"/></a>
+                    <a href="<?php echo $this->getPreviousPageUrl() ?>"><img src="<?php echo $this->getSkinUrl('images/pager_arrow_left.gif') ?>" alt="<?php echo $this->__('Previous Page') ?>" /></a>
                 </li>
             <?php endif ?>
             <?php foreach ($this->getPages() as $_page): ?>

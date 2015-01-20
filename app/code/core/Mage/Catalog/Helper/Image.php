@@ -21,6 +21,7 @@
 /**
  * Catalog image helper
  *
+ * @author      Magento Core Team <core@magentocommerce.com>
  */
 class Mage_Catalog_Helper_Image extends Mage_Core_Helper_Abstract
 {

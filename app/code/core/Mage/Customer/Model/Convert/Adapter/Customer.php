@@ -59,7 +59,7 @@ class Mage_Customer_Model_Convert_Adapter_Customer
         'billing_lastname'  => 'lastname'
     );
 
-    protected $_billingSteetFields = array(
+    protected $_billingStreetFields = array(
         'billing_street1', 'billing_street2'
     );
 
@@ -79,7 +79,7 @@ class Mage_Customer_Model_Convert_Adapter_Customer
         'shipping_lastname'  => 'lastname'
     );
 
-    protected $_shippingSteetFields = array(
+    protected $_shippingStreetFields= array(
         'shipping_street1', 'shipping_street2'
     );
 
@@ -522,7 +522,7 @@ class Mage_Customer_Model_Convert_Adapter_Customer
             foreach ($this->_billingFields as $field) {
                 $cleanField = substr($field, 8);
 
-                if (in_array($field, $this->_billingSteetFields) && isset($importData[$field])) {
+                if (in_array($field, $this->_billingStreetFields) && isset($importData[$field])) {
                     $billingStreet[] = $importData[$field];
                     continue;
                 }
@@ -576,7 +576,7 @@ class Mage_Customer_Model_Convert_Adapter_Customer
             foreach ($this->_shippingFields as $field) {
                 $cleanField = substr($field, 9);
 
-                if (in_array($field, $this->_shippingSteetFields) && isset($importData[$field])) {
+                if (in_array($field, $this->_shippingStreetFields) && isset($importData[$field])) {
                     $shippingStreet[] = $importData[$field];
                     continue;
                 }
@@ -634,7 +634,7 @@ class Mage_Customer_Model_Convert_Adapter_Customer
 
         $mem = memory_get_usage(); $origMem = $mem; $memory = $mem;
         $customer = $this->getCustomer();
-        set_time_limit(240);
+        @set_time_limit(240);
         $row = $args;
         $newMem = memory_get_usage(); $memory .= ', '.($newMem-$mem); $mem = $newMem;
         $customer->importFromTextArray($row);

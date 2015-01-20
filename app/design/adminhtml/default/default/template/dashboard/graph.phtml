@@ -26,9 +26,9 @@
             <?php echo $this->__('Select Range') ?>:
             <select name="period" id="order_<?php echo $this->getHtmlId() ?>_period" onchange="changePeriod(this)">
                 <?php foreach ($this->helper('adminhtml/dashboard_data')->getDatePeriods() as $_value=>$_label): ?>
-        	        <?php if(in_array($_value, array('custom'))) continue; ?>
-        	        <option value="<?php echo $_value ?>" <?php if($this->getRequest()->getParam('period')==$_value): ?> selected<?php endif; ?>><?php echo $_label ?></option>
-        	    <?php endforeach; ?>
+                    <?php if(in_array($_value, array('custom'))) continue; ?>
+                    <option value="<?php echo $_value ?>" <?php if($this->getRequest()->getParam('period')==$_value): ?> selected<?php endif; ?>><?php echo $_label ?></option>
+                <?php endforeach; ?>
             </select>
             <img src="<?php echo Mage::getDesign()->getSkinUrl('images/dashboard-close.gif') ?>" onclick="toggleCal('<?php echo $this->getHtmlId() ?>')" />
         </div>
@@ -49,7 +49,7 @@
         <?php endforeach; ?>
     </select></p><br/>
     <?php if($this->getCount()): ?>
-    <p><img src="<?php echo $this->getChartUrl() ?>" /></p>
+    <p><img src="<?php echo $this->getChartUrl(false) ?>" /></p>
     <?php else: ?>
     <p class="a-center" style="width:<?php echo $this->getWidth() ?>px;height:<?php echo $this->getHeight() ?>px;"><?php echo $this->__('No Data Found') ?></p>
     <?php endif; ?>

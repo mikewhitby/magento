@@ -23,9 +23,6 @@
     <modules>
         <Mage_Adminhtml>
             <version>0.7.1</version>
-            <depends>
-                <Mage_Admin />
-            </depends>
         </Mage_Adminhtml>
     </modules>
 
@@ -53,6 +50,18 @@
                 </system_emails_forgot_email_template>
             </email>
         </template>
+
+        <events>
+            <adminhtml_controller_action_predispatch_start>
+                <observers>
+                    <store>
+                        <type>singleton</type>
+                        <class>adminhtml/observer</class>
+                        <method>bindStore</method>
+                    </store>
+                </observers>
+            </adminhtml_controller_action_predispatch_start>
+        </events>
     </global>
 
     <admin>
@@ -69,20 +78,15 @@
 
     <adminhtml>
         <events>
-            <controller_action_predispatch_admin>
+            <controller_action_predispatch>
                 <observers>
                     <auth>
                         <type>singleton</type>
                         <class>admin/observer</class>
                         <method>actionPreDispatchAdmin</method>
                     </auth>
-                    <store>
-                        <type>singleton</type>
-                        <class>adminhtml/observer</class>
-                        <method>bindStore</method>
-                    </store>
                 </observers>
-            </controller_action_predispatch_admin>
+            </controller_action_predispatch>
             <core_locale_set_locale>
                 <observers>
                     <bind_locale>
@@ -170,7 +174,7 @@
                         </children>
                     </acl>
                     <extensions translate="title" module="adminhtml">
-                        <title>Magento Extensions</title>
+                        <title>Magento Connect</title>
                         <children>
                             <local translate="title" module="adminhtml">
                                 <title>Manage Extensions</title>
@@ -340,16 +344,16 @@
                                     <title>Cache Management</title>
                                 </cache>
                                 <extensions>
-                                    <title>Extensions</title>
+                                    <title>Magento Connect</title>
                                     <children>
                                         <local>
-                                            <title>Locally Installed</title>
+                                            <title>Manage Extensions</title>
                                         </local>
                                         <remote>
                                             <title>Available Remote</title>
                                         </remote>
                                         <custom>
-                                            <title>Custom Local</title>
+                                            <title>Package Extensions</title>
                                         </custom>
                                         <config>
                                             <title>PEAR Configuration</title>

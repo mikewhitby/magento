@@ -89,6 +89,7 @@ class Mage_Install_Model_Installer_Config extends Mage_Install_Model_Installer_A
         chmod($this->_localConfigFile, 0777);
         /**
          * New config initialization we do on install db action
+ * @author      Magento Core Team <core@magentocommerce.com>
          */
         //Mage::getConfig()->init();
     }

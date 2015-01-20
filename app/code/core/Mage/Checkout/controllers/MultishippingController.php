@@ -21,6 +21,7 @@
 /**
  * Multishipping checkout controller
  *
+ * @author      Magento Core Team <core@magentocommerce.com>
  */
 class Mage_Checkout_MultishippingController extends Mage_Core_Controller_Front_Action
 {
@@ -95,6 +96,7 @@ class Mage_Checkout_MultishippingController extends Mage_Core_Controller_Front_A
      */
     public function indexAction()
     {
+        Mage::getSingleton('checkout/session')->setCartWasUpdated(false);
         $this->_getCheckout()->getCheckoutSession()->setCheckoutState(
             Mage_Checkout_Model_Session::CHECKOUT_STATE_BEGIN
         );

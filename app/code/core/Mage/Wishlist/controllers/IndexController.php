@@ -24,6 +24,7 @@
  *
  * @category   Mage
  * @package    Mage_Wishlist
+ * @author      Magento Core Team <core@magentocommerce.com>
  */
 class Mage_Wishlist_IndexController extends Mage_Core_Controller_Front_Action
 {
@@ -60,6 +61,7 @@ class Mage_Wishlist_IndexController extends Mage_Core_Controller_Front_Action
     {
         $this->_getWishlist();
         $this->loadLayout();
+        $this->getLayout()->getBlock('customer.wishlist')->setRefererUrl($this->_getRefererUrl());
         $this->_initLayoutMessages('customer/session');
         $this->_initLayoutMessages('checkout/session');
         $this->renderLayout();
@@ -226,12 +228,17 @@ class Mage_Wishlist_IndexController extends Mage_Core_Controller_Front_Action
 
         $wishlist = $this->_getWishlist();
         $wishlist->getItemCollection()->load();
+
+        $notSalableNames = array(); // Out of stock products message
+
         foreach ($wishlist->getItemCollection() as $item) {
              try {
                 $product = Mage::getModel('catalog/product')->load($item->getProductId())->setQty(1);
                 if ($product->isSalable()){
                     Mage::getSingleton('checkout/cart')->addProduct($product);
                     $item->delete();
+                } else {
+                    $notSalableNames[] = $product->getName();
                 }
             } catch(Exception $e) {
                 $url = Mage::getSingleton('checkout/session')->getRedirectUrl(true);
@@ -249,6 +256,12 @@ class Mage_Wishlist_IndexController extends Mage_Core_Controller_Front_Action
                 }
             }
             Mage::getSingleton('checkout/cart')->save();
+        }
+
+        if (count($notSalableNames) > 0) {
+            Mage::getSingleton('checkout/session')
+                ->addNotice($this->__('This product(s) is currently out of stock:'));
+            array_map(array(Mage::getSingleton('checkout/session'), 'addNotice'), $notSalableNames);
         }
 
         if ($urls) {
@@ -318,6 +331,7 @@ class Mage_Wishlist_IndexController extends Mage_Core_Controller_Front_Action
                     null,
                     array(
                         'customer'      => $customer,
+                        'salable'       => $wishlist->isSalable() ? 'yes' : '',
                         'items'         => &$wishlistBlock,
                         'addAllLink'    => Mage::getUrl('*/shared/allcart',array('code'=>$wishlist->getSharingCode())),
                         'viewOnSiteLink'=> Mage::getUrl('*/shared/index',array('code'=>$wishlist->getSharingCode())),

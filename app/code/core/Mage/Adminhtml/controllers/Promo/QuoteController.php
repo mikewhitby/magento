@@ -119,6 +119,9 @@ class Mage_Adminhtml_Promo_QuoteController extends Mage_Adminhtml_Controller_Act
 
             Mage::getSingleton('adminhtml/session')->setPageData($model->getData());
             try {
+                if ($this->getRequest()->getParam('discount_amount') < 0) {
+                    Mage::throwException(Mage::helper('salesrule')->__('Invalid discount amount.'));
+                }
                 $model->save();
                 Mage::getSingleton('adminhtml/session')->addSuccess(Mage::helper('salesrule')->__('Rule was successfully saved'));
                 Mage::getSingleton('adminhtml/session')->setPageData(false);

@@ -42,7 +42,7 @@
         <?php // Product Image ?>
         <div class="product-image">
             <a href="<?php echo $_product->getProductUrl() ?>" title="<?php echo $this->htmlEscape($_product->getName()) ?>">
-                <img src="<?php echo $this->helper('catalog/image')->init($_product, 'small_image')->resize(135, 135); ?>" width="135" height="135" alt="<?php echo $this->htmlEscape($_product->getName()) ?>"/>
+                <img src="<?php echo $this->helper('catalog/image')->init($_product, 'small_image')->resize(135, 135); ?>" width="135" height="135" alt="<?php echo $this->htmlEscape($_product->getName()) ?>" />
             </a>
         </div>
 
@@ -90,7 +90,7 @@
         <td>
             <p class="product-image">
                 <a href="<?php echo $_product->getProductUrl() ?>" title="<?php echo $this->htmlEscape($_product->getName()) ?>">
-                    <img src="<?php echo $this->helper('catalog/image')->init($_product, 'small_image')->resize(135, 135); ?>" width="135" height="135" alt="<?php echo $this->htmlEscape($_product->getName()) ?>"/>
+                    <img src="<?php echo $this->helper('catalog/image')->init($_product, 'small_image')->resize(135, 135); ?>" width="135" height="135" alt="<?php echo $this->htmlEscape($_product->getName()) ?>" />
                 </a>
             </p>
             <h5><a href="<?php echo $_product->getProductUrl() ?>" title="<?php echo $this->htmlEscape($_product->getName()) ?>)"><?php echo $this->htmlEscape($_product->getName()) ?></a></h5>
@@ -118,7 +118,7 @@
     <?php endif ?>
     <?php endforeach ?>
     <?php for($i;$i%3!=0;$i++): ?>
-        <td class="empty-product">&nbsp;</td>
+          <td class="empty-product">&nbsp;</td>
     <?php endfor ?>
     <?php if ($i%3==0): ?>
     </tr>

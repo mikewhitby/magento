@@ -30,19 +30,6 @@
                 <website>
                     <id>1</id>
                 </website>
-
-                <filesystem>
-                    <base>{{root_dir}}</base>
-                    <code>{{app_dir}}/code</code>
-                    <design>{{app_dir}}/design</design>
-                    <etc>{{app_dir}}/etc</etc>
-                    <media>{{root_dir}}/media</media>
-                    <upload>{{root_dir}}/media/upload</upload>
-                    <skin>{{root_dir}}/skin</skin>
-                    <var>{{var_dir}}</var>
-                    <cache>{{var_dir}}/cache</cache>
-                    <session>{{var_dir}}/session</session>
-                </filesystem>
             </system>
 
             <web>

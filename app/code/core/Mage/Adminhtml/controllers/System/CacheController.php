@@ -23,6 +23,7 @@
  *
  * @category   Mage
  * @package    Mage_Adminhtml
+ * @author      Magento Core Team <core@magentocommerce.com>
  */
 class Mage_Adminhtml_System_CacheController extends Mage_Adminhtml_Controller_Action
 {
@@ -58,7 +59,7 @@ class Mage_Adminhtml_System_CacheController extends Mage_Adminhtml_Controller_Ac
             Mage::app()->cleanCache($clean);
         }
 
-        Mage::app()->saveCache(serialize($enable), 'use_cache', array(), null);
+        Mage::app()->saveUseCache($enable);
 
         if ($this->getRequest()->getPost('refresh_catalog_rewrites')) {
             Mage::getSingleton('catalog/url')->refreshRewrites();
@@ -68,6 +69,9 @@ class Mage_Adminhtml_System_CacheController extends Mage_Adminhtml_Controller_Ac
             Mage::getModel('catalog/product_image')->clearCache();
         }
 
+        if ($this->getRequest()->getPost('refresh_layered_navigation')) {
+            Mage::getSingleton('catalogindex/indexer')->plainReindex();
+        }
         #Mage::getSingleton('core/resource')->setAutoUpdate($this->getRequest()->getPost('db_auto_update'));
 
         $this->_redirect('*/*');

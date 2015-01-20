@@ -22,6 +22,7 @@
  * Poll model
  *
  * @file        Poll.php
+ * @author      Magento Core Team <core@magentocommerce.com>
  */
 
 class Mage_Poll_Model_Poll extends Mage_Core_Model_Abstract

@@ -23,6 +23,7 @@
  *
  * @category   Mage
  * @package    Mage_Adminhtml
+ * @author      Magento Core Team <core@magentocommerce.com>
  */
 
 class Mage_Adminhtml_Tax_RateController extends Mage_Adminhtml_Controller_Action
@@ -34,11 +35,11 @@ class Mage_Adminhtml_Tax_RateController extends Mage_Adminhtml_Controller_Action
     public function indexAction()
     {
         $this->_initAction()
-            ->_addBreadcrumb(Mage::helper('tax')->__('Tax Rates'), Mage::helper('tax')->__('Tax Rates'))
+            ->_addBreadcrumb(Mage::helper('tax')->__('Manage Tax Rates'), Mage::helper('tax')->__('Manage Tax Rates'))
             ->_addContent(
                 $this->getLayout()->createBlock('adminhtml/tax_rate_toolbar_add', 'tax_rate_toolbar')
                     ->assign('createUrl', $this->getUrl('*/tax_rate/add'))
-                    ->assign('header', Mage::helper('tax')->__('Tax Rates'))
+                    ->assign('header', Mage::helper('tax')->__('Manage Tax Rates'))
             )
             ->_addContent($this->getLayout()->createBlock('adminhtml/tax_rate_grid', 'tax_rate_grid'))
             ->renderLayout();
@@ -53,7 +54,7 @@ class Mage_Adminhtml_Tax_RateController extends Mage_Adminhtml_Controller_Action
         $rateModel = Mage::getSingleton('tax/rate')
             ->load(null);
         $this->_initAction()
-            ->_addBreadcrumb(Mage::helper('tax')->__('Tax Rates'), Mage::helper('tax')->__('Tax Rates'), $this->getUrl('*/tax_rate'))
+            ->_addBreadcrumb(Mage::helper('tax')->__('Manage Tax Rates'), Mage::helper('tax')->__('Manage Tax Rates'), $this->getUrl('*/tax_rate'))
             ->_addBreadcrumb(Mage::helper('tax')->__('New Tax Rate'), Mage::helper('tax')->__('New Tax Rate'))
             ->_addContent(
                 $this->getLayout()->createBlock('adminhtml/tax_rate_toolbar_save')
@@ -115,7 +116,7 @@ class Mage_Adminhtml_Tax_RateController extends Mage_Adminhtml_Controller_Action
         }
 
         $this->_initAction()
-            ->_addBreadcrumb(Mage::helper('tax')->__('Tax Rates'), Mage::helper('tax')->__('Tax Rates'), $this->getUrl('*/tax_rate'))
+            ->_addBreadcrumb(Mage::helper('tax')->__('Manage Tax Rates'), Mage::helper('tax')->__('Manage Tax Rates'), $this->getUrl('*/tax_rate'))
             ->_addBreadcrumb(Mage::helper('tax')->__('Edit Tax Rate'), Mage::helper('tax')->__('Edit Tax Rate'))
             ->_addContent(
                 $this->getLayout()->createBlock('adminhtml/tax_rate_toolbar_save')
@@ -270,7 +271,7 @@ class Mage_Adminhtml_Tax_RateController extends Mage_Adminhtml_Controller_Action
                 }
                 if (count($csvFields) != count($v)) {
                     Mage::getSingleton('adminhtml/session')->addError(Mage::helper('tax')->__('Invalid file upload attempt'));
-                    
+
                 }
 
                 if (empty($v[0])) {
@@ -289,21 +290,23 @@ class Mage_Adminhtml_Tax_RateController extends Mage_Adminhtml_Controller_Action
                     }
                 }
 
-                $rateData  = array(
-                    'tax_country_id' => $v[0],
-                    'tax_region_id' => $regions[$v[0]][$v[1]],
-                    'tax_postcode'  => (empty($v[2]) || $v[2]=='*') ? null : $v[2]
-                );
+                if (!empty($regions[$v[0]][$v[1]])) {
+                    $rateData  = array(
+                        'tax_country_id' => $v[0],
+                        'tax_region_id' => $regions[$v[0]][$v[1]],
+                        'tax_postcode'  => (empty($v[2]) || $v[2]=='*') ? null : $v[2]
+                    );
 
-                $rateModel = Mage::getModel('tax/rate')
-                    ->setData($rateData);
-                foreach ($rateTypes as $i => $typeId) {
-                    $rateModel->addRateData(array(
-                        'rate_type_id'  => $typeId,
-                        'rate_value'    => $v[$i]
-                    ));
+                    $rateModel = Mage::getModel('tax/rate')
+                        ->setData($rateData);
+                    foreach ($rateTypes as $i => $typeId) {
+                        $rateModel->addRateData(array(
+                            'rate_type_id'  => $typeId,
+                            'rate_value'    => $v[$i]
+                        ));
+                    }
+                    $rateModel->save();
                 }
-                $rateModel->save();
             }
         }
         else {

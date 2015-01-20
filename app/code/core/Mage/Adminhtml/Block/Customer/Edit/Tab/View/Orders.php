@@ -23,6 +23,7 @@
  *
  * @category   Mage
  * @package    Mage_Adminhtml
+ * @author      Magento Core Team <core@magentocommerce.com>
  */
 class Mage_Adminhtml_Block_Customer_Edit_Tab_View_Orders extends Mage_Adminhtml_Block_Widget_Grid
 {
@@ -97,6 +98,7 @@ class Mage_Adminhtml_Block_Customer_Edit_Tab_View_Orders extends Mage_Adminhtml_
                 'header'    => Mage::helper('customer')->__('Bought From'),
                 'index'     => 'store_id',
                 'type'      => 'store',
+                'store_view' => true,
             ));
         }
 

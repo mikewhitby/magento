@@ -23,6 +23,7 @@
  *
  * @category    Mage
  * @package     Mage_Paygate
+ * @author      Magento Core Team <core@magentocommerce.com>
  */
 
 class Mage_PaypalUk_Model_Api_Pro extends  Mage_PaypalUk_Model_Api_Abstract
@@ -86,6 +87,7 @@ class Mage_PaypalUk_Model_Api_Pro extends  Mage_PaypalUk_Model_Api_Abstract
         $proArr = array(
             'TENDER'        => self::TENDER_CC,
             'AMT'           => $this->getAmount(),
+            'BUTTONSOURCE'   => $this->getButtonSourceDp(),
         );
 
         if($this->getTrxtype()==self::TRXTYPE_AUTH_ONLY || $this->getTrxtype()==self::TRXTYPE_SALE){
@@ -118,7 +120,8 @@ class Mage_PaypalUk_Model_Api_Pro extends  Mage_PaypalUk_Model_Api_Abstract
                 $proArr = array_merge(array(
                 'CARDISSUE'    => $p->getCcSsIssue(),
                 ), $proArr);
-            }elseif($p->getCcSsStartYear()){
+            }
+            if($p->getCcSsStartYear() || $p->getCcSsStartMonth()){
                 $proArr = array_merge(array(
                 'CARDSTART'    => sprintf('%02d',$p->getCcSsStartMonth()).substr($p->getCcSsStartYear(),-2,2),
                 ), $proArr);
@@ -224,6 +227,7 @@ class Mage_PaypalUk_Model_Api_Pro extends  Mage_PaypalUk_Model_Api_Abstract
             $this->setPayerId($result->getPayerid());
             $this->setCorrelationId($result->getCorrelationid());
             $this->setPayerStatus($result->getPayerstatus());
+            $this->setPaypalPayerEmail($result->getEmail());
 
             //$this->setAddressId($result->getAddressId());
            //$this->setAddressStatus($result->getAddressStatus());

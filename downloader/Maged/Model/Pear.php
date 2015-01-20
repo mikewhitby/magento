@@ -39,8 +39,8 @@ class Maged_Model_Pear extends Maged_Model
         $options = array();
         if ($force) {
             $this->pear()->cleanRegistry();
+            $options['force'] = 1;
         }
-        $options['force'] = 1;
         $packages = array(
             'Mage_All_Latest',
         );
@@ -187,7 +187,7 @@ class Maged_Model_Pear extends Maged_Model
         $this->controller()->endInstall();
     }
 
-    public function installPackage($id)
+    public function installPackage($id, $force=false)
     {
         if (!preg_match('#^magento-([^/]+)/([^-]+)(-[^-]+)?$#', $id, $match)) {
             $this->pear()->runHtmlConsole('Invalid package identifier provided: '.$id);
@@ -198,9 +198,14 @@ class Maged_Model_Pear extends Maged_Model
 
         $this->controller()->startInstall();
 
+        $options = array();
+        if ($force) {
+            $options['force'] = 1;
+        }
+
         $this->pear()->runHtmlConsole(array(
             'command'=>'install',
-            'options'=>array('force'=>1),
+            'options'=>$options,
             'params'=>array($pkg),
         ));
 

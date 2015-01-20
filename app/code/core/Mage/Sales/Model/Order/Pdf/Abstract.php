@@ -21,6 +21,7 @@
 /**
  * Payment method abstract model
  *
+ * @author      Magento Core Team <core@magentocommerce.com>
  */
 abstract class Mage_Sales_Model_Order_Pdf_Abstract extends Varien_Object
 {
@@ -156,7 +157,10 @@ abstract class Mage_Sales_Model_Order_Pdf_Abstract extends Varien_Object
 
         $this->y -=10;
         $page->setFillColor(new Zend_Pdf_Color_GrayScale(1));
-        $payment = explode('{{pdf_row_separator}}', Mage::helper('payment')->getInfoBlock($order->getPayment())->toPdf());
+        $paymentInfo = Mage::helper('payment')->getInfoBlock($order->getPayment())
+            ->setIsSecureMode(true)
+            ->toPdf();
+        $payment = explode('{{pdf_row_separator}}', $paymentInfo);
         foreach ($payment as $key=>$value){
             if (strip_tags(trim($value))==''){
                 unset($payment[$key]);
@@ -200,6 +204,15 @@ abstract class Mage_Sales_Model_Order_Pdf_Abstract extends Varien_Object
 
             $discount = $order->formatPriceTxt(0.00 - $source->getDiscountAmount());
             $page->drawText($discount, 565-$this->widthForStringUsingFontSize($discount, $font, 7), $this->y, 'UTF-8');
+            $this->y -=15;
+        }
+
+        if ((float)$source->getTaxAmount()){
+            $order_tax = Mage::helper('sales')->__('Tax :');
+            $page->drawText($order_tax, 475-$this->widthForStringUsingFontSize($order_tax, $font, 7), $this->y, 'UTF-8');
+
+            $order_tax = $order->formatPriceTxt($source->getTaxAmount());
+            $page->drawText($order_tax, 565-$this->widthForStringUsingFontSize($order_tax, $font, 7), $this->y, 'UTF-8');
             $this->y -=15;
         }
 

@@ -24,6 +24,7 @@
  *
  * @category   Varien
  * @package    Varien_Io
+ * @author      Magento Core Team <core@magentocommerce.com>
  */
 class Varien_Io_File extends Varien_Io_Abstract
 {
@@ -131,6 +132,9 @@ class Varien_Io_File extends Varien_Io_Abstract
         if (!$this->_streamHandler) {
             return false;
         }
+        if (feof($this->_streamHandler)) {
+            return false;
+        }
         return @fgets($this->_streamHandler, $length);
     }
 
@@ -143,6 +147,9 @@ class Varien_Io_File extends Varien_Io_Abstract
     {
         if (!$this->_streamHandler) {
             return false;
+        }
+        if (!ini_get('auto_detect_line_endings')) {
+            ini_set('auto_detect_line_endings', 1);
         }
         return @fgetcsv($this->_streamHandler, 0, $delimiter, $enclosure);
     }
@@ -417,8 +424,31 @@ class Varien_Io_File extends Varien_Io_Abstract
         return $this->_createDestinationFolder($this->getCleanPath($path));
     }
 
+    /**
+     * Check and create if not exists folder
+     *
+     * @param string $folder
+     * @param int $mode
+     * @return bool
+     */
+    public function checkAndCreateFolder($folder, $mode = 0777)
+    {
+        if (is_dir($folder)) {
+            return true;
+        }
+        if (!is_dir(dirname($folder))) {
+            $this->checkAndCreateFolder(dirname($folder), $mode);
+        }
+        if (!is_dir($folder) && !@mkdir($folder, $mode)) {
+            throw new Exception("Unable to create directory '{$folder}'. Access forbidden.");
+        }
+        return true;
+    }
+
     private function _createDestinationFolder($destinationFolder)
     {
+        return $this->checkAndCreateFolder($destinationFolder);
+
         if( !$destinationFolder ) {
             return $this;
         }

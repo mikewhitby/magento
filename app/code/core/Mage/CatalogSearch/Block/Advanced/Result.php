@@ -23,6 +23,7 @@
  *
  * @category   Mage
  * @package    Mage_CatalogSearch
+ * @author      Magento Core Team <core@magentocommerce.com>
  */
 class Mage_CatalogSearch_Block_Advanced_Result extends Mage_Core_Block_Template
 {
@@ -82,7 +83,7 @@ class Mage_CatalogSearch_Block_Advanced_Result extends Mage_Core_Block_Template
     {
         return Mage::getModel('core/url')
             ->setQueryParams($this->getRequest()->getQuery())
-            ->getUrl('*/*/');
+            ->getUrl('*/*/', array('_escape' => true));
     }
 
     public function getSearchCriterias()

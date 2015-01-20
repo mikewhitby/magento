@@ -23,6 +23,7 @@
  *
  * @category   Mage
  * @package    Mage_Sales
+ * @author      Magento Core Team <core@magentocommerce.com>
  */
 class Mage_Sales_Model_Convert_Order extends Varien_Object
 {
@@ -169,7 +170,12 @@ class Mage_Sales_Model_Convert_Order extends Varien_Object
             ->setCcOwner($payment->getCcOwner())
             ->setCcCidEnc($payment->getCcCidEnc())
             ->setCcExpMonth($payment->getCcExpMonth())
-            ->setCcExpYear($payment->getCcExpYear());
+            ->setCcExpYear($payment->getCcExpYear())
+
+            ->setCcSsIssue($payment->getCcSsIssue())	//for direct payment
+            ->setCcSsStartMonth($payment->getCcSsStartMonth()) //for direct payment
+            ->setCcSsStartYear($payment->getCcSsStartYear())	//for direct payment
+				;
         return $quotePayment;
     }
 

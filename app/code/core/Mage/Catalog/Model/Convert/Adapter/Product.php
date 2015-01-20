@@ -114,7 +114,7 @@ class Mage_Catalog_Model_Convert_Adapter_Product
             $qtyAttr['cond']        = "{{table}}.qty between '{$qtyFrom}' AND '{$qtyTo}'";
             $qtyAttr['joinType']    = 'inner';
 
-            $this->setJoinFeild($qtyAttr);
+            $this->setJoinField($qtyAttr);
         }
 
         parent::setFilter($attrFilterArray, $attrToDb);
@@ -407,7 +407,10 @@ class Mage_Catalog_Model_Convert_Adapter_Product
     public function saveRow($importData)
     {
         $product = $this->getProductModel();
-        $product->setId(null);
+        $product->setData(array());
+        if ($stockItem = $product->getStockItem()) {
+            $stockItem->setData(array());
+        }
 
         if (empty($importData['store'])) {
             $message = Mage::helper('catalog')->__('Skip import row, required field "%s" not defined', 'store');
@@ -454,7 +457,8 @@ class Mage_Catalog_Model_Convert_Adapter_Product
             $product->setAttributeSetId($productAttributeSets[$importData['attribute_set']]);
 
             foreach ($this->_requiredFields as $field) {
-                if (!isset($importData[$field])) {
+                $attribute = $this->getAttribute($field);
+                if (!isset($importData[$field]) && $attribute && $attribute->getIsRequired()) {
                     $message = Mage::helper('catalog')->__('Skip import row, required field "%s" for new products not defined', $field);
                     Mage::throwException($message);
                 }
@@ -575,7 +579,7 @@ class Mage_Catalog_Model_Convert_Adapter_Product
         $product = $this->getProduct();
         $stockItem = $this->getStockItem();
 
-        set_time_limit(240);
+        @set_time_limit(240);
 
 //        $row = unserialize($args['row']['value']);
         $row = $args;
@@ -643,7 +647,7 @@ class Mage_Catalog_Model_Convert_Adapter_Product
         $product = $this->getProduct();
         $stockItem = $this->getStockItem();
 
-        set_time_limit(240);
+        @set_time_limit(240);
 
 //        $row = unserialize($args['row']['value']);
         $row = $args;

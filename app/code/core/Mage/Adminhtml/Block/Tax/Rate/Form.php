@@ -23,6 +23,7 @@
  *
  * @category   Mage
  * @package    Mage_Adminhtml
+ * @author      Magento Core Team <core@magentocommerce.com>
  */
 
 class Mage_Adminhtml_Block_Tax_Rate_Form extends Mage_Adminhtml_Block_Widget_Form
@@ -116,7 +117,7 @@ class Mage_Adminhtml_Block_Tax_Rate_Form extends Mage_Adminhtml_Block_Widget_For
         );
         } */
 
-        $postcode = $rateObject->getPostcode();
+        $postcode = $rateObject->getTaxPostcode();
         if (!$postcode) {
             $postcode = '*';
         }

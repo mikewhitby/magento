@@ -23,6 +23,7 @@
  *
  * @category   Mage
  * @package    Mage_Adminhtml
+ * @author      Magento Core Team <core@magentocommerce.com>
  */
 
 class Mage_Adminhtml_Block_System_Store_Edit_Form extends Mage_Adminhtml_Block_Widget_Form
@@ -114,6 +115,20 @@ class Mage_Adminhtml_Block_System_Store_Edit_Form extends Mage_Adminhtml_Block_W
                     'value'     => $websiteModel->getDefaultGroupId(),
                     'values'    => $groups,
                     'required'  => false
+                ));
+            }
+
+            if (!$websiteModel->getIsDefault()) {
+                $fieldset->addField('is_default', 'checkbox', array(
+                    'name'      => 'website[is_default]',
+                    'label'     => Mage::helper('core')->__('Set as default'),
+                    'value'     => 1
+                ));
+            }
+            else {
+                $fieldset->addField('is_default', 'hidden', array(
+                    'name'      => 'website[is_default]',
+                    'value'     => $websiteModel->getIsDefault()
                 ));
             }
 

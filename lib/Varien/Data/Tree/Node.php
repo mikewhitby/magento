@@ -23,6 +23,7 @@
  *
  * @category   Varien
  * @package    Varien_Data
+ * @author      Magento Core Team <core@magentocommerce.com>
  */
 class Varien_Data_Tree_Node extends Varien_Object
 {
@@ -155,6 +156,18 @@ class Varien_Data_Tree_Node extends Varien_Object
     public function hasChildren()
     {
         return $this->_childNodes->count() > 0;
+    }
+
+    public function setLevel($level)
+    {
+        $this->setData('level', $level);
+        return $this;
+    }
+
+    public function setPathId($path)
+    {
+        $this->setData('path_id', $path);
+        return $this;
     }
 
     public function isChildOf($node)

@@ -21,6 +21,7 @@
 /**
  * Product compare helper
  *
+ * @author      Magento Core Team <core@magentocommerce.com>
  */
 class Mage_Catalog_Helper_Product_Compare extends Mage_Core_Helper_Url
 {
