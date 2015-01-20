@@ -170,11 +170,13 @@ class Mage_Install_Model_Installer extends Varien_Object
 
         if (!empty($data['use_secure'])) {
             $setupModel->setConfigData(Mage_Core_Model_Store::XML_PATH_SECURE_IN_FRONTEND, 1);
-            $setupModel->setConfigData(Mage_Core_Model_Store::XML_PATH_UNSECURE_BASE_URL, $unsecureBaseUrl);
             $setupModel->setConfigData(Mage_Core_Model_Store::XML_PATH_SECURE_BASE_URL, $data['secure_base_url']);
             if (!empty($data['use_secure_admin'])) {
                 $setupModel->setConfigData(Mage_Core_Model_Store::XML_PATH_SECURE_IN_ADMINHTML, 1);
             }
+        }
+        elseif (!empty($data['unsecure_base_url'])) {
+            $setupModel->setConfigData(Mage_Core_Model_Store::XML_PATH_SECURE_BASE_URL, $unsecureBaseUrl);
         }
 
         /**

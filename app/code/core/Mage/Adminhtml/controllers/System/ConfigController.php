@@ -242,10 +242,12 @@ class Mage_Adminhtml_System_ConfigController extends Mage_Adminhtml_Controller_A
             foreach ($configState as $fieldset => $state) {
                 $extra['configState'][$fieldset] = $state;
             }
-            $adminUser->setExtra($extra);
+            $id = $adminUser->getId();
+            $adminUser->setData(array('extra'=>$extra))
+                ->setId($id);
+            $adminUser->save();
         }
-        $adminUser->unsPassword();
-        $adminUser->save();
+
         return true;
     }
 }

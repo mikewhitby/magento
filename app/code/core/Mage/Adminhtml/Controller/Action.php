@@ -26,7 +26,7 @@
 */
 class Mage_Adminhtml_Controller_Action extends Mage_Core_Controller_Varien_Action
 {
-
+    const FLAG_IS_URLS_CHECKED = 'check_url_settings';
     /**
      * Used module name in current adminhtml controller
      */
@@ -121,12 +121,65 @@ class Mage_Adminhtml_Controller_Action extends Mage_Core_Controller_Varien_Actio
             $this->getResponse()->setHeader('HTTP/1.1','403 Forbidden');
             $this->_forward('denied');
             $this->setFlag('', self::FLAG_NO_DISPATCH, true);
+            return $this;
         }
 
+        if (!$this->getFlag('', self::FLAG_IS_URLS_CHECKED)
+            && !$this->getRequest()->getParam('forwarded')
+            && !$this->_getSession()->getIsUrlNotice(true)
+            && !Mage::getConfig()->getNode('global/can_use_base_url')) {
+            $this->_checkUrlSettings();
+            $this->setFlag('', self::FLAG_IS_URLS_CHECKED, true);
+        }
         if (is_null(Mage::getSingleton('adminhtml/session')->getLocale())) {
             Mage::getSingleton('adminhtml/session')->setLocale(Mage::app()->getLocale()->getLocaleCode());
         }
 
+        return $this;
+    }
+
+    protected function _checkUrlSettings()
+    {
+        /**
+         * Don't check for data saving actions
+         */
+        if ($this->getRequest()->getPost()) {
+            return $this;
+        }
+
+        $configData = Mage::getModel('core/config_data');
+
+        $defaultUnsecure= (string) Mage::getConfig()->getNode('default/'.Mage_Core_Model_Store::XML_PATH_UNSECURE_BASE_URL);
+        $defaultSecure  = (string) Mage::getConfig()->getNode('default/'.Mage_Core_Model_Store::XML_PATH_SECURE_BASE_URL);
+
+        if ($defaultSecure == '{{base_url}}' || $defaultUnsecure == '{{base_url}}') {
+            $this->_getSession()->addNotice(
+                $this->__('{{base_url}} is not recommended to use in a production environment to declare the Base Unsecure Url / Base Secure Url. It is highly recommended to change this value in you Magento <a href="%s">configuration</a>.', $this->getUrl('*/system_config/edit', array('section'=>'web')))
+            );
+            return $this;
+        }
+
+        $dataCollection = $configData->getCollection()
+            ->addValueFilter('{{base_url}}');
+
+        $url = false;
+        foreach ($dataCollection as $data) {
+            if ($data->getScope() == 'stores') {
+                $code = Mage::app()->getStore($data->getScopeId())->getCode();
+                $url = $this->getUrl('*/system_config/edit', array('section'=>'web', 'store'=>$code));
+            }
+            if ($data->getScope() == 'websites') {
+                $code = Mage::app()->getWebsite($data->getScopeId())->getCode();
+                $url = $this->getUrl('*/system_config/edit', array('section'=>'web', 'website'=>$code));
+            }
+
+            if ($url) {
+                $this->_getSession()->addNotice(
+                    $this->__('{{base_url}} is not recommended to use in a production environment to declare the Base Unsecure Url / Base Secure Url. It is highly recommended to change this value in you Magento <a href="%s">configuration</a>.', $url)
+                );
+                return $this;
+            }
+        }
         return $this;
     }
 
@@ -233,8 +286,15 @@ class Mage_Adminhtml_Controller_Action extends Mage_Core_Controller_Varien_Actio
      */
     protected function _redirect($path, $arguments=array())
     {
+        $this->_getSession()->setIsUrlNotice($this->getFlag('', self::FLAG_IS_URLS_CHECKED));
         $this->getResponse()->setRedirect($this->getUrl($path, $arguments));
         return $this;
+    }
+
+    protected function _forward($action, $controller = null, $module = null, array $params = null)
+    {
+        $this->_getSession()->setIsUrlNotice($this->getFlag('', self::FLAG_IS_URLS_CHECKED));
+        return parent::_forward($action, $controller, $module, $params);
     }
 
     /**

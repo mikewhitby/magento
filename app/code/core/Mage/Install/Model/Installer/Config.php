@@ -64,14 +64,19 @@ class Mage_Install_Model_Installer_Config extends Mage_Install_Model_Installer_A
                 $data[$index] = $value;
             }
         }
-        /*
-        $data['base_path'] .= substr($data['base_path'],-1) != '/' ? '/' : '';
-        $data['secure_base_path'] .= substr($data['secure_base_path'],-1) != '/' ? '/' : '';
 
-        if (!$this->_getInstaller()->getDataModel()->getSkipUrlValidation()) {
-            $this->_checkHostsInfo($data);
+        if (isset($data['unsecure_base_url'])) {
+            $data['unsecure_base_url'] .= substr($data['unsecure_base_url'],-1) != '/' ? '/' : '';
+            $this->_checkUrl($data['unsecure_base_url']);
         }
-        */
+        if (isset($data['secure_base_url'])) {
+            $data['secure_base_url'] .= substr($data['secure_base_url'],-1) != '/' ? '/' : '';
+
+            if (!empty($data['use_secure'])
+                && !$this->_getInstaller()->getDataModel()->getSkipUrlValidation()) {
+                $this->_checkUrl($data['secure_base_url']);
+            }
+        }
 
         $data['date']   = self::TMP_INSTALL_DATE_VALUE;
         $data['key']    = self::TMP_ENCRYPT_KEY_VALUE;
@@ -98,11 +103,12 @@ class Mage_Install_Model_Installer_Config extends Mage_Install_Model_Installer_A
     {
         $uri = Zend_Uri::factory(Mage::getBaseUrl('web'));
 
+        $baseUrl = $uri->getUri();
         if ($uri->getScheme()!=='https') {
             $uri->setPort(null);
-            $baseUrl = str_replace('http://', 'https://', $uri->getUri());
+            $baseSecureUrl = str_replace('http://', 'https://', $uri->getUri());
         } else {
-            $baseUrl = $uri->getUri();
+            $baseSecureUrl = $uri->getUri();
         }
 
         $data = Mage::getModel('varien/object')
@@ -110,7 +116,8 @@ class Mage_Install_Model_Installer_Config extends Mage_Install_Model_Installer_A
             ->setDbName('magento')
             ->setDbUser('root')
             ->setDbPass('')
-            ->setSecureBaseUrl($baseUrl)
+            ->setSecureBaseUrl($baseSecureUrl)
+            ->setUnsecureBaseUrl($baseUrl)
         ;
         return $data;
     }
