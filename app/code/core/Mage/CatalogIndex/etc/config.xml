@@ -153,6 +153,15 @@
                     </catalogindex>
                 </observers>
             </catalogrule_after_apply>
+            <catalog_product_import_after>
+                <observers>
+                    <catalogindex>
+                        <type>singleton</type>
+                        <class>catalogindex/observer</class>
+                        <method>catalogProductImportAfter</method>
+                    </catalogindex>
+                </observers>
+            </catalog_product_import_after>
         </events>
     </global>
 

@@ -313,6 +313,9 @@ class Mage_Dataflow_Model_Profile extends Mage_Core_Model_Abstract
 
         // Need to rewrite the whole xml action format
         if ($import) {
+            $numberOfRecords = isset($p['import']['number_of_records']) ? $p['import']['number_of_records'] : 1;
+            $parseFileXmlInter .= '    <var name="number_of_records">'
+                . $numberOfRecords . '</var>' . $nl;
         	if ($this->getDataTransfer()==='interactive') {
         		$xml = $parseFileXmlInter;
                 $xml .= '    <var name="adapter">'.$adapters[$this->getEntityType()].'</var>'.$nl;

@@ -300,6 +300,15 @@
                     </catalog>
                 </observers>
             </category_move>
+            <catalog_product_import_after>
+                <observers>
+                    <catalogindex>
+                        <type>singleton</type>
+                        <class>catalog/observer</class>
+                        <method>catalogProductImportAfter</method>
+                    </catalogindex>
+                </observers>
+            </catalog_product_import_after>
         </events>
         <translate>
             <modules>
