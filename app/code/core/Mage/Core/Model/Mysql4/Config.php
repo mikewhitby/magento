@@ -69,15 +69,6 @@ class Mage_Core_Model_Mysql4_Config extends Mage_Core_Model_Mysql4_Abstract
             return $this;
         }
 
-        // initialize websites config
-//        $websites = array();
-//        $websiteCollection = Mage::app()->getWebsites(true);
-//        foreach ($websiteCollection as $website) {
-//            $xmlConfig->setNode('websites/' . $website->getCode() . '/system/website/id', $website->getId());
-//            $xmlConfig->setNode('websites/' . $website->getCode() . '/system/website/name', $website->getName());
-//            $websites[$website->getId()] = array('code' => $website->getCode());
-//        }
-
         $websites = array();
         $rows = $read->fetchAssoc("select website_id, code, name from ".$this->getTable('website'));
         foreach ($rows as $w) {
@@ -85,18 +76,6 @@ class Mage_Core_Model_Mysql4_Config extends Mage_Core_Model_Mysql4_Abstract
             $xmlConfig->setNode('websites/'.$w['code'].'/system/website/name', $w['name']);
             $websites[$w['website_id']] = array('code'=>$w['code']);
         }
-
-        // initialize stores config
-//        $stores = array();
-//        $storeCollection = Mage::app()->getStores(true);
-//        foreach ($storeCollection as $store) {
-//            $xmlConfig->setNode('stores/' . $store->getCode() . '/system/store/id', $store->getId());
-//            $xmlConfig->setNode('stores/' . $store->getCode() . '/system/store/name', $store->getName());
-//            $xmlConfig->setNode('stores/' . $store->getCode() . '/system/website/id', $store->getWebsiteId());
-//            $xmlConfig->setNode('websites/' . $websites[$store->getWebsiteId()]['code'] . '/system/stores/' . $store->getCode(), $store->getId());
-//            $stores[$store->getId()] = array('code' => $store->getCode());
-//            $websites[$store->getWebsiteId()]['stores'][$store->getId()] = $store->getCode();
-//        }
 
         $stores = array();
         $rows = $read->fetchAssoc("select store_id, code, name, website_id from ".$this->getTable('store')." order by sort_order asc");
@@ -151,7 +130,10 @@ class Mage_Core_Model_Mysql4_Config extends Mage_Core_Model_Mysql4_Abstract
             if (isset($website['stores'])) {
                 foreach ($website['stores'] as $sId=>$sCode) {
                     $storeNode = $xmlConfig->getNode('stores/'.$sCode);
-                    $storeNode->extend($extendSource);
+                    /**
+                     * $extendSource need overwrite source
+                     */
+                    $storeNode->extend($extendSource, true);
                 }
             }
         }
@@ -186,6 +168,61 @@ class Mage_Core_Model_Mysql4_Config extends Mage_Core_Model_Mysql4_Abstract
         }
 
 #echo "<xmp>".$xmlConfig->getNode()->asNiceXml()."</xmp>"; exit;
+        return $this;
+    }
+
+    /**
+     * Save config value
+     *
+     * @param string $path
+     * @param string $value
+     * @param string $scope
+     * @param int $scopeId
+     * @return Mage_Core_Store_Mysql4_Config
+     */
+    public function saveConfig($path, $value, $scope, $scopeId)
+    {
+        $writeAdapter = $this->_getWriteAdapter();
+        $select = $writeAdapter->select()
+            ->from($this->getMainTable())
+            ->where('path=?', $path)
+            ->where('scope=?', $scope)
+            ->where('scope_id=?', $scopeId);
+        $row = $writeAdapter->fetchRow($select);
+
+        $newData = array(
+            'scope'     => $scope,
+            'scope_id'  => $scopeId,
+            'path'      => $path,
+            'value'     => $value
+        );
+
+        if ($row) {
+            $whereCondition = $writeAdapter->quoteInto($this->getIdFieldName() . '=?', $row[$this->getIdFieldName()]);
+            $writeAdapter->update($this->getMainTable(), $newData, $whereCondition);
+        }
+        else {
+            $writeAdapter->insert($this->getMainTable(), $newData);
+        }
+        return $this;
+    }
+
+    /**
+     * Delete config value
+     *
+     * @param string $path
+     * @param string $scope
+     * @param int $scopeId
+     * @return Mage_Core_Store_Mysql4_Config
+     */
+    public function deleteConfig($path, $scope, $scopeId)
+    {
+        $writeAdapter = $this->_getWriteAdapter();
+        $writeAdapter->delete($this->getMainTable(), array(
+            $writeAdapter->quoteInto('path=?', $path),
+            $writeAdapter->quoteInto('scope=?', $scope),
+            $writeAdapter->quoteInto('scope_id=?', $scopeId)
+        ));
         return $this;
     }
 }

@@ -25,7 +25,9 @@
  * @package    Mage_Adminhtml
  * @author      Magento Core Team <core@magentocommerce.com>
  */
-class Mage_Adminhtml_Block_Sales_Order_View_Tab_History extends Mage_Adminhtml_Block_Template
+class Mage_Adminhtml_Block_Sales_Order_View_Tab_History
+    extends Mage_Adminhtml_Block_Template
+    implements Mage_Adminhtml_Block_Widget_Tab_Interface
 {
     protected function _construct()
     {
@@ -113,5 +115,28 @@ class Mage_Adminhtml_Block_Sales_Order_View_Tab_History extends Mage_Adminhtml_B
                 'comment' => $comment,
                 'created_at' => $created
             );
+    }
+
+    /**
+     * ######################## TAB settings #################################
+     */
+    public function getTabLabel()
+    {
+        return Mage::helper('sales')->__('Comments History');
+    }
+
+    public function getTabTitle()
+    {
+        return Mage::helper('sales')->__('Order History');
+    }
+
+    public function canShowTab()
+    {
+        return true;
+    }
+
+    public function isHidden()
+    {
+        return false;
     }
 }

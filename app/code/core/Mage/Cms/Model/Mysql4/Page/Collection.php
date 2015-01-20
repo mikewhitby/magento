@@ -90,8 +90,7 @@ class Mage_Cms_Model_Mysql4_Page_Collection extends Mage_Core_Model_Mysql4_Colle
             'main_table.page_id = store_table.page_id',
             array()
         )
-        ->where('store_table.store_id=?', 0)
-        ->orWhere('store_table.store_id=?', $store);
+        ->where('store_table.store_id in (?)', array(0, $store));
 
         return $this;
     }

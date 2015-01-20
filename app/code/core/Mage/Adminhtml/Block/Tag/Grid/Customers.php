@@ -29,6 +29,7 @@ class Mage_Adminhtml_Block_Tag_Grid_Customers extends Mage_Adminhtml_Block_Widge
 {
     protected function _prepareCollection()
     {
+        //TODO: add full name logic
         $collection = Mage::getResourceModel('tag_customer/collection')
             ->addAttributeToSelect('firstname')
             ->addAttributeToSelect('lastname')

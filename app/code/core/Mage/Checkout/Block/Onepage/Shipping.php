@@ -27,7 +27,11 @@ class Mage_Checkout_Block_Onepage_Shipping extends Mage_Checkout_Block_Onepage_A
 {
     protected function _construct()
     {
-        $this->getCheckout()->setStepData('shipping', array('label'=>Mage::helper('checkout')->__('Shipping Information')));
+        $this->getCheckout()->setStepData('shipping', array(
+            'label'     => Mage::helper('checkout')->__('Shipping Information'),
+            'is_show'   => $this->isShow()
+        ));
+
         parent::_construct();
     }
 
@@ -35,7 +39,6 @@ class Mage_Checkout_Block_Onepage_Shipping extends Mage_Checkout_Block_Onepage_A
     {
         return $this->getQuote()->getCheckoutMethod();
     }
-
 
     public function getAddress()
     {
@@ -46,4 +49,13 @@ class Mage_Checkout_Block_Onepage_Shipping extends Mage_Checkout_Block_Onepage_A
         }
     }
 
+    /**
+     * Retrieve is allow and show block
+     *
+     * @return bool
+     */
+    public function isShow()
+    {
+        return !$this->getQuote()->isVirtual();
+    }
 }

@@ -27,7 +27,6 @@
  */
 class Mage_Adminhtml_Block_Sales_Order_Invoice_View extends Mage_Adminhtml_Block_Widget_Form_Container
 {
-
     public function __construct()
     {
         $this->_objectId    = 'invoice_id';
@@ -120,7 +119,7 @@ class Mage_Adminhtml_Block_Sales_Order_Invoice_View extends Mage_Adminhtml_Block
     }
 
     public function getBackUrl()
-    {//return 'http://google.com.ua';
+    {
         return $this->getUrl(
             '*/sales_order/view',
             array(
@@ -158,7 +157,7 @@ class Mage_Adminhtml_Block_Sales_Order_Invoice_View extends Mage_Adminhtml_Block
             'invoice_id' => $this->getInvoice()->getId()
         ));
     }
-    
+
     public function updateBackButtonUrl($flag)
     {
         if ($flag) {

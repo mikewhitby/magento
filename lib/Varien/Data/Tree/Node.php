@@ -255,4 +255,15 @@ class Varien_Data_Tree_Node extends Varien_Object
         }
         return $prevNodes;
     }
+
+    public function getIsActive()
+    {
+        return $this->_getData('is_active');
+    }
+
+    public function getName()
+    {
+        return $this->_getData('name');
+    }
+
 }

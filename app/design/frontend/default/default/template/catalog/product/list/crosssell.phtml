@@ -31,7 +31,7 @@
             </div>
             <div class="product-details">
                 <a href="<?php echo $_item->getProductUrl() ?>"><?php echo $this->htmlEscape($_item->getName()) ?></a>
-                <?php echo $this->helper('catalog/product')->getPriceHtml($_item) ?>
+                <?php echo $this->getPriceHtml($_item) ?>
                 <a href="<?php echo $this->getAddToCartUrl($_item) ?>"><?php echo $this->__('Add to Cart') ?></a>
                 <?php if ($this->helper('wishlist')->isAllow()) : ?>
                 <a href="<?php echo $this->getAddToWishlistUrl($_item) ?>"><?php echo $this->__('Add to Wishlist') ?></a>

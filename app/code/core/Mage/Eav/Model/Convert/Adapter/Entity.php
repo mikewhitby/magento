@@ -85,14 +85,23 @@ class Mage_Eav_Model_Convert_Adapter_Entity
         $this->_attrToDb=$attrToDb;
         $filters = $this->_parseVars();
 
-        foreach ($attrFilterArray as $key=>$type) {
-            if(is_array($type)){
-                if(isset($type['bind'])){
+        foreach ($attrFilterArray as $key => $type) {
+            if (is_array($type)) {
+                if (isset($type['bind'])) {
                    $bind = $type['bind'];
                 } else {
                    $bind = $defBind;
                 }
                 $type = $type['type'];
+            }
+
+            if ($type == 'dateFromTo') {
+                foreach ($filters as $k => $v) {
+                    if (strpos($k, $key . '/') === 0) {
+                        $split = split('/', $k);
+                        $filters[$key][$split[1]] = $v;
+                    }
+                }
             }
 
             $keyDB = (isset($this->_attrToDb[$key])) ? $this->_attrToDb[$key] : $key;

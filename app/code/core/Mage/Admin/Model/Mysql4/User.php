@@ -131,7 +131,7 @@ class Mage_Admin_Model_Mysql4_User extends Mage_Core_Model_Mysql4_Abstract
             throw $e;
             return false;
         } catch (Exception $e){
-            $$dbh->rollBack();
+            $dbh->rollBack();
             return false;
         }
         $dbh->commit();

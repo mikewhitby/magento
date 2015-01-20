@@ -44,13 +44,6 @@ set_include_path($app_path . PS . Mage::registry('original_include_path'));
 include_once "Mage/Core/functions.php";
 include_once "Varien/Profiler.php";
 
-Varien_Profiler::enable();
-
-/**
- * Check magic quotes settings
- */
-checkMagicQuotes();
-
 /**
  * Main Mage hub class
  *
@@ -81,7 +74,7 @@ final class Mage {
 
     public static function getVersion()
     {
-        return '1.0.19870.6';
+        return '1.1.0';
     }
 
     /**

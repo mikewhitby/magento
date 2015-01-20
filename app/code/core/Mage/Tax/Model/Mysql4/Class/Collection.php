@@ -43,4 +43,9 @@ class Mage_Tax_Model_Mysql4_Class_Collection extends Mage_Core_Model_Mysql4_Coll
     {
         return $this->_toOptionArray('class_id', 'class_name');
     }
+
+    public function toOptionHash()
+    {
+        return $this->_toOptionHash('class_id', 'class_name');
+    }
 }

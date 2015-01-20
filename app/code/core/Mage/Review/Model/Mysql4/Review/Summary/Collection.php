@@ -33,10 +33,13 @@ class Mage_Review_Model_Mysql4_Review_Summary_Collection extends Varien_Data_Col
     {
         $resources = Mage::getSingleton('core/resource');
         $this->_setIdFieldName('primary_id');
+
         parent::__construct($resources->getConnection('review_read'));
         $this->_summaryTable = $resources->getTableName('review/review_aggregate');
 
         $this->_select->from($this->_summaryTable);
+
+        $this->setItemObjectClass(Mage::getConfig()->getModelClassName('review/review_summary'));
     }
 
     public function addEntityFilter($entityId, $entityType=1)

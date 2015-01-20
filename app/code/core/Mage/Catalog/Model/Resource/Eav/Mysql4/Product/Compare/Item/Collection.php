@@ -32,6 +32,16 @@ class Mage_Catalog_Model_Resource_Eav_Mysql4_Product_Compare_Item_Collection ext
     protected $_customerId = 0;
     protected $_visitorId  = 0;
 
+    /**
+     * Initialize resources
+     */
+    protected function _construct()
+    {
+        $this->_init('catalog/product_compare_item', 'catalog/product');
+        $this->_productWebsiteTable = $this->getResource()->getTable('catalog/product_website');
+        $this->_productCategoryTable= $this->getResource()->getTable('catalog/category_product');
+    }
+
     public function setCustomerId($customerId)
     {
         $this->_customerId = $customerId;

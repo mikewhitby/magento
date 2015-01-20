@@ -223,9 +223,9 @@ class Mage_Install_WizardController extends Mage_Install_Controller_Action
         if ($this->getRequest()->getParam('do')) {
             if ($state = $this->getRequest()->getParam('state', 'beta')) {
                 $result = $pear->runHtmlConsole(array(
-                'comment'=>Mage::helper('install')->__("Setting preferred state to: %s", $state)."\r\n\r\n",
-                'command'=>'config-set',
-                'params'=>array('preferred_state', $state)
+                'comment'   => Mage::helper('install')->__("Setting preferred state to: %s", $state)."\r\n\r\n",
+                'command'   => 'config-set',
+                'params'    => array('preferred_state', $state)
                 ));
                 if ($result instanceof PEAR_Error) {
                     $this->installFailureCallback();

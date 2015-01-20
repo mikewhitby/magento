@@ -103,6 +103,7 @@ class Mage_Adminhtml_Block_Catalog_Product_Grid extends Mage_Adminhtml_Block_Wid
             array(
                 'header'=> Mage::helper('catalog')->__('ID'),
                 'width' => '50px',
+                'type'  => 'number',
                 'index' => 'entity_id',
         ));
         $this->addColumn('name',

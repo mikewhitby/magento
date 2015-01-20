@@ -131,6 +131,33 @@ class Mage_Core_Model_Design_Package
 	}
 
 	/**
+	 * Set store/package/area at once, and get respective values, that were before
+	 *
+	 * $storePackageArea must be assoc array. The keys may be:
+	 * 'store', 'package', 'area'
+	 *
+	 * @param array $storePackageArea
+	 * @return array
+	 */
+	public function setAllGetOld($storePackageArea)
+	{
+	    $oldValues = array();
+	    if (array_key_exists('store', $storePackageArea)) {
+	        $oldValues['store'] = $this->getStore();
+	        $this->setStore($storePackageArea['store']);
+	    }
+	    if (array_key_exists('package', $storePackageArea)) {
+	        $oldValues['package'] = $this->getPackageName();
+	        $this->setPackageName($storePackageArea['package']);
+	    }
+	    if (array_key_exists('area', $storePackageArea)) {
+	        $oldValues['area'] = $this->getArea();
+	        $this->setArea($storePackageArea['area']);
+	    }
+	    return $oldValues;
+	}
+
+	/**
 	 * Retrieve package name
 	 *
 	 * @return string
@@ -179,7 +206,7 @@ class Mage_Core_Model_Design_Package
 	public function getTheme($type)
 	{
 		if (empty($this->_theme[$type])) {
-			$this->_theme[$type] = Mage::getStoreConfig('design/theme/'.$type);
+			$this->_theme[$type] = Mage::getStoreConfig('design/theme/'.$type, $this->getStore());
 			if ($type!=='default' && empty($this->_theme[$type])) {
 				$this->_theme[$type] = $this->getTheme('default');
 				if (empty($this->_theme[$type])) {
@@ -220,6 +247,9 @@ class Mage_Core_Model_Design_Package
 		if (empty($params['_theme'])) {
 			$params['_theme'] = $this->getTheme( (isset($params['_type'])) ? $params['_type'] : '' );
 		}
+    	if (empty($params['_default'])) {
+    		$params['_default'] = false;
+    	}
 		return $this;
 	}
 
@@ -315,9 +345,6 @@ class Mage_Core_Model_Design_Package
     {
     	Varien_Profiler::start(__METHOD__);
     	$this->updateParamDefaults($params);
-    	if (empty($params['_default'])) {
-    		$params['_default'] = false;
-    	}
 		$filename = $this->validateFile($file, $params);
 		if (false===$filename) {
 			$params['_theme'] = $this->getFallbackTheme();

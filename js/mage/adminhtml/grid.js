@@ -54,9 +54,6 @@ varienGrid.prototype = {
                 if(row%2==0){
                     Element.addClassName(this.rows[row], 'even');
                 }
-                if(this.rows[row].tagName) {
-                    Element.addClassName(this.rows[row], 'pointer');
-                }
 
                 Event.observe(this.rows[row],'mouseover',this.trOnMouseOver);
                 Event.observe(this.rows[row],'mouseout',this.trOnMouseOut);
@@ -100,6 +97,11 @@ varienGrid.prototype = {
     rowMouseOver : function(event){
         var element = Event.findElement(event, 'tr');
         Element.addClassName(element, 'on-mouse');
+
+        if (!Element.hasClassName('pointer')
+            && (this.rowClickCallback !== openGridRow || element.id)) {
+            Element.addClassName(element, 'pointer');
+        }
     },
     rowMouseOut : function(event){
         var element = Event.findElement(event, 'tr');

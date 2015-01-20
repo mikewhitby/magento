@@ -171,4 +171,20 @@ class Mage_Adminhtml_Block_Catalog_Product_Edit_Tab_Price_Tier extends Mage_Admi
     {
         return $this->getChildHtml('add_button');
     }
+
+    /**
+     * Returns customized price column header
+     * that was seted through set...
+     *
+     * @param string $default
+     * @return string
+     */
+    public function getPriceColumnHeader($default)
+    {
+        if ($this->hasData('price_column_header')) {
+            return $this->getData('price_column_header');
+        } else {
+            return $default;
+        }
+    }
 }

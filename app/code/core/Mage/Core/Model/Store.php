@@ -46,6 +46,7 @@ class Mage_Core_Model_Store extends Mage_Core_Model_Abstract
     const URL_TYPE_MEDIA                = 'media';
 
     const DEFAULT_CODE                  = 'default';
+    const ADMIN_CODE                    = 'admin';
 
     const CACHE_TAG                     = 'store';
 
@@ -370,7 +371,7 @@ class Mage_Core_Model_Store extends Mage_Core_Model_Abstract
     }
     protected function _updatePathUseStoreView($url)
     {
-        if (
+        if (Mage::app()->isInstalled() &&
 //            !$this->isAdmin() &&
             $this->getConfig(self::XML_PATH_STORE_IN_URL)) {
             $url .= $this->getCode().'/';
@@ -486,28 +487,54 @@ class Mage_Core_Model_Store extends Mage_Core_Model_Abstract
      */
     public function getCurrentCurrencyCode()
     {
+        // try to get currently set code among allowed
         $code = $this->_getSession()->getCurrencyCode();
-        if (in_array($code, $this->getAvailableCurrencyCodes())) {
+        if (in_array($code, $this->getAvailableCurrencyCodes(true))) {
             return $code;
         }
-        return $this->getDefaultCurrencyCode();
+
+        // take first one of allowed codes
+        $codes = array_values($this->getAvailableCurrencyCodes(true));
+        if (empty($codes)) {
+            // return default code, if no codes specified at all
+            return $this->getDefaultCurrencyCode();
+        }
+        return array_shift($codes);
     }
 
     /**
      * Get allowed store currency codes
      *
+     * If base currency is not allowed in current website config scope,
+     * then it can be disabled with $skipBaseNotAllowed
+     *
+     * @param bool $skipBaseNotAllowed
      * @return array
      */
-    public function getAvailableCurrencyCodes()
+    public function getAvailableCurrencyCodes($skipBaseNotAllowed = false)
     {
         $codes = $this->getData('available_currency_codes');
         if (is_null($codes)) {
             $codes = explode(',', $this->getConfig(Mage_Directory_Model_Currency::XML_PATH_CURRENCY_ALLOW));
-            // only if base currency is not in allowed currencies
-            if (!in_array($this->getBaseCurrencyCode(), $codes)) {
-            	$codes[] = $this->getBaseCurrencyCode();
+            // add base currency, if it is not in allowed currencies
+            $baseCurrencyCode = $this->getBaseCurrencyCode();
+            if (!in_array($baseCurrencyCode, $codes)) {
+                $codes[] = $baseCurrencyCode;
+
+                // save base currency code index for further usage
+                $disallowedBaseCodeIndex = array_keys($codes);
+                $disallowedBaseCodeIndex = array_pop($disallowedBaseCodeIndex);
+                $this->setData('disallowed_base_currency_code_index', $disallowedBaseCodeIndex);
             }
             $this->setData('available_currency_codes', $codes);
+        }
+
+        // remove base currency code, if it is not allowed by config (optional)
+        if ($skipBaseNotAllowed) {
+            $disallowedBaseCodeIndex = $this->getData('disallowed_base_currency_code_index');
+            if (null !== $disallowedBaseCodeIndex) {
+                unset($codes[$disallowedBaseCodeIndex]);
+            }
         }
         return $codes;
     }
@@ -544,7 +571,7 @@ class Mage_Core_Model_Store extends Mage_Core_Model_Abstract
      * @param   double $price
      * @return  double
      */
-    public function convertPrice($price, $format=false)
+    public function convertPrice($price, $format=false, $includeContainer = true)
     {
         if ($this->getCurrentCurrency() && $this->getBaseCurrency()) {
             $value = $this->getBaseCurrency()->convert($price, $this->getCurrentCurrency());
@@ -554,7 +581,7 @@ class Mage_Core_Model_Store extends Mage_Core_Model_Abstract
         $value = $this->roundPrice($value);
 
         if ($this->getCurrentCurrency() && $format) {
-            $value = $this->formatPrice($value);
+            $value = $this->formatPrice($value, $includeContainer);
         }
         return $value;
     }
@@ -574,12 +601,13 @@ class Mage_Core_Model_Store extends Mage_Core_Model_Abstract
      * Format price with currency filter (taking rate into consideration)
      *
      * @param   double $price
+     * @param   bool $includeContainer
      * @return  string
      */
-    public function formatPrice($price)
+    public function formatPrice($price, $includeContainer = true)
     {
         if ($this->getCurrentCurrency()) {
-            return $this->getCurrentCurrency()->format($price);
+            return $this->getCurrentCurrency()->format($price, array(), $includeContainer);
         }
         return $price;
     }
@@ -624,7 +652,7 @@ class Mage_Core_Model_Store extends Mage_Core_Model_Abstract
      *
      * @param Mage_Core_Model_Store_Group $group
      */
-    public function setGroup(Mage_Core_Model_Store_Group $group)
+    public function setGroup($group)
     {
         $this->_group = $group;
     }
@@ -677,33 +705,32 @@ class Mage_Core_Model_Store extends Mage_Core_Model_Abstract
      */
     public function getCurrentUrl($fromStore = true)
     {
-        $query = Mage::getSingleton('core/url')->escape(ltrim(Mage::app()->getRequest()->getRequestString(), '/'));
+        $url = $this->getBaseUrl() . ltrim(Mage::app()->getRequest()->getRequestString(), '/');
 
-        $parsedUrl = parse_url($this->getUrl(''));
-        $parsedQuery = array();
-        if (isset($parsedUrl['query'])) {
-            parse_str($parsedUrl['query'], $parsedQuery);
-        }
-
-        foreach (Mage::app()->getRequest()->getParams() as $k => $v) {
-            $parsedQuery[$k] = $v;
-        }
+        $parsedUrl = parse_url($url);
+        $parsedQuery = isset($parsedUrl['query']) ? parse_str($parsedUrl['query']) : array();
 
         if (!Mage::getStoreConfigFlag(Mage_Core_Model_Store::XML_PATH_STORE_IN_URL, $this->getCode())) {
-            $parsedQuery['store'] = $this->getCode();
+            $parsedQuery['___store'] = $this->getCode();
         }
         if ($fromStore !== false) {
-            $parsedQuery['from_store'] = $fromStore === true ? Mage::app()->getStore()->getCode() : $fromStore;
+            $parsedQuery['___from_store'] = $fromStore === true ? Mage::app()->getStore()->getCode() : $fromStore;
         }
 
         return $parsedUrl['scheme'] . '://' . $parsedUrl['host']
             . (isset($parsedUrl['port']) ? ':' . $parsedUrl['port'] : '')
-            . $parsedUrl['path'] . $query
+            . $parsedUrl['path']
             . ($parsedQuery ? '?'.http_build_query($parsedQuery, '', '&amp;') : '');
     }
-    protected function _beforeDelete()
+
+    public function getIsActive()
     {
-        $this->_protectFromNonAdmin();
-        return parent::_beforeDelete();
+        return $this->_getData('is_active');
     }
+
+    public function getName()
+    {
+        return $this->_getData('name');
+    }
+
 }

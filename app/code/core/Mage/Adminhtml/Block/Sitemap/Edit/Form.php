@@ -50,7 +50,7 @@ class Mage_Adminhtml_Block_Sitemap_Edit_Form extends Mage_Adminhtml_Block_Widget
             'method'    => 'post'
         ));
 
-        $fieldset = $form->addFieldset('add_sitemap_form', array('legend' => Mage::helper('sitemap')->__('Sitemap')));
+        $fieldset = $form->addFieldset('add_sitemap_form', array('class' => 'sitemap', 'legend' => Mage::helper('sitemap')->__('Sitemap')));
 
         if ($model->getId()) {
         	$fieldset->addField('sitemap_id', 'hidden', array(

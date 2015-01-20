@@ -155,5 +155,10 @@ Event.observe('emptyAddBtn<?php echo $_htmlId ?>', 'click', function () {
 <?php if (!$this->getArrayRows()):?>
 arrayRow<?php echo $_htmlId ?>.showButtonOnly();
 <?php endif;?>
+
+// toggle the grid, if element is disabled (depending on scope)
+<?php if ($this->getElement()->getDisabled()):?>
+toggleValueElements({checked:true}, $('grid<?php echo $_htmlId ?>').parentNode);
+<?php endif;?>
 // -->
 </script>

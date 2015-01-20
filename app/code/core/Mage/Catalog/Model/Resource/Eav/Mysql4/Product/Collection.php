@@ -35,6 +35,9 @@ class Mage_Catalog_Model_Resource_Eav_Mysql4_Product_Collection
     protected $_urlRewriteCategory = '';
 
     protected $_addMinimalPrice = false;
+    protected $_addFinalPrice = false;
+    protected $_allIdsCache = null;
+    protected $_addTaxPercents = false;
 
     /**
      * Initialize resources
@@ -46,6 +49,16 @@ class Mage_Catalog_Model_Resource_Eav_Mysql4_Product_Collection
         $this->_productCategoryTable= $this->getResource()->getTable('catalog/category_product');
     }
 
+    protected function _beforeLoad()
+    {
+        if ($this->_addFinalPrice) {
+            $this->_joinPriceRules();
+        }
+        $this->addAttributeToSelect('tax_class_id');
+
+        parent::_beforeLoad();
+    }
+
     /**
      * Processing collection items after loading
      *
@@ -53,12 +66,18 @@ class Mage_Catalog_Model_Resource_Eav_Mysql4_Product_Collection
      */
     protected function _afterLoad()
     {
-    	if ($this->_addUrlRewrite) {
-    	   $this->_addUrlRewrite($this->_urlRewriteCategory);
-    	}
-    	if ($this->_addMinimalPrice) {
-    	   $this->_addMinimalPrice();
-    	}
+        if ($this->_addUrlRewrite) {
+           $this->_addUrlRewrite($this->_urlRewriteCategory);
+        }
+        if ($this->_addMinimalPrice) {
+           $this->_addMinimalPrice();
+        }
+        if ($this->_addFinalPrice) {
+           $this->_addFinalPrice();
+        }
+        if ($this->_addTaxPercents) {
+            $this->_addTaxPercents();
+        }
         if (count($this)>0) {
             Mage::dispatchEvent('catalog_product_collection_load_after', array('collection'=>$this));
         }
@@ -71,7 +90,7 @@ class Mage_Catalog_Model_Resource_Eav_Mysql4_Product_Collection
      * @param   mixed $productId
      * @return  Mage_Catalog_Model_Resource_Eav_Mysql4_Product_Collection
      */
-    public function addIdFilter($productId)
+    public function addIdFilter($productId, $exclude = false)
     {
         if (empty($productId)) {
             $this->_setIsLoaded(true);
@@ -79,14 +98,22 @@ class Mage_Catalog_Model_Resource_Eav_Mysql4_Product_Collection
         }
         if (is_array($productId)) {
             if (!empty($productId)) {
-                $condition = array('in'=>$productId);
+                if ($exclude) {
+                    $condition = array('nin'=>$productId);
+                } else {
+                    $condition = array('in'=>$productId);
+                }
             }
             else {
                 $condition = '';
             }
         }
         else {
-            $condition = $productId;
+            if ($exclude) {
+                $condition = array('neq'=>$productId);
+            } else {
+                $condition = $productId;
+            }
         }
         $this->addFieldToFilter('entity_id', $condition);
         return $this;
@@ -102,7 +129,7 @@ class Mage_Catalog_Model_Resource_Eav_Mysql4_Product_Collection
     {
         $productStores = array();
         foreach ($this as $product) {
-        	$productWebsites[$product->getId()] = array();
+            $productWebsites[$product->getId()] = array();
         }
 
         if (!empty($productWebsites)) {
@@ -120,7 +147,7 @@ class Mage_Catalog_Model_Resource_Eav_Mysql4_Product_Collection
 
             $data = $this->getConnection()->fetchAll($select);
             foreach ($data as $row) {
-            	$productWebsites[$row['product_id']][] = $row['website_id'];
+                $productWebsites[$row['product_id']][] = $row['website_id'];
             }
         }
 
@@ -254,7 +281,7 @@ class Mage_Catalog_Model_Resource_Eav_Mysql4_Product_Collection
         $res    = array();
 
         foreach ($data as $row) {
-        	$res[$row['range_'.$attributeCode]] = $row['count_'.$attributeCode];
+            $res[$row['range_'.$attributeCode]] = $row['count_'.$attributeCode];
         }
         return $res;
     }
@@ -292,7 +319,7 @@ class Mage_Catalog_Model_Resource_Eav_Mysql4_Product_Collection
         $res    = array();
 
         foreach ($data as $row) {
-        	$res[$row['value_'.$attributeCode]] = $row['count_'.$attributeCode];
+            $res[$row['value_'.$attributeCode]] = $row['count_'.$attributeCode];
         }
         return $res;
     }
@@ -324,10 +351,10 @@ class Mage_Catalog_Model_Resource_Eav_Mysql4_Product_Collection
     public function addCountToCategories($categoryCollection)
     {
         foreach ($categoryCollection as $category) {
-        	$select     = clone $this->getSelect();
-        	$select->reset(Zend_Db_Select::COLUMNS);
-        	$select->reset(Zend_Db_Select::GROUP);
-        	$select->distinct(false);
+            $select     = clone $this->getSelect();
+            $select->reset(Zend_Db_Select::COLUMNS);
+            $select->reset(Zend_Db_Select::GROUP);
+            $select->distinct(false);
             $select->join(
                     array('category_count_table' => $this->_productCategoryTable),
                     'category_count_table.product_id=e.entity_id',
@@ -341,7 +368,7 @@ class Mage_Catalog_Model_Resource_Eav_Mysql4_Product_Collection
                 $select->where($this->getConnection()->quoteInto('category_count_table.category_id=?', $category->getId()));
             }
 
-        	$category->setProductCount((int) $this->getConnection()->fetchOne($select));
+            $category->setProductCount((int) $this->getConnection()->fetchOne($select));
         }
         return $this;
     }
@@ -372,7 +399,8 @@ class Mage_Catalog_Model_Resource_Eav_Mysql4_Product_Collection
     public function addUrlRewrite($categoryId = '')
     {
         $this->_addUrlRewrite = true;
-        $this->_urlRewriteCategory = $categoryId;
+        //~ $this->_urlRewriteCategory = $categoryId;
+        $this->_urlRewriteCategory = Mage::getStoreConfig('catalog/seo/product_use_categories') ? $categoryId : 0;
         return $this;
     }
 
@@ -436,4 +464,140 @@ class Mage_Catalog_Model_Resource_Eav_Mysql4_Product_Collection
         Mage::getSingleton('catalogindex/price')->addMinimalPrices($this);
         return $this;
     }
+
+    public function addFinalPrice()
+    {
+        $this->_addFinalPrice = true;
+        $this->addAttributeToSelect('price')
+            ->addAttributeToSelect('special_price')
+            ->addAttributeToSelect('special_from_date')
+            ->addAttributeToSelect('special_to_date');
+
+        return $this;
+    }
+
+    protected function _joinPriceRules()
+    {
+        $wId = Mage::app()->getWebsite()->getId();
+        $gId = Mage::getSingleton('customer/session')->getCustomerGroupId();
+
+        $conditions  = "_price_rule.product_id = e.entity_id AND ";
+        $conditions .= "_price_rule.rule_date = '".date('Y-m-d H:i:s', mktime(0, 0, 0))."' AND ";
+        $conditions .= "_price_rule.website_id = '{$wId}' AND ";
+        $conditions .= "_price_rule.customer_group_id = '{$gId}'";
+
+        //$productIds = $this->getAllIds();
+        $productIds = $this->getAllIdsCache();
+        $this->getSelect()
+            ->joinLeft(array('_price_rule'=>$this->getTable('catalogrule/rule_product_price')), $conditions, array('_rule_price'=>'rule_price'));
+    }
+
+    protected function _addFinalPrice()
+    {
+        foreach ($this->_items as $product) {
+            $basePrice = $product->getPrice();
+            $specialPrice = $product->getSpecialPrice();
+            $specialPriceFrom = $product->getSpecialFromDate();
+            $specialPriceTo = $product->getSpecialToDate();
+            $rulePrice = $product->getData('_rule_price');
+
+            $finalPrice = $product->getPriceModel()->calculatePrice(
+                $basePrice,
+                $specialPrice,
+                $specialPriceFrom,
+                $specialPriceTo,
+                $rulePrice,
+                null,
+                null,
+                $product->getId()
+            );
+
+            $product->setCalculatedFinalPrice($finalPrice);
+        }
+    }
+
+    public function getAllIdsCache($resetCache = false){
+        $ids = null;
+        if (!$resetCache) {
+            $ids = $this->_allIdsCache;
+        }
+
+        if (is_null($ids)) {
+            $ids = $this->getAllIds();
+            $this->setAllIdsCache($ids);
+        }
+
+        return $ids;
+    }
+
+    public function setAllIdsCache($value){
+        $this->_allIdsCache = $value;
+        return $this;
+    }
+
+    public function addAttributeToFilter($attribute, $condition=null, $joinType='inner'){
+        $this->_allIdsCache = null;
+        return parent::addAttributeToFilter($attribute, $condition, $joinType);
+    }
+
+    public function addTaxPercents(){
+        $this->_addTaxPercents = true;
+        $this->addAttributeToSelect('tax_class_id');
+
+        return $this;
+    }
+
+    protected function _addTaxPercents(){
+        $classToRate = array();
+
+        $request = Mage::getSingleton('tax/calculation')->getRateRequest();
+        foreach ($this as &$item) {
+            if (!isset($classToRate[$item->getTaxClassId()])) {
+                $request->setProductClassId($item->getTaxClassId());
+                $classToRate[$item->getTaxClassId()] = Mage::getSingleton('tax/calculation')->getRate($request);
+            }
+            $item->setTaxPercent($classToRate[$item->getTaxClassId()]);
+        }
+    }
+
+    /**
+     * Adding product custom options to result collection
+     *
+     * @return Mage_Catalog_Model_Entity_Product_Collection
+     */
+    public function addOptionsToResult()
+    {
+        $productIds = array();
+        foreach ($this as $product) {
+            $productIds[] = $product->getId();
+        }
+        if (!empty($productIds)) {
+            $options = Mage::getModel('catalog/product_option')
+                ->getCollection()
+                ->addTitleToResult(Mage::app()->getStore()->getId())
+                ->addPriceToResult(Mage::app()->getStore()->getId())
+                ->addProductToFilter($productIds)
+                ->addValuesToResult();
+
+            foreach ($options as $option) {
+                if($this->getItemById($option->getProductId())) {
+                    $this->getItemById($option->getProductId())->addOption($option);
+                }
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * Filter products with required options
+     *
+     * @return Mage_Catalog_Model_Resource_Eav_Mysql4_Product_Collection
+     */
+    public function addFilterByRequiredOptions()
+    {
+        $this->addAttributeToFilter('required_options', array(array('neq'=>'1'), array('null'=>true)), 'left');
+        return $this;
+    }
+
 }

@@ -70,6 +70,10 @@ class Mage_Adminhtml_Block_System_Store_Edit_Form extends Mage_Adminhtml_Block_W
             $showStoreFieldset = true;
         }
 
+        /* @var $websiteModel Mage_Core_Model_Website */
+        /* @var $groupModel Mage_Core_Model_Store_Group */
+        /* @var $storeModel Mage_Core_Model_Store */
+
         $form = new Varien_Data_Form(array(
             'id'        => 'edit_form',
             'action'    => $this->getData('action'),
@@ -118,7 +122,7 @@ class Mage_Adminhtml_Block_System_Store_Edit_Form extends Mage_Adminhtml_Block_W
                 ));
             }
 
-            if (!$websiteModel->getIsDefault()) {
+            if (!$websiteModel->getIsDefault() && $websiteModel->getStoresCount()) {
                 $fieldset->addField('is_default', 'checkbox', array(
                     'name'      => 'website[is_default]',
                     'label'     => Mage::helper('core')->__('Set as default'),

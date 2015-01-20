@@ -419,13 +419,20 @@ class Mage_Newsletter_Model_Subscriber extends Varien_Object
             return $this;
         }
 
+        $translate = Mage::getSingleton('core/translate');
+        /* @var $translate Mage_Core_Model_Translate */
+        $translate->setTranslateInline(false);
+
     	Mage::getModel('core/email_template')
     		->sendTransactional(
     		    Mage::getStoreConfig(self::XML_PATH_CONFIRM_EMAIL_TEMPLATE),
     		    Mage::getStoreConfig(self::XML_PATH_CONFIRM_EMAIL_IDENTITY),
     		    $this->getEmail(),
     		    $this->getName(),
-    		    array('subscriber'=>$this));
+    		    array('subscriber'=>$this)
+		    );
+
+	    $translate->setTranslateInline(true);
 
     	return $this;
     }
@@ -436,13 +443,21 @@ class Mage_Newsletter_Model_Subscriber extends Varien_Object
             return $this;
         }
 
+        $translate = Mage::getSingleton('core/translate');
+        /* @var $translate Mage_Core_Model_Translate */
+        $translate->setTranslateInline(false);
+
     	Mage::getModel('core/email_template')
     		->sendTransactional(
     		    Mage::getStoreConfig(self::XML_PATH_SUCCESS_EMAIL_TEMPLATE),
     		    Mage::getStoreConfig(self::XML_PATH_SUCCESS_EMAIL_IDENTITY),
     		    $this->getEmail(),
     		    $this->getName(),
-    		    array('subscriber'=>$this));
+    		    array('subscriber'=>$this)
+		    );
+
+	    $translate->setTranslateInline(true);
+
     	return $this;
     }
 
@@ -451,13 +466,22 @@ class Mage_Newsletter_Model_Subscriber extends Varien_Object
         if(!Mage::getStoreConfig(self::XML_PATH_UNSUBSCRIBE_EMAIL_TEMPLATE) || !Mage::getStoreConfig(self::XML_PATH_UNSUBSCRIBE_EMAIL_IDENTITY))  {
             return $this;
         }
+
+        $translate = Mage::getSingleton('core/translate');
+        /* @var $translate Mage_Core_Model_Translate */
+        $translate->setTranslateInline(false);
+
         Mage::getModel('core/email_template')
     		->sendTransactional(
     		    Mage::getStoreConfig(self::XML_PATH_UNSUBSCRIBE_EMAIL_TEMPLATE),
     		    Mage::getStoreConfig(self::XML_PATH_UNSUBSCRIBE_EMAIL_IDENTITY),
     		    $this->getEmail(),
     		    $this->getName(),
-    		    array('subscriber'=>$this));
+    		    array('subscriber'=>$this)
+		    );
+
+	    $translate->setTranslateInline(true);
+
     	return $this;
     }
 }

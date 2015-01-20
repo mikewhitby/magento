@@ -260,7 +260,7 @@ class Mage_Sales_Model_Order_Payment extends Mage_Payment_Model_Info
         //$this->getMethodInstance()->void($document);
         $this->getMethodInstance()->void($this);
 
-        Mage::dispatchEvent('sales_order_payment_void', array('payment' => $this, 'invoice' => $invoice));
+        Mage::dispatchEvent('sales_order_payment_void', array('payment' => $this, 'invoice' => $document));
 
         return $this;
     }

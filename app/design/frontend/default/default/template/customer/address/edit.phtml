@@ -18,7 +18,7 @@
  * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 ?>
-<?php 
+<?php
 /**
  * Edit customer address template
  *
@@ -38,14 +38,7 @@
         <h4 class="legend"><?php echo $this->__('Contact Information') ?></h4>
         <ul>
             <li>
-                <div class="input-box">
-                    <label for="firstname"><?php echo $this->__('First Name') ?> <span class="required">*</span></label><br />
-                    <input type="text" name="firstname" id="firstname" title="<?php echo $this->__('First Name') ?>" value="<?php echo ($this->getAddress()->getFirstname()) ? $this->htmlEscape($this->getAddress()->getFirstname()) : $this->htmlEscape($this->getCustomer()->getFirstname()) ?>" class="required-entry input-text" />
-                </div>
-                <div class="input-box">
-                    <label for="lastname"><?php echo $this->__('Last Name') ?> <span class="required">*</span></label><br />
-                    <input type="text" name="lastname" id="lastname" title="<?php echo $this->__('Last Name') ?>" value="<?php echo ($this->getAddress()->getLastname()) ? $this->htmlEscape($this->getAddress()->getLastname()) : $this->htmlEscape($this->getCustomer()->getLastname()) ?>" class="required-entry input-text" />
-                </div>
+                <?php echo $this->getLayout()->createBlock('customer/widget_name')->setObject($this->getAddress()->getFirstname() ? $this->getAddress() : $this->getCustomer())->toHtml() ?>
             </li>
             <li>
                 <label for="company"><?php echo $this->__('Company') ?></label><br />
@@ -70,9 +63,11 @@
                 <label for="street_1"><?php echo $this->__('Street Address') ?> <span class="required">*</span></label><br />
                 <input type="text" name="street[]" value="<?php echo $this->htmlEscape($this->getAddress()->getStreet(1)) ?>" title="<?php echo $this->__('Street Address') ?>" id="street_1" class="required-entry input-text" />
             </li>
+<?php for ($_i=2, $_n=$this->helper('customer/address')->getStreetLines(); $_i<=$_n; $_i++): ?>
             <li>
-                <input type="text" name="street[]" value="<?php echo $this->htmlEscape($this->getAddress()->getStreet(2)) ?>" title="<?php echo $this->__('Street Address 2') ?>" id="street_2" class="input-text" />
+                <input type="text" name="street[]" value="<?php echo $this->htmlEscape($this->getAddress()->getStreet($_i)) ?>" title="<?php echo $this->__('Street Address '.$_i) ?>" id="street_<?php echo $_i?>" class="input-text" />
             </li>
+<?php endfor ?>
             <li>
                 <div class="input-box">
                     <label for="city"><?php echo $this->__('City') ?> <span class="required">*</span></label><br />

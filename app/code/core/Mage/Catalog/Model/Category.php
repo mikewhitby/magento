@@ -101,7 +101,7 @@ class Mage_Catalog_Model_Category extends Mage_Catalog_Model_Abstract
     public function getTreeModelInstance()
     {
         if (is_null($this->_treeModel)) {
-            $this->_treeModel = $this->getTreeModel()->load();
+            $this->_treeModel = Mage::getResourceSingleton('catalog/category_tree');
         }
         return $this->_treeModel;
     }
@@ -319,6 +319,13 @@ class Mage_Catalog_Model_Category extends Mage_Catalog_Model_Abstract
         return Mage::getModel('catalog/category')->load($this->getParentId());
     }
 
+    public function getParentId()
+    {
+        $parentPath = explode('/', $this->getPath());
+        array_pop($parentPath);
+        return intval(array_pop($parentPath));
+    }
+
     public function getCustomDesignDate()
     {
         $result = array();
@@ -410,9 +417,15 @@ class Mage_Catalog_Model_Category extends Mage_Catalog_Model_Abstract
     {
         return $this->_getResource()->getChildrenAmount($this) > 0;
     }
-    protected function _beforeDelete()
+
+    public function getRequestPath()
     {
-        $this->_protectFromNonAdmin();
-        return parent::_beforeDelete();
+        return $this->_getData('request_path');
     }
+
+    public function getName()
+    {
+        return $this->_getData('name');
+    }
+
 }

@@ -76,11 +76,13 @@ class Mage_Adminhtml_System_ConfigController extends Mage_Adminhtml_Controller_A
         $this->getLayout()->getBlock('left')
             ->append($this->getLayout()->createBlock('adminhtml/system_config_tabs')->initTabs());
 
-        $this->_addContent($this->getLayout()->createBlock('adminhtml/system_config_edit')->initForm());
-        $this->_addJs($this->getLayout()->createBlock('adminhtml/template')->setTemplate('system/shipping/ups.phtml'));
-        $this->_addJs($this->getLayout()->createBlock('adminhtml/template')->setTemplate('system/config/js.phtml'));
-        $this->_addJs($this->getLayout()->createBlock('adminhtml/template')->setTemplate('system/shipping/applicable_country.phtml'));
-        $this->renderLayout();
+        if ($this->_isSectionAllowed($this->getRequest()->getParam('section'))) {
+            $this->_addContent($this->getLayout()->createBlock('adminhtml/system_config_edit')->initForm());
+            $this->_addJs($this->getLayout()->createBlock('adminhtml/template')->setTemplate('system/shipping/ups.phtml'));
+            $this->_addJs($this->getLayout()->createBlock('adminhtml/template')->setTemplate('system/config/js.phtml'));
+            $this->_addJs($this->getLayout()->createBlock('adminhtml/template')->setTemplate('system/shipping/applicable_country.phtml'));
+            $this->renderLayout();
+        }
     }
 
     /**
@@ -112,6 +114,9 @@ class Mage_Adminhtml_System_ConfigController extends Mage_Adminhtml_Controller_A
 
         try {
             Mage::app()->cleanCache(array('config'));
+            if (!$this->_isSectionAllowed($this->getRequest()->getParam('section'))) {
+                throw new Exception(Mage::helper('adminhtml')->__('This section is not allowed.'));
+            }
             Mage::getModel('adminhtml/config_data')
                 ->setSection($this->getRequest()->getParam('section'))
                 ->setWebsite($this->getRequest()->getParam('website'))
@@ -220,6 +225,31 @@ class Mage_Adminhtml_System_ConfigController extends Mage_Adminhtml_Controller_A
     protected function _isAllowed()
     {
         return Mage::getSingleton('admin/session')->isAllowed('system/config');
+    }
+
+    /**
+     * Check if specified section allowed in ACL
+     *
+     * Will forward to deniedAction(), if not allowed.
+     *
+     * @param string $section
+     * @return bool
+     */
+    protected function _isSectionAllowed($section)
+    {
+        try {
+            $session = Mage::getSingleton('admin/session');
+            $resourceLookup = "admin/system/config/{$section}";
+            $resourceId = $session->getData('acl')->get($resourceLookup)->getResourceId();
+            if (!$session->isAllowed($resourceId)) {
+                throw new Exception('');
+            }
+            return true;
+        }
+        catch (Exception $e) {
+            $this->_forward('denied');
+            return false;
+        }
     }
 
     /**

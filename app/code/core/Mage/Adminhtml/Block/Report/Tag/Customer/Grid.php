@@ -74,6 +74,26 @@ class Mage_Adminhtml_Block_Report_Tag_Customer_Grid extends Mage_Adminhtml_Block
             'index'     =>'taged'
         ));
 
+        $this->addColumn('action',
+            array(
+                'header'    => Mage::helper('catalog')->__('Action'),
+                'width'     => '100%',
+                'type'      => 'action',
+                'getter'    => 'getId',
+                'actions'   => array(
+                    array(
+                        'caption' => Mage::helper('catalog')->__('Show Tags'),
+                        'url'     => array(
+                            'base'=>'*/*/customerDetail'
+                        ),
+                        'field'   => 'id'
+                    )
+                ),
+                'filter'    => false,
+                'sortable'  => false,
+                'index'     => 'stores',
+        ));
+
         $this->setFilterVisibility(false);
 
         $this->addExportType('*/*/exportCustomerCsv', Mage::helper('reports')->__('CSV'));

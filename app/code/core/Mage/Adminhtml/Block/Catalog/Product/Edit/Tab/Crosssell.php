@@ -75,6 +75,7 @@ class Mage_Adminhtml_Block_Catalog_Product_Edit_Tab_Crosssell extends Mage_Admin
     {
         $collection = Mage::getModel('catalog/product_link')->useCrossSellLinks()
             ->getProductCollection()
+            ->addFilterByRequiredOptions()
             ->setProduct($this->_getProduct())
             ->addAttributeToSelect('*');
         $this->setCollection($collection);
@@ -176,7 +177,7 @@ class Mage_Adminhtml_Block_Catalog_Product_Edit_Tab_Crosssell extends Mage_Admin
 
     public function getGridUrl()
     {
-        return $this->getUrl('*/*/crosssell', array('_current'=>true));
+        return $this->_getData('grid_url') ? $this->_getData('grid_url') : $this->getUrl('*/*/crosssell', array('_current'=>true));
     }
 
     protected function _getSelectedProducts()

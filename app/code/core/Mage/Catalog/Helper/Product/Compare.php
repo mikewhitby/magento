@@ -138,6 +138,7 @@ class Mage_Catalog_Helper_Product_Compare extends Mage_Core_Helper_Url
     {
         if (!$this->_itemCollection) {
  			$this->_itemCollection = Mage::getResourceModel('catalog/product_compare_item_collection')
+ 			    ->useProductItem(true)
  				->setStoreId(Mage::app()->getStore()->getId());
 
  			if(Mage::getSingleton('customer/session')->isLoggedIn()) {
@@ -149,7 +150,6 @@ class Mage_Catalog_Helper_Product_Compare extends Mage_Core_Helper_Url
 			Mage::getSingleton('catalog/product_visibility')->addVisibleInSiteFilterToCollection($this->_itemCollection);
 
 			$this->_itemCollection->addAttributeToSelect('name')
-				->useProductItem()
                 ->addUrlRewrite()
 				->load();
         }

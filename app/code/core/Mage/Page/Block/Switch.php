@@ -70,7 +70,7 @@ class Mage_Page_Block_Switch extends Mage_Core_Block_Template
                 $store->setLocaleCode(Mage::getStoreConfig('general/locale/code', $store->getId()));
                 $baseUrl = $store->getBaseUrl();
                 if (!$this->isStoreInUrl()) {
-                    $baseUrl .= '?store='.$store->getCode();
+                    $baseUrl .= '?___store='.$store->getCode();
                 }
                 $store->setHomeUrl($baseUrl);
                 $stores[$store->getGroupId()][$store->getId()] = $store;

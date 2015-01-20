@@ -67,6 +67,7 @@ class Mage_Adminhtml_Block_Cms_Block_Edit_Form extends Mage_Adminhtml_Block_Widg
             'label'     => Mage::helper('cms')->__('Identifier'),
             'title'     => Mage::helper('cms')->__('Identifier'),
             'required'  => true,
+            'class'     => 'validate-xml-identifier',
         ));
 
         /**

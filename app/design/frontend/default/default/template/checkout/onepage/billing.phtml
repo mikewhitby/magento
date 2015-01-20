@@ -27,12 +27,8 @@
     <fieldset class="group-select" id="billing-new-address-form" <?php if ($this->customerHasAddresses()): ?>style="display:none"<?php endif ?>>
         <input type="hidden" name="billing[address_id]" value="<?php echo $this->getAddress()->getId() ?>" id="billing:address_id" />
         <ul>
-            <li><div class="input-box">
-                <label for="billing:firstname"><?php echo $this->__('First Name') ?> <span class="required">*</span></label><br />
-                <input type="text" id="billing:firstname" name="billing[firstname]" value="<?php echo $this->htmlEscape($this->getFirstname()) ?>" title="<?php echo $this->__('First Name') ?>" class="required-entry input-text" /></div>
-                <div class="input-box">
-                <label for="billing:lastname"><?php echo $this->__('Last Name') ?> <span class="required">*</span></label><br />
-                <input type="text" id="billing:lastname" name="billing[lastname]" value="<?php echo $this->htmlEscape($this->getLastname()) ?>" title="<?php echo $this->__('Last Name') ?>" class="required-entry input-text" /></div></li>
+            <li><?php echo $this->getLayout()->createBlock('customer/widget_name')->setObject($this->getAddress())
+                ->setFieldIdFormat('billing:%s')->setFieldNameFormat('billing[%s]')->toHtml() ?></li>
             <li><div class="input-box">
                 <label for="billing:company"><?php echo $this->__('Company') ?></label><br />
                 <input type="text" id="billing:company" name="billing[company]" value="<?php echo $this->htmlEscape($this->getAddress()->getCompany()) ?>" title="<?php echo $this->__('Company') ?>" class="input-text" /></div>
@@ -43,8 +39,10 @@
     <?php endif ?>
                 </li>
             <li><label for="billing:street1"><?php echo $this->__('Address') ?> <span class="required">*</span></label><br />
-                <input type="text" title="<?php echo $this->__('Street Address') ?>" name="billing[street][1]" id="billing:street1" value="<?php echo $this->htmlEscape($this->getAddress()->getStreet(1)) ?>" class="required-entry input-text" /></li>
-            <li><input type="text" title="<?php echo $this->__('Street Address 2') ?>" name="billing[street][2]" id="billing:street2" value="<?php echo $this->htmlEscape($this->getAddress()->getStreet(2)) ?>" class="input-text" /></li>
+                <input type="text" title="<?php echo $this->__('Street Address') ?>" name="billing[street][]" id="billing:street1" value="<?php echo $this->htmlEscape($this->getAddress()->getStreet(1)) ?>" class="required-entry input-text" /></li>
+<?php for ($_i=2, $_n=$this->helper('customer/address')->getStreetLines(); $_i<=$_n; $_i++): ?>
+            <li><input type="text" title="<?php echo $this->__('Street Address '.$_i) ?>" name="billing[street][]" id="billing:street<?php echo $_i?>" value="<?php echo $this->htmlEscape($this->getAddress()->getStreet($_i)) ?>" class="input-text" /></li>
+<?php endfor ?>
             <li><div class="input-box">
                 <label for="billing:city"><?php echo $this->__('City') ?> <span class="required">*</span></label><br />
                 <input type="text" title="<?php echo $this->__('City') ?>" name="billing[city]" value="<?php echo $this->htmlEscape($this->getAddress()->getCity()) ?>" class="required-entry input-text" id="billing:city" /></div>
@@ -71,6 +69,15 @@
                 <label for="billing:fax"><?php echo $this->__('Fax') ?></label><br/>
                 <input type="text" name="billing[fax]" value="<?php echo $this->htmlEscape($this->getAddress()->getFax()) ?>" title="<?php echo $this->__('Fax') ?>" class="input-text" id="billing:fax" /></div></li>
             <?php if(!$this->isCustomerLoggedIn()): ?>
+
+<?php $_dob = $this->getLayout()->createBlock('customer/widget_dob') ?>
+<?php if ($_dob->isEnabled()): ?>
+            <li>
+                <?php echo $_dob->setDate($this->getQuote()->getCustomerDob())
+                    ->setFieldIdFormat('billing:%s')->setFieldNameFormat('billing[%s]')->toHtml() ?>
+            </li>
+<?php endif ?>
+
                 <li id="register-customer-password">
                 <div class="input-box">
                 <label for="billing:customer_password"><?php echo $this->__('Password') ?> <span class="required">*</span></label><br/>
@@ -86,27 +93,23 @@
             <?php endif;?>
         </ul>
     </fieldset>
-    <!--<p><input type="checkbox" name="billing[use_for_shipping]" id="billing:use_for_shipping" value="1" <?php if($this->getUseForShipping()): ?>checked="checked"<?php endif ?> onclick="billing.setUseForShipping(this.checked)"/> &nbsp;<label for="billing:use_for_shipping"><?php echo $this->__('Ship to this address') ?></label></p>-->
-    <!--
-        TO DO:
-        - After making sure the new code works, remove the line above and add onclick action to radio buttons below
-        - Add PHP to show current values of radio buttons (old: $this->getUseForShipping()) - CHECK with Moshe / Mischa
-        - Create the JS setPickupOrUseForShipping method in billing
-    -->
+    <?php if ($this->canShip()): ?>
     <p>
-        <input type="radio" name="billing[pickup_or_use_for_shipping]" id="billing:pickup_or_use_for_shipping_yes" value="1" <?php  if(($this->getPickupOrUseForShipping() === 1) || ($this->getPickupOrUseForShipping() === false)): ?>checked="checked" <?php  endif ?>onclick="billing.setPickupOrUseForShipping(1);" />&nbsp;<label for="billing:pickup_or_use_for_shipping_yes"><?php echo  $this->__('Ship to this address') ?></label>&nbsp;&nbsp;&nbsp;&nbsp;
-        <input type="radio" name="billing[pickup_or_use_for_shipping]" id="billing:pickup_or_use_for_shipping_no" value="0" <?php if($this->getPickupOrUseForShipping() === 0): ?>checked="checked" <?php endif ?>onclick="billing.setPickupOrUseForShipping(0);" />&nbsp;<label for="billing:pickup_or_use_for_shipping_no"><?php echo $this->__('Ship to different address') ?></label>&nbsp;&nbsp;&nbsp;&nbsp;
-        <?php  if(Mage::getStoreConfig('carriers/pickup/active')) : ?><input type="radio" name="billing[pickup_or_use_for_shipping]" id="billing:pickup_or_use_for_shipping_pickup" value="2" <?php  if($this->getPickupOrUseForShipping() === 2): ?>checked="checked" <?php  endif ?>onclick="billing.setPickupOrUseForShipping(2);" />&nbsp;<label for="billing:pickup_or_use_for_shipping_pickup"><?php echo  $this->__('Store Pickup') ?></label><?php  endif ?>
+        <input type="radio" name="billing[use_for_shipping]" id="billing:use_for_shipping_yes" value="1" <?php if ($this->isUseBillingAddressForShipping()) {?>checked="checked" <?php }?>onclick="$('shipping:same_as_billing').checked = true;" />&nbsp;<label for="billing:use_for_shipping_yes"><?php echo  $this->__('Ship to this address') ?></label>&nbsp;&nbsp;&nbsp;&nbsp;
+        <input type="radio" name="billing[use_for_shipping]" id="billing:use_for_shipping_no" value="0" <?php if (!$this->isUseBillingAddressForShipping()) {?>checked="checked" <?php }?>onclick="$('shipping:same_as_billing').checked = false;" />&nbsp;<label for="billing:use_for_shipping_no"><?php echo $this->__('Ship to different address') ?></label>&nbsp;&nbsp;&nbsp;&nbsp;
     </p>
+    <?php else: ?>
+        <input type="hidden" name="billing[use_for_shipping]" value="1" />
+    <?php endif; ?>
 </form>
 <div class="button-set">
     <p class="required"><?php echo $this->__('* Required Fields') ?></p>
-    <span id="billing-buttons-container" >
+    <div id="billing-buttons-container">
         <button class="form-button right" onclick="billing.save()"><span><?php echo $this->__('Continue') ?></span></button>
         <span id="billing-please-wait" style="display:none;" class="opc-please-wait">
             <img src="<?php echo $this->getSkinUrl('images/opc-ajax-loader.gif') ?>" class="v-middle" alt="" /> &nbsp; <?php echo $this->__('Loading next step...') ?> &nbsp;
         </span>
-    </span>
+    </div>
 </div>
 
 <script type="text/javascript">

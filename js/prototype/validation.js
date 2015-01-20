@@ -194,6 +194,11 @@ Object.extend(Validation, {
     hideAdvice : function(elm, advice){
         if(advice != null) advice.hide();
     },
+    updateCallback : function(elm, status) {
+        if (typeof elm.callbackFunction != 'undefined') {
+            eval(elm.callbackFunction+'(\''+elm.id+'\',\''+status+'\')');
+        }
+    },
     ajaxError : function(elm, errorMsg) {
         var name = 'validate-ajax';
         var advice = Validation.getAdvice(name, elm);
@@ -215,14 +220,18 @@ Object.extend(Validation, {
                     advice = this.createAdvice(name, elm, useTitle);
                 }
                 this.showAdvice(elm, advice, name);
+                this.updateCallback(elm, 'failed');
             //}
             elm[prop] = 1;
-            elm.removeClassName('validation-passed');
-            elm.addClassName('validation-failed');
+            if (!elm.advaiceContainer) {
+                elm.removeClassName('validation-passed');
+                elm.addClassName('validation-failed');
+            }
             return false;
         } else {
             var advice = Validation.getAdvice(name, elm);
             this.hideAdvice(elm, advice);
+            this.updateCallback(elm, 'passed');
             elm[prop] = '';
             elm.removeClassName('validation-failed');
             elm.addClassName('validation-passed');
@@ -372,6 +381,9 @@ Validation.addAllThese([
             }],
     ['validate-identifier', 'Please enter a valid Identifier. For example example-page, example-page.html or anotherlevel/example-page', function (v) {
                 return Validation.get('IsEmpty').test(v) || /^[A-Z0-9][A-Z0-9_\/-]+(\.[A-Z0-9_-]+)*$/i.test(v)
+            }],
+    ['validate-xml-identifier', 'Please enter a valid XML-identifier. For example something_1, block5, id-4', function (v) {
+                return Validation.get('IsEmpty').test(v) || /^[A-Z][A-Z0-9_\/-]*$/i.test(v)
             }],
     ['validate-ssn', 'Please enter a valid social security number. For example 123-45-6789.', function(v) {
             return Validation.get('IsEmpty').test(v) || /^\d{3}-?\d{2}-?\d{4}$/.test(v);
@@ -545,7 +557,6 @@ function validateCreditCard(s) {
     }
     // validate number
     j = w.length / 2;
-    if (j < 6.5 || j > 8 || j == 7) return false;
     k = Math.floor(j);
     m = Math.ceil(j) - k;
     c = 0;
@@ -594,12 +605,11 @@ function parseNumber(v)
  * 2 - check or not credit card number trough Luhn algorithm by
  *     function validateCreditCard wich you can find above in this file
  */
-
 Validation.creditCartTypes = $H({
     'VI': [new RegExp('^4[0-9]{12}([0-9]{3})?$'), new RegExp('^[0-9]{3}$'), true],
     'MC': [new RegExp('^5[1-5][0-9]{14}$'), new RegExp('^[0-9]{3}$'), true],
     'AE': [new RegExp('^3[47][0-9]{13}$'), new RegExp('^[0-9]{4}$'), true],
     'DI': [new RegExp('^6011[0-9]{12}$'), new RegExp('^[0-9]{3}$'), true],
-    'OT': [false, new RegExp('^([0-9]{3}|[0-9]{4})?$'), false],
-    'SS': [false, new RegExp('^([0-9]{3}|[0-9]{4})?$'), false]
+    'SS': [new RegExp('^((6759[0-9]{12})|(49[013][1356][0-9]{13})|(633[34][0-9]{12})|(633110[0-9]{10})|(564182[0-9]{10}))([0-9]{2,3})?$'), new RegExp('^([0-9]{3}|[0-9]{4})?$'), true],
+    'OT': [false, new RegExp('^([0-9]{3}|[0-9]{4})?$'), false]
 });

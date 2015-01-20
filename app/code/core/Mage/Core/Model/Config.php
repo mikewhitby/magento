@@ -48,6 +48,21 @@ class Mage_Core_Model_Config extends Mage_Core_Model_Config_Base
 
     protected $_substServerVars;
 
+    protected $_resourceModel;
+
+    /**
+     * Retrieve resource model
+     *
+     * @return Mage_Core_Store_Mysql4_Config
+     */
+    public function getResourceModel()
+    {
+        if (is_null($this->_resourceModel)) {
+            $this->_resourceModel = Mage::getResourceModel('core/config');
+        }
+        return $this->_resourceModel;
+    }
+
     /**
      * Flag cache for existing or already created directories
      *
@@ -106,11 +121,18 @@ class Mage_Core_Model_Config extends Mage_Core_Model_Config_Base
              */
             $codeDir = $this->getOptions()->getCodeDir();
             $libDir = $this->getOptions()->getLibDir();
+
             set_include_path(
                 // excluded '/app/code/local'
-                BP . $codeDir . DS .'community' . PS .
+                BP . DS . 'app' . DS . 'code' . DS . 'community' . PS .
+                BP . DS . 'app' . DS . 'code' . DS . 'core' . PS .
+                BP . DS . 'lib' . PS .
+                /**
+                 * Problem with concatenate BP . $codeDir
+                 */
+                /*BP . $codeDir . DS .'community' . PS .
                 BP . $codeDir . DS .'core' . PS .
-                BP . $libDir . PS .
+                BP . $libDir . PS .*/
                 Mage::registry('original_include_path')
             );
         }
@@ -139,14 +161,6 @@ class Mage_Core_Model_Config extends Mage_Core_Model_Config_Base
         $this->loadFile($configFile);
 
         Varien_Profiler::stop('config/load-base');
-
-        if (!$localConfigLoaded) {
-            Varien_Profiler::start('config/load-distro');
-            $mergeConfig->loadString($this->loadDistroConfig());
-            $this->extend($mergeConfig, true);
-            Varien_Profiler::stop('config/load-distro');
-            $saveCache = false;
-        }
 
         $this->_loadDeclaredModules($mergeConfig);
 
@@ -196,7 +210,7 @@ class Mage_Core_Model_Config extends Mage_Core_Model_Config_Base
             Varien_Profiler::stop('dbUpdates');
 
             Varien_Profiler::start('config/load-db');
-            $dbConf = Mage::getResourceModel('core/config');
+            $dbConf = $this->getResourceModel();
             $dbConf->loadToXml($this);
             Varien_Profiler::stop('config/load-db');
         }
@@ -206,6 +220,15 @@ class Mage_Core_Model_Config extends Mage_Core_Model_Config_Base
             $this->saveCache(array('config'));
             Varien_Profiler::stop('config/save-cache');
         }
+
+        return $this;
+    }
+
+    public function saveCache($tags=array())
+    {
+
+
+        parent::saveCache($tags);
 
         return $this;
     }
@@ -234,10 +257,15 @@ class Mage_Core_Model_Config extends Mage_Core_Model_Config_Base
 
         // prepare unsorted modules with links
         foreach ($unsortedConfig->getNode('modules')->children() as $moduleName=>$moduleConfig) {
-            $unsortedModules[$moduleName] = array();
+            if (!isset($unsortedModules[$moduleName])) {
+                $unsortedModules[$moduleName] = array();
+            }
             if ($moduleConfig->depends) {
                 foreach ($moduleConfig->depends->children() as $dependName=>$depend) {
                     $unsortedModules[$moduleName]['parents'][$dependName] = true;
+                    if (!isset($unsortedModules[$dependName])) {
+                        $unsortedModules[$dependName] = array();
+                    }
                     $unsortedModules[$dependName]['children'][$moduleName] = true;
                 }
             }
@@ -264,7 +292,7 @@ class Mage_Core_Model_Config extends Mage_Core_Model_Config_Base
         $sortedConfig->loadString('<config><modules/></config>');
         foreach ($unsortedConfig->getNode()->children() as $nodeName=>$node) {
             if ($nodeName!=='modules') {
-                $sortedConfig->appendChild($node);
+                $sortedConfig->getNode()->appendChild($node);
             }
         }
         $modulesConfig = $sortedConfig->getNode('modules');
@@ -326,17 +354,6 @@ class Mage_Core_Model_Config extends Mage_Core_Model_Config_Base
 //            $dir = (!empty($_ENV['TMP']) ? $_ENV['TMP'] : DS.'tmp').DS.'magento'.DS.'var';
 //        }
 //        return $dir;
-    }
-
-    public function loadDistroConfig()
-    {
-//        $data = $this->getDistroServerVars();
-        $template = file_get_contents($this->getBaseDir('etc').DS.'distro.xml');
-        $template = $this->substDistroServerVars($template);
-//        foreach ($data as $index=>$value) {
-//            $template = str_replace('{{'.$index.'}}', '<![CDATA['.$value.']]>', $template);
-//        }
-        return $template;
     }
 
     public function getDistroServerVars()
@@ -605,7 +622,7 @@ class Mage_Core_Model_Config extends Mage_Core_Model_Config_Base
             $groupRootNode = 'global/'.$groupType.'s';
         }
 
-        $classArr = explode('/', $classId);
+        $classArr = explode('/', trim($classId));
         $group = $classArr[0];
         $class = !empty($classArr[1]) ? $classArr[1] : null;
 
@@ -672,6 +689,7 @@ class Mage_Core_Model_Config extends Mage_Core_Model_Config_Base
      */
     public function getModelClassName($modelClass)
     {
+        $modelClass = trim($modelClass);
         if (strpos($modelClass, '/')===false) {
             return $modelClass;
         }
@@ -718,18 +736,12 @@ class Mage_Core_Model_Config extends Mage_Core_Model_Config_Base
 
         $resourceModel = false;
 
-        if ($resourceInfo = $this->_xml->global->models->{$modelClass}->resourceModel) {
+        if ((count($classArr)==2) && ($resourceInfo = $this->_xml->global->models->{$classArr[0]}->$classArr[1]->resourceModel)) {
             $resourceModel = (string) $resourceInfo;
         }
         elseif ($resourceInfo = $this->_xml->global->models->{$classArr[0]}->resourceModel) {
             $resourceModel = (string) $resourceInfo;
         }
-        /*if ($this->getNode('global/models/'.$modelClass.'/resourceModel')) {
-            $resourceModel = (string) $this->getNode('global/models/'.$modelClass.'/resourceModel');
-        }
-        elseif ($this->getNode('global/models/'.$classArr[0].'/resourceModel')) {
-            $resourceModel = (string) $this->getNode('global/models/'.$classArr[0].'/resourceModel');
-        }*/
 
         if (!$resourceModel) {
             return false;
@@ -847,7 +859,7 @@ class Mage_Core_Model_Config extends Mage_Core_Model_Config_Base
      * @param string $path
      * @param string $scope
      * @param string $scopeCode
-     * @return Varien_Simplexml_Element
+     * @return Mage_Core_Model_Config_Element
      */
     public function getNode($path=null, $scope='', $scopeCode=null)
     {
@@ -877,5 +889,45 @@ class Mage_Core_Model_Config extends Mage_Core_Model_Config_Base
     public function getEventConfig($area, $eventName)
     {
         return $this->_xml->{$area}->events->{$eventName};
+    }
+
+    /**
+     * Save config value
+     *
+     * @param string $path
+     * @param string $value
+     * @param string $scope
+     * @param int $scopeId
+     * @return Mage_Core_Store_Config
+     */
+    public function saveConfig($path, $value, $scope = 'default', $scopeId = 0)
+    {
+        $resource = $this->getResourceModel();
+        $resource->saveConfig(rtrim($path, '/'), $value, $scope, $scopeId);
+
+        return $this;
+    }
+
+    public function deleteConfig($path, $scope = 'default', $scopeId = 0)
+    {
+        $resource = $this->getResourceModel();
+        $resource->deleteConfig(rtrim($path, '/'), $scope, $scopeId);
+
+        return $this;
+    }
+
+    /**
+     * Get fieldset from configuration
+     *
+     * @param string $name fieldset name
+     * @param string $root fieldset area, could be 'admin'
+     * @return null|array
+     */
+    public function getFieldset($name, $root = 'global')
+    {
+        if (!$rootNode = $this->getNode($root.'/fieldsets')) {
+            return null;
+        }
+        return $rootNode->$name ? $rootNode->$name->children() : null;
     }
 }

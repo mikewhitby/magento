@@ -65,11 +65,21 @@ class Mage_Shipping_Model_Mysql4_Carrier_Tablerate extends Mage_Core_Model_Mysql
 //            'country'   => $read->quote($request->getDestCountryId())
 //        );
         $select->where(
-            $read->quoteInto("(dest_country_id=? AND dest_zip=?)", $request->getDestCountryId(), $request->getDestPostcode()).
-            $read->quoteInto(" OR (dest_region_id=? AND dest_zip='')", $request->getDestRegionId()).
-            $read->quoteInto(" OR (dest_country_id=? AND dest_region_id='0' AND dest_zip='')", $request->getDestCountryId()).
-            "OR (dest_country_id='0' AND dest_region_id='0' AND dest_zip='')"
+            $read->quoteInto(" (dest_country_id=? ", $request->getDestCountryId()).
+                $read->quoteInto(" AND dest_region_id=? ", $request->getDestRegionId()).
+                $read->quoteInto(" AND dest_zip=?) ", $request->getDestPostcode()).
+
+            $read->quoteInto(" OR (dest_country_id=? ", $request->getDestCountryId()).
+                $read->quoteInto(" AND dest_region_id=? AND dest_zip='') ", $request->getDestRegionId()).
+
+            $read->quoteInto(" OR (dest_country_id=? AND dest_region_id='0' AND dest_zip='') ", $request->getDestCountryId()).
+
+            $read->quoteInto(" OR (dest_country_id=? AND dest_region_id='0' ", $request->getDestCountryId()).
+                $read->quoteInto("  AND dest_zip=?) ", $request->getDestPostcode()).
+
+            " OR (dest_country_id='0' AND dest_region_id='0' AND dest_zip='')"
         );
+
 //        $select->where("(dest_zip=:zip)
 //                     OR (dest_region_id=:region AND dest_zip='')
 //                     OR (dest_country_id=:country AND dest_region_id='0' AND dest_zip='')
@@ -90,7 +100,13 @@ class Mage_Shipping_Model_Mysql4_Carrier_Tablerate extends Mage_Core_Model_Mysql
             $select->where('condition_value<=?', $request->getData($request->getConditionName()));
         }
         $select->where('website_id=?', $request->getWebsiteId());
-        $select->order('condition_value DESC')->limit(1);
+
+        $select->order('dest_country_id DESC');
+        $select->order('dest_region_id DESC');
+        $select->order('dest_zip DESC');
+        $select->order('condition_value DESC');
+        $select->limit(1);
+
         /*
         pdo has an issue. we cannot use bind
         */
@@ -122,7 +138,7 @@ class Mage_Shipping_Model_Mysql4_Carrier_Tablerate extends Mage_Core_Model_Mysql
 
 //            $conditionName = $object->getValue();
 //            if ($conditionName{0} == '_') {
-//                $conditionName = substr($conditionName, 1, strpos($conditionName, '/')-1);
+//                $conditionName = Mage::helper('core/string')->substr($conditionName, 1, strpos($conditionName, '/')-1);
 //            } else {
 //                $conditionName = $websiteModel->getConfig('carriers/tablerate/condition_name');
 //            }

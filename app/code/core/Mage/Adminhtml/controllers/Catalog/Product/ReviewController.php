@@ -30,6 +30,10 @@ class Mage_Adminhtml_Catalog_Product_ReviewController extends Mage_Adminhtml_Con
 {
 	public function indexAction()
     {
+        if ($this->getRequest()->getParam('ajax')) {
+            return $this->_forward('reviewGrid');
+        }
+
         $this->loadLayout();
         $this->_setActiveMenu('catalog/review');
 
@@ -40,6 +44,11 @@ class Mage_Adminhtml_Catalog_Product_ReviewController extends Mage_Adminhtml_Con
 
     public function pendingAction()
     {
+        if ($this->getRequest()->getParam('ajax')) {
+            Mage::register('usePendingFilter', true);
+            return $this->_forward('reviewGrid');
+        }
+
         $this->loadLayout();
         $this->_setActiveMenu('catalog/review');
 

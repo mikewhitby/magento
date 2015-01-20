@@ -57,10 +57,7 @@ class Mage_Reports_Model_Mysql4_Customer_Collection extends Mage_Customer_Model_
 
     public function addCustomerName()
     {
-        $this->addAttributeToSelect('firstname')
-            ->addAttributeToSelect('lastname')
-            ->addExpressionAttributeToSelect('name', 'CONCAT({{firstname}}," ",{{lastname}})', array('firstname', 'lastname'));
-
+        $this->addNameToSelect();
         return $this;
     }
 

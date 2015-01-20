@@ -36,6 +36,8 @@ class Mage_Core_Controller_Request_Http extends Zend_Controller_Request_Http
     protected $_storeCode = null;
     protected $_requestString = '';
 
+    protected $_route;
+
     /**
      * Returns ORIGINAL_PATH_INFO.
      * This value is calculated instead of reading PATH_INFO
@@ -55,7 +57,7 @@ class Mage_Core_Controller_Request_Http extends Zend_Controller_Request_Http
     {
         if (!$this->_storeCode) {
             // get store view code
-            if (Mage::getStoreConfigFlag(Mage_Core_Model_Store::XML_PATH_STORE_IN_URL)) {
+            if (Mage::app()->isInstalled() && Mage::getStoreConfigFlag(Mage_Core_Model_Store::XML_PATH_STORE_IN_URL)) {
                 $p = explode('/', trim($this->getPathInfo(), '/'));
                 $storeCode = $p[0];
 
@@ -107,7 +109,7 @@ class Mage_Core_Controller_Request_Http extends Zend_Controller_Request_Http
                 $pathInfo = $requestUri;
             }
 
-            if (Mage::getStoreConfigFlag(Mage_Core_Model_Store::XML_PATH_STORE_IN_URL)) {
+            if (Mage::app()->isInstalled() && Mage::getStoreConfigFlag(Mage_Core_Model_Store::XML_PATH_STORE_IN_URL)) {
                 $p = explode('/', ltrim($pathInfo, '/'), 2);
                 $storeCode = $p[0];
                 $stores = Mage::app()->getStores(true, true);
@@ -157,5 +159,22 @@ class Mage_Core_Controller_Request_Http extends Zend_Controller_Request_Http
         $url = parent::getBaseUrl();
         $url = str_replace('\\', '/', $url);
         return $url;
+    }
+
+    public function setRouteName($route)
+    {
+        $this->_route = $route;
+        $router = Mage::app()->getFrontController()->getRouterByRoute($route);
+        if (!$router) return $this;
+        $module = $router->getFrontNameByRoute($route);
+        if ($module) {
+            $this->setModuleName($module);
+        }
+        return $this;
+    }
+
+    public function getRouteName()
+    {
+        return $this->_route;
     }
 }

@@ -48,9 +48,10 @@ class Mage_Checkout_Model_Observer
         }
     }
 
-    public function sales_quote_save_after($observer)
+    public function salesQuoteSaveAfter($observer)
     {
         $quote = $observer->getEvent()->getQuote();
+        /* @var $quote Mage_Sales_Model_Quote */
         if ($quote->getIsCheckoutCart()) {
             Mage::getSingleton('checkout/session')->getQuoteId($quote->getId());
         }

@@ -20,6 +20,33 @@
 
 #error_log('========================'."\n", 3, 'var/log/magento.log');
 
+
+/**
+ * Disable magic quotes in runtime if needed
+ *
+ * @link http://us3.php.net/manual/en/security.magicquotes.disabling.php
+ */
+if (get_magic_quotes_gpc()) {
+    function mageUndoMagicQuotes($array, $topLevel=true) {
+        $newArray = array();
+        foreach($array as $key => $value) {
+            if (!$topLevel) {
+                $newKey = stripslashes($key);
+                if ($newKey!==$key) {
+                    unset($array[$key]);
+                }
+                $key = $newKey;
+            }
+            $newArray[$key] = is_array($value) ? mageUndoMagicQuotes($value, false) : stripslashes($value);
+        }
+        return $newArray;
+    }
+    $_GET = mageUndoMagicQuotes($_GET);
+    $_POST = mageUndoMagicQuotes($_POST);
+    $_COOKIE = mageUndoMagicQuotes($_COOKIE);
+    $_REQUEST = mageUndoMagicQuotes($_REQUEST);
+}
+
 /**
  * Class autoload
  *
@@ -28,24 +55,19 @@
  */
 function __autoload($class)
 {
-    #static $loaded;
-    #if (isset($loaded[$class])) {
-    #    return;
-    #}
-#$timer = microtime(true);
     if (strpos($class, '/')!==false) {
         return;
     }
     $classFile = uc_words($class, DS).'.php';
-    $a = explode('_', $class);
-    Varien_Profiler::start('AUTOLOAD');
-    Varien_Profiler::start('AUTOLOAD: '.$a[0]);
+
+    //$a = explode('_', $class);
+    //Varien_Profiler::start('AUTOLOAD');
+    //Varien_Profiler::start('AUTOLOAD: '.$a[0]);
 
     include($classFile);
 
-    Varien_Profiler::stop('AUTOLOAD');
-    Varien_Profiler::stop('AUTOLOAD: '.$a[0]);
-#error_log($_SERVER['REMOTE_ADDR'].' - AUTOLOAD: '.$class.': '.(microtime(true)-$timer)."\n", 3, 'var/log/magento.log');
+    //Varien_Profiler::stop('AUTOLOAD');
+    //Varien_Profiler::stop('AUTOLOAD: '.$a[0]);
 }
 
 /**
@@ -113,32 +135,6 @@ function now($dayOnly=false)
 function is_empty_date($date)
 {
     return preg_replace('#[ 0:-]#', '', $date)==='';
-}
-
-/**
- * Strip magic quotes from array
- *
- * @param array $arr
- */
-function stripMagicQuotes($arr)
-{
-    foreach ($arr as $k => $v) {
-        $arr[$k] = is_array($v) ? stripMagicQuotes($v) : stripslashes($v);
-    }
-    return $arr;
-}
-
-/**
- * Checking magic quotes settings and prepare GPRC data
- */
-function checkMagicQuotes()
-{
-    if (get_magic_quotes_gpc()) {
-        if (!empty($_GET)) $_GET = stripMagicQuotes($_GET);
-        if (!empty($_POST)) $_POST = stripMagicQuotes($_POST);
-        if (!empty($_REQUEST)) $_REQUEST = stripMagicQuotes($_REQUEST);
-        if (!empty($_COOKIE)) $_COOKIE = stripMagicQuotes($_COOKIE);
-    }
 }
 
 function mageFindClassFile($class)
@@ -324,40 +320,33 @@ function mageParseCsv($string, $delimiter=",", $enclosure='"', $escape='\\')
 }
 
 
-if ( !function_exists('sys_get_temp_dir') )
-{
+if ( !function_exists('sys_get_temp_dir') ) {
     // Based on http://www.phpit.net/
     // article/creating-zip-tar-archives-dynamically-php/2/
     function sys_get_temp_dir()
     {
         // Try to get from environment variable
-        if ( !empty($_ENV['TMP']) )
-        {
+        if ( !empty($_ENV['TMP']) ) {
             return realpath( $_ENV['TMP'] );
         }
-        else if ( !empty($_ENV['TMPDIR']) )
-        {
+        else if ( !empty($_ENV['TMPDIR']) ) {
             return realpath( $_ENV['TMPDIR'] );
         }
-        else if ( !empty($_ENV['TEMP']) )
-        {
+        else if ( !empty($_ENV['TEMP']) ) {
             return realpath( $_ENV['TEMP'] );
         }
 
         // Detect by creating a temporary file
-        else
-        {
+        else {
             // Try to use system's temporary directory
             // as random name shouldn't exist
             $temp_file = tempnam( md5(uniqid(rand(), TRUE)), '' );
-            if ( $temp_file )
-            {
+            if ( $temp_file ) {
                 $temp_dir = realpath( dirname($temp_file) );
                 unlink( $temp_file );
                 return $temp_dir;
             }
-            else
-            {
+            else {
                 return FALSE;
             }
         }

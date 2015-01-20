@@ -97,6 +97,7 @@
                     Mage::getSingleton('catalog/session')->addSuccess(
                         $this->__('Product %s successfully removed from compare list', $product->getName())
                     );
+                    Mage::dispatchEvent('catalog_product_compare_remove_product', array('product'=>$item));
                 }
             }
         }

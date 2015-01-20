@@ -129,6 +129,7 @@ class Mage_Adminhtml_Catalog_Product_AttributeController extends Mage_Adminhtml_
     {
         if ($data = $this->getRequest()->getPost()) {
             $model = Mage::getModel('catalog/entity_attribute');
+            /* @var $model Mage_Catalog_Model_Entity_Attribute */
 
             if ($id = $this->getRequest()->getParam('attribute_id')) {
 

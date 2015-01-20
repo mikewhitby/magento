@@ -1,27 +1,27 @@
 <?php
-/** 
- * Magento 
- * 
- * NOTICE OF LICENSE 
- * 
- * This source file is subject to the Open Software License (OSL 3.0) 
- * that is bundled with this package in the file LICENSE.txt. 
- * It is also available through the world-wide-web at this URL: 
- * http://opensource.org/licenses/osl-3.0.php 
- * If you did not receive a copy of the license and are unable to 
- * obtain it through the world-wide-web, please send an email 
- * to license@magentocommerce.com so we can send you a copy immediately. 
- * 
+/**
+ * Magento
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Open Software License (OSL 3.0)
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/osl-3.0.php
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@magentocommerce.com so we can send you a copy immediately.
+ *
  * @category   design_default
- * @package    Mage 
- * @copyright  Copyright (c) 2004-2007 Irubin Consulting Inc. DBA Varien (http://www.varien.com) 
- * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0) 
+ * @package    Mage
+ * @copyright  Copyright (c) 2004-2007 Irubin Consulting Inc. DBA Varien (http://www.varien.com)
+ * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 ?>
-<?php 
+<?php
 /**
  * Create account form template
- * 
+ *
  * @see Mage_Customer_Block_Form_Register
  */
 ?>
@@ -36,14 +36,7 @@
         <h4 class="legend"><?php echo $this->__('Personal Information') ?></h4>
         <ul>
             <li>
-                <div class="input-box">
-                    <label for="firstname"><?php echo $this->__('First Name') ?> <span class="required">*</span></label><br/>
-                    <input type="text" name="firstname" id="firstname" value="<?php echo $this->htmlEscape($this->getFormData()->getFirstname()) ?>" title="<?php echo $this->__('First Name') ?>" class="required-entry input-text" />
-                </div>
-                <div class="input-box">
-                    <label for="lastname"><?php echo $this->__('Last Name') ?> <span class="required">*</span></label><br/>
-                    <input type="text" name="lastname" id="lastname" value="<?php echo $this->htmlEscape($this->getFormData()->getLastname()) ?>" title="<?php echo $this->__('Last Name') ?>" class="required-entry input-text" />
-                </div>
+                <?php echo $this->getLayout()->createBlock('customer/widget_name')->setObject($this->getFormData())->toHtml() ?>
             </li>
             <li>
                 <div class="input-box">
@@ -51,6 +44,14 @@
                     <input type="text" name="email" id="email_address" value="<?php echo $this->htmlEscape($this->getFormData()->getEmail()) ?>" title="<?php echo $this->__('Email Address') ?>" class="validate-email required-entry input-text" />
                 </div>
             </li>
+
+<?php $_dob = $this->getLayout()->createBlock('customer/widget_dob') ?>
+<?php if ($_dob->isEnabled()): ?>
+            <li>
+                <?php echo $_dob->setDate($this->getFormData()->getDob())->toHtml() ?>
+            </li>
+<?php endif ?>
+
             <li>
                 <input type="checkbox" name="is_subscribed" title="<?php echo $this->__('Sign Up for Newsletter') ?>" value="1" id="is_subscribed" <?php if($this->getFormData()->getIsSubscribed()): ?> checked="checked"<?php endif ?> />
                 <label for="is_subscribed"><?php echo $this->__('Sign Up for Newsletter') ?></label>
@@ -74,10 +75,12 @@
             </li>
             <li>
                 <label for="street_1"><?php echo $this->__('Street Address') ?> <span class="required">*</span></label><br />
-                <input type="text" name="street[]" value="<?php echo $this->htmlEscape($this->getFormData()->getStreet(0)) ?>" title="<?php echo $this->__('Street Address') ?>" id="street_1" class="required-entry input-text" />
+                <input type="text" name="street[]" value="<?php echo $this->htmlEscape($this->getFormData()->getStreet(1)) ?>" title="<?php echo $this->__('Street Address') ?>" id="street_1" class="required-entry input-text" />
             </li>
+<?php for ($_i=2, $_n=$this->helper('customer/address')->getStreetLines(); $_i<=$_n; $_i++): ?>
             <li>
-                <input type="text" name="street[]" value="<?php echo $this->htmlEscape($this->getFormData()->getStreet(1)) ?>" title="<?php echo $this->__('Street Address 2') ?>" id="street_2" class="input-text" />
+                <input type="text" name="street[]" value="<?php echo $this->htmlEscape($this->getFormData()->getStreet($_i)) ?>" title="<?php echo $this->__('Street Address '.$_i) ?>" id="street_<?php echo $_i?>" class="input-text" />
+<?php endfor ?>
             </li>
             <li>
                 <div class="input-box">

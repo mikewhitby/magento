@@ -401,13 +401,15 @@
                 </form>
                 <?php endif; ?>
                 <?php if ($action == 'print'): ?>
-                <div style="overflow:auto;padding:10px;border:1px solid #666;background:#EFEFEF">
+                <div style="padding:10px; border:1px solid #666; background:#EFEFEF;">
+                <div style="width:100%; overflow:auto;">
                 <pre>
 <?php echo $reportData[0] ?>
 
 <b>Trace:</b>
 <?php echo $reportData[1] ?>
                 </pre>
+                </div>
                 </div>
                 <?php endif; ?>
             <!-- [end] content -->

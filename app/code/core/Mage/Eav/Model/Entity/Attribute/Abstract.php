@@ -66,6 +66,13 @@ abstract class Mage_Eav_Model_Entity_Attribute_Abstract
     protected $_source;
 
     /**
+     * Attribute id cache
+     *
+     * @var array
+     */
+    protected $_attributeIdCache = array();
+
+    /**
      * Initialize resource model
      */
     protected function _construct()
@@ -94,6 +101,7 @@ abstract class Mage_Eav_Model_Entity_Attribute_Abstract
             throw Mage::exception('Mage_Eav', Mage::helper('eav')->__('Invalid entity supplied'));
         }
         $this->_getResource()->loadByCode($this, $entityTypeId, $code);
+        $this->_afterLoad();
         return $this;
     }
 
@@ -408,4 +416,19 @@ abstract class Mage_Eav_Model_Entity_Attribute_Abstract
         return false;
     }
 
+    /**
+     * Return attribute id
+     *
+     * @param string $entityType
+     * @param string $code
+     * @return int
+     */
+    public function getIdByCode($entityType, $code)
+    {
+        $k = "{$entityType}|{$code}";
+        if (!isset($this->_attributeIdCache[$k])) {
+            $this->_attributeIdCache[$k] = $this->getResource()->getIdByCode($entityType, $code);
+        }
+        return $this->_attributeIdCache[$k];
+    }
 }

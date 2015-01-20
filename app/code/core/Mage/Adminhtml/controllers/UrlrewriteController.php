@@ -131,7 +131,7 @@ class Mage_Adminhtml_UrlrewriteController extends Mage_Adminhtml_Controller_Acti
                     $model->setProductId($data['product_id'] ? $data['product_id'] : null);
                     $model->setCategoryId($data['category_id'] ? $data['category_id'] : null);
             	}
-            	$model->setRequestPath($this->_formatUrlKey($data['request_path']));
+            	$model->setRequestPath($data['request_path']);
             	$model->setOptions($data['options']);
                 $model->setDescription($data['description']);
             	$model->save();

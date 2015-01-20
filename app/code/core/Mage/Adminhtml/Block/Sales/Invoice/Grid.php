@@ -36,6 +36,7 @@ class Mage_Adminhtml_Block_Sales_Invoice_Grid extends Mage_Adminhtml_Block_Widge
 
     protected function _prepareCollection()
     {
+        //TODO: add full name logic
         $collection = Mage::getResourceModel('sales/order_invoice_collection')
             ->addAttributeToSelect('order_id')
             ->addAttributeToSelect('increment_id')
@@ -57,6 +58,7 @@ class Mage_Adminhtml_Block_Sales_Invoice_Grid extends Mage_Adminhtml_Block_Widge
         $this->addColumn('increment_id', array(
             'header'    => Mage::helper('sales')->__('Invoice #'),
             'index'     => 'increment_id',
+            'type'      => 'number',
         ));
 
         $this->addColumn('created_at', array(
@@ -68,6 +70,7 @@ class Mage_Adminhtml_Block_Sales_Invoice_Grid extends Mage_Adminhtml_Block_Widge
         $this->addColumn('order_increment_id', array(
             'header'    => Mage::helper('sales')->__('Order #'),
             'index'     => 'order_increment_id',
+            'type'      => 'number',
         ));
 
         $this->addColumn('order_created_at', array(

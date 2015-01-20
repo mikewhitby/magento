@@ -38,14 +38,12 @@ class Mage_Adminhtml_Block_Report_Grid_Column_Renderer_Customer
     public function render(Varien_Object $row)
     {
         $id   = $row->getCustomerId();
-        $name = $row->getData($this->getColumn()->getIndex());
 
         if (!$id) {
-            return $name ? $name : $this->getColumn()->getDefault();
+            return '&nbsp;';
         }
 
-        return sprintf('%s (<a href="%s">%s</a>)',
-            $name,
+        return sprintf('<a href="%s">%s</a>',
             $this->getUrl('*/catalog_product_review', array('customerId' => $id)),
             Mage::helper('adminhtml')->__('Show reviews')
         );

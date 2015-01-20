@@ -52,7 +52,7 @@
 	                <?php $_labels = $this->getLabelValues() ?>
 	                <?php foreach ($this->getStores() as $_store): ?>
 	                <td>
-	                    <input class="input-text<?php if($_store->getId()==0): ?> required-option<?php endif; ?>" type="text" name="frontend_label[<?php echo $_store->getId() ?>]" value="<?php echo $_labels[$_store->getId()] ?>"/>
+	                    <input class="input-text<?php if($_store->getId()==0): ?> required-option<?php endif; ?>" type="text" name="frontend_label[<?php echo $_store->getId() ?>]" value="<?php echo $this->htmlEscape($_labels[$_store->getId()]) ?>" />
 	                </td>
 	                <?php endforeach; ?>
 	            </tr>
@@ -68,23 +68,23 @@
     </div>
     <div class="box">
 		<div class="hor-scroll">
-	        <table class="dynamic-grid" cellspacing="0"  cellpadding="0" style="width:">
+	        <table class="dynamic-grid" cellspacing="0"  cellpadding="0">
 	            <tr id="attribute-options-table">
 		            <?php foreach ($this->getStores() as $_store): ?>
 		                <th><?php echo $_store->getName() ?></th>
 		            <?php endforeach; ?>
 		                <th><?php echo Mage::helper('catalog')->__('Position') ?></th>
-		                <th class="nobr a-center""><?php echo Mage::helper('catalog')->__('Is Default') ?></th>
+		                <th class="nobr a-center"><?php echo Mage::helper('catalog')->__('Is Default') ?></th>
 		                <th><?php echo $this->getAddNewButtonHtml() ?></th>
 		            </tr>
 		    	    <tr class="no-display template" id="row-template">
 		                <?php foreach ($this->getStores() as $_store): ?>
-		                <td><input name="option[value][{{id}}][<?php echo $_store->getId() ?>]" value="{{store<?php echo $_store->getId() ?>}}" class="input-text<?php if($_store->getId()==0): ?> required-option<?php endif; ?>" type="text"/></td>
+		                <td><input name="option[value][{{id}}][<?php echo $_store->getId() ?>]" value="{{store<?php echo $_store->getId() ?>}}" class="input-text<?php if($_store->getId()==0): ?> required-option<?php endif; ?>" type="text" /></td>
 		                <?php endforeach; ?>
-		                <td class="a-center"><input class="input-text" type="text" name="option[order][{{id}}]" value="{{sort_order}}"></td>
-		                <td><input class="input-radio" type="radio" name="default[]" value="{{id}}"></td>
+		                <td class="a-center"><input class="input-text" type="text" name="option[order][{{id}}]" value="{{sort_order}}" /></td>
+		                <td><input class="input-radio" type="radio" name="default[]" value="{{id}}" /></td>
 		                <td class="a-left">
-		                    <input type="hidden" class="delete-flag" name="option[delete][{{id}}]" value="">
+		                    <input type="hidden" class="delete-flag" name="option[delete][{{id}}]" value="" />
 		                    <?php echo $this->getDeleteButtonHtml() ?>
 		                </td>
 		            </tr>
@@ -96,20 +96,19 @@
 <script type="text/javascript">
 var optionDefaultInputType = 'radio';
 
-
 // IE removes quotes from element.innerHTML whenever it thinks they're not needed, which breaks html.
 var templateText =
         '<tr class="option-row">'+
 <?php foreach ($this->getStores() as $_store): ?>
-            '<td><input name="option[value][{{id}}][<?php echo $_store->getId() ?>]" value="{{store<?php echo $_store->getId() ?>}}" class="input-text<?php if($_store->getId()==0): ?> required-option<?php endif; ?>" type="text"/></td>'+
+            '<td><input name="option[value][{{id}}][<?php echo $_store->getId() ?>]" value="{{store<?php echo $_store->getId() ?>}}" class="input-text<?php if($_store->getId()==0): ?> required-option<?php endif; ?>" type="text"/><\/td>'+
 <?php endforeach; ?>
-            '<td><input class="input-text" type="text" name="option[order][{{id}}]" value="{{sort_order}}"></td>'+
-            '<td class="a-center"><input class="input-radio" type="{{intype}}" name="default[]" value="{{id}}" {{checked}}></td>'+
+            '<td><input class="input-text" type="text" name="option[order][{{id}}]" value="{{sort_order}}"><\/td>'+
+            '<td class="a-center"><input class="input-radio" type="{{intype}}" name="default[]" value="{{id}}" {{checked}}><\/td>'+
             '<td class="a-left">'+
                 '<input type="hidden" class="delete-flag" name="option[delete][{{id}}]" value="">'+
                 '<?php echo $this->getDeleteButtonHtml() ?>'+
-            '</td>'+
-        '</tr>';
+            '<\/td>'+
+        '<\/tr>';
 
 var attributeOption = {
     table : $('attribute-options-table'),

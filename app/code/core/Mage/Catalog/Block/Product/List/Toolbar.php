@@ -263,10 +263,15 @@ class Mage_Catalog_Block_Product_List_Toolbar extends Mage_Page_Block_Html_Pager
     public function getLimit()
     {
         $limits = $this->getAvailableLimit();
-        if ($limit = $this->getRequest()->getParam($this->getLimitVarName())) {
-            if (isset($limits[$limit])) {
-                return $limit;
-            }
+        $limit = $this->getRequest()->getParam($this->getLimitVarName());
+
+        if ($limit && isset($limits[$limit])) {
+            Mage::getSingleton('catalog/session')->setLimitPage($limit);
+        } else {
+            $limit = Mage::getSingleton('catalog/session')->getLimitPage();
+        }
+        if (isset($limits[$limit])) {
+            return $limit;
         }
         if ($limit = $this->getDefaultPerPageValue()) {
             if (isset($limits[$limit])) {

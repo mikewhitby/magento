@@ -81,6 +81,7 @@
                  <?php endforeach ?>
                  </select>
                 </li>
+                <li class="adv-container"></li>
                </ul>
             </div>
             <script type="text/javascript">
@@ -122,7 +123,9 @@ Validation.addAllThese([
                   endposition = elm.id.indexOf('_start_year');
               }
 
-              var ccTypeContainer = $(elm.id.substr(0,endposition) + '_cc_type');
+              var prefix = elm.id.substr(0,endposition);
+
+              var ccTypeContainer = $(prefix + '_cc_type');
 
               if (!ccTypeContainer) {
                     return true;
@@ -133,13 +136,18 @@ Validation.addAllThese([
                   return true;
               }
 
-              var ccIssue = $(elm.id.substr(0,endposition) + '_cc_issue').value;
-              var ccSMonth =  $(elm.id.substr(0,endposition) + '_start_month').value;
-              var ccSYear =  $(elm.id.substr(0,endposition) + '_start_year').value;
+              $(prefix + '_cc_issue').advaiceContainer
+                = $(prefix + '_start_month').advaiceContainer
+                = $(prefix + '_start_year').advaiceContainer
+                = $(prefix + '_cc_type_ss_div').down('ul li.adv-container');
+
+              var ccIssue   =  $(prefix + '_cc_issue').value;
+              var ccSMonth  =  $(prefix + '_start_month').value;
+              var ccSYear   =  $(prefix + '_start_year').value;
 
               if((!ccIssue && !ccSMonth && !ccSYear) ||
-               (!ccIssue && !ccSMonth && ccSYear) ||
-               (!ccIssue && ccSMonth && !ccSYear)
+                 (!ccIssue && !ccSMonth && ccSYear)  ||
+                 (!ccIssue && ccSMonth && !ccSYear)
               ){
                   return false;
               }

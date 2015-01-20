@@ -44,7 +44,7 @@ class Mage_Dataflow_Model_Convert_Parser_Csv extends Mage_Dataflow_Model_Convert
         }
 
         $adapterName   = $this->getVar('adapter', null);
-        $adapterMethod = $this->getVar('method', null);
+        $adapterMethod = $this->getVar('method', 'saveRow');
 
         if (!$adapterName || !$adapterMethod) {
             $message = Mage::helper('dataflow')->__('Please declare "adapter" and "method" node first');
@@ -72,7 +72,7 @@ class Mage_Dataflow_Model_Convert_Parser_Csv extends Mage_Dataflow_Model_Convert
 
         if (Mage::app()->getRequest()->getParam('files')) {
             $file = Mage::app()->getConfig()->getTempVarDir().'/import/'
-                . Mage::app()->getRequest()->getParam('files');
+                . urldecode(Mage::app()->getRequest()->getParam('files'));
             $this->_copy($file);
         }
 
@@ -113,7 +113,8 @@ class Mage_Dataflow_Model_Convert_Parser_Csv extends Mage_Dataflow_Model_Convert
         $this->addException(Mage::helper('dataflow')->__('Found %d rows', $countRows));
         $this->addException(Mage::helper('dataflow')->__('Starting %s :: %s', $adapterName, $adapterMethod));
 
-        $batchModel->setAdapter($adapterName)
+        $batchModel->setParams($this->getVars())
+            ->setAdapter($adapterName)
             ->save();
 
         //$adapter->$adapterMethod();

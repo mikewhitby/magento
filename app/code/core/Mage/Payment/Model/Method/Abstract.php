@@ -140,6 +140,16 @@ abstract class Mage_Payment_Model_Method_Abstract extends Varien_Object
     }
 
     /**
+     * Can be edit order (renew order)
+     *
+     * @return bool
+     */
+    public function canEdit()
+    {
+        return true;
+    }
+
+    /**
      * Retrieve payment system relation flag
      *
      * @return bool
