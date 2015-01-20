@@ -204,10 +204,6 @@ class Mage_Core_Model_App
             $options = array('etc_dir'=>$options);
         }
 
-//        if ($type==='store') {
-//            $this->_currentStore = $code;
-//        }
-
         $this->_config = Mage::getConfig();
         $this->_config->init($options);
 
@@ -812,7 +808,9 @@ class Mage_Core_Model_App
             $backend = strtolower((string)Mage::getConfig()->getNode('global/cache/backend'));
             if (extension_loaded('apc') && ini_get('apc.enabled') && $backend=='apc') {
                 $backend = 'Apc';
-                $backendAttributes = array();
+                $backendAttributes = array(
+                    'cache_prefix'  => (string)Mage::getConfig()->getNode('global/cache/prefix')
+                );
             } else {
                 $backend = 'File';
                 $backendAttributes = array(
@@ -856,7 +854,6 @@ class Mage_Core_Model_App
     public function saveCache($data, $id, $tags=array(), $lifeTime=false)
     {
         $tags = $this->_getCacheTags($tags);
-#echo "TEST:"; print_r($tags);
         $this->getCache()->save((string)$data, $this->_getCacheId($id), $tags, $lifeTime);
         return $this;
     }
@@ -886,17 +883,12 @@ class Mage_Core_Model_App
                 $tags = array($tags);
             }
             $tags = $this->_getCacheTags($tags);
-
-#echo "TEST:"; print_r($tags);
             $this->getCache()->clean(Zend_Cache::CLEANING_MODE_MATCHING_TAG, $tags);
         } else {
-            $useCache = $this->useCache();
-
-            $cacheDir = Mage::getConfig()->getOptions()->getCacheDir();
+            /*$cacheDir = Mage::getConfig()->getOptions()->getCacheDir();
             mageDelTree($cacheDir);
-            mkdir($cacheDir, 0777);
-
-            $this->saveCache(serialize($useCache), 'use_cache', array(), null);
+            mkdir($cacheDir, 0777);*/
+            $this->getCache()->clean(Zend_Cache::CLEANING_MODE_ALL);
         }
         return $this;
     }
@@ -949,6 +941,7 @@ class Mage_Core_Model_App
         }
         @fwrite($fp, serialize($data));
         @fclose($fp);
+        chmod($filename, 0666);
         return $this;
     }
 

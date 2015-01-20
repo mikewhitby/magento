@@ -95,6 +95,7 @@ class Mage_Adminhtml_Block_Poll_Grid extends Mage_Adminhtml_Block_Widget_Grid
                 'index'     => 'stores',
                 'type'      => 'store',
                 'store_view' => true,
+                'sortable'   => false,
             ));
         }
 
